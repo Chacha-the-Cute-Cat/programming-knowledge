@@ -280,7 +280,7 @@
         <li><a href="#debug">第 11 步：调试技巧</a></li>
         <li><a href="#ipc">第 12 步：理解 IPC 与安全边界</a></li>
         <li><a href="#faq">第 13 步：常见问题排查</a></li>
-        <li><a href="#dist">第 14 步：打包成安装程序</a></li>
+        <li><a href="#dist">第 14 步：用 NSIS 打包成 Windows 安装程序</a></li>
         <li><a href="#next">第 15 步：接下来可以做什么</a></li>
       </ol>
     </nav>
@@ -580,11 +580,16 @@ npm install --save-dev electron</code></pre>
     </section>
 
     <section id="dist">
-      <h2><span class="step-num">14</span>打包成安装程序</h2>
-      <p>学习阶段先把应用跑起来已经足够。如果你想把它打包成一个 Windows 安装包，可以使用 <code>electron-builder</code>。</p>
-      <p>先安装打包工具：</p>
-      <pre class="code" data-label="PowerShell"><code>npm install --save-dev electron-builder</code></pre>
-      <p>然后更新 <code>package.json</code>，增加打包脚本和配置：</p>
+      <h2><span class="step-num">14</span>用 NSIS 打包成 Windows 安装程序</h2>
+      <p>NSIS 是 Windows 上最常用的安装包格式之一。<code>electron-builder</code> 默认使用 NSIS 来生成 <code>.exe</code> 安装程序，你只需要添加配置并运行打包命令。</p>
+
+      <h3>1. 安装 electron-builder</h3>
+      <p>先安装打包工具。国内网络建议同时设置 electron-builder 二进制镜像：</p>
+      <pre class="code" data-label="PowerShell"><code>$env:ELECTRON_BUILDER_BINARIES_MIRROR="https://npmmirror.com/mirrors/electron-builder-binaries/"
+npm install --save-dev electron-builder</code></pre>
+
+      <h3>2. 配置 package.json</h3>
+      <p>在 <code>package.json</code> 中增加 <code>dist:win</code> 脚本和 <code>build</code> 配置。注意保留你项目里已有的 <code>start</code> 脚本。</p>
       <pre class="code" data-label="package.json"><code>{
   "name": "hello-electron",
   "version": "1.0.0",
@@ -592,7 +597,7 @@ npm install --save-dev electron</code></pre>
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dist": "electron-builder"
+    "dist:win": "electron-builder --win nsis"
   },
   "devDependencies": {
     "electron": "^44.0.0",
@@ -601,14 +606,59 @@ npm install --save-dev electron</code></pre>
   "build": {
     "appId": "com.example.hello-electron",
     "productName": "Hello Electron",
+    "directories": {
+      "output": "dist"
+    },
     "win": {
       "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Hello Electron"
     }
   }
 }</code></pre>
-      <p>执行打包：</p>
-      <pre class="code" data-label="PowerShell"><code>npm run dist</code></pre>
-      <p>打包完成后，安装程序通常位于项目的 <code>dist</code> 目录中，是一个 <code>.exe</code> 文件。</p>
+      <div class="callout">
+        <strong>NSIS 配置说明：</strong><br>
+        <code>oneClick: false</code>：使用传统的“下一步”安装向导，而不是一键安装。<br>
+        <code>allowToChangeInstallationDirectory: true</code>：允许用户修改安装目录。<br>
+        <code>createDesktopShortcut</code> 和 <code>createStartMenuShortcut</code>：安装时创建桌面和开始菜单快捷方式。
+      </div>
+
+      <h3>3. 执行 NSIS 打包</h3>
+      <p>回到项目根目录，运行：</p>
+      <pre class="code" data-label="PowerShell"><code>npm run dist:win</code></pre>
+      <p>打包成功后，安装程序会生成在 <code>dist</code> 目录，文件名通常类似：</p>
+      <pre class="tree"><code>D:\hf\L\electron\dist
+└── Hello Electron Setup 1.0.0.exe</code></pre>
+
+      <h3>4. 测试安装与卸载</h3>
+      <ol>
+        <li>双击 <code>Hello Electron Setup 1.0.0.exe</code>。</li>
+        <li>按照安装向导选择目录并完成安装。</li>
+        <li>从桌面或开始菜单启动应用，确认功能正常。</li>
+        <li>在“设置 → 应用”或控制面板中卸载，确认卸载也正常。</li>
+      </ol>
+
+      <h3>5. 自定义安装包图标</h3>
+      <p>如果想替换默认图标，准备一个 <code>.ico</code> 文件，放到 <code>build/icon.ico</code>，然后在 <code>nsis</code> 配置中增加：</p>
+      <pre class="code" data-label="package.json"><code>"nsis": {
+  "oneClick": false,
+  "allowToChangeInstallationDirectory": true,
+  "createDesktopShortcut": true,
+  "createStartMenuShortcut": true,
+  "shortcutName": "Hello Electron",
+  "installerIcon": "build/icon.ico",
+  "uninstallerIcon": "build/icon.ico"
+}</code></pre>
+
+      <h3>6. 打包时如果 NSIS 下载慢</h3>
+      <p>打包前先设置镜像，再重新运行：</p>
+      <pre class="code" data-label="PowerShell"><code>$env:ELECTRON_BUILDER_BINARIES_MIRROR="https://npmmirror.com/mirrors/electron-builder-binaries/"
+npm run dist:win</code></pre>
     </section>
 
     <section id="next">
