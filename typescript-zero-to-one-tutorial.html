@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TypeScript 从 0 到 1 教程</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --text: #1c2942;
+      --muted: #667085;
+      --line: rgba(255, 255, 255, 0.72);
+      --card: rgba(255, 255, 255, 0.62);
+      --card-strong: rgba(255, 255, 255, 0.78);
+      --blue: #2563eb;
+      --code-bg: rgba(16, 24, 40, 0.94);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+        "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+      color: var(--text);
+      line-height: 1.72;
+      background:
+        linear-gradient(135deg, rgba(239, 246, 255, 0.88), rgba(255, 244, 248, 0.76), rgba(255, 255, 255, 0.64)),
+        radial-gradient(circle at 12% 8%, rgba(147, 197, 253, 0.42), transparent 34%),
+        radial-gradient(circle at 88% 12%, rgba(251, 207, 232, 0.40), transparent 34%),
+        radial-gradient(circle at 20% 92%, rgba(187, 247, 208, 0.38), transparent 30%),
+        radial-gradient(circle at 86% 88%, rgba(254, 240, 138, 0.30), transparent 32%);
+      background-attachment: fixed;
+    }
+
+    .page {
+      width: min(1040px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 44px 0 84px;
+    }
+
+    .glass {
+      background: var(--card);
+      border: 1px solid var(--line);
+      box-shadow: 0 20px 55px rgba(30, 41, 59, 0.10);
+      backdrop-filter: blur(20px) saturate(130%);
+      -webkit-backdrop-filter: blur(20px) saturate(130%);
+      border-radius: 26px;
+    }
+
+    .hero {
+      padding: 38px 38px 34px;
+      background: var(--card-strong);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, 0.10);
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .hero h1 {
+      margin: 0;
+      max-width: 820px;
+      font-size: clamp(34px, 5vw, 58px);
+      line-height: 1.08;
+      letter-spacing: -0.035em;
+    }
+
+    .hero p {
+      max-width: 780px;
+      margin: 20px 0 0;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .toc {
+      margin: 24px 0 0;
+      padding: 20px 24px;
+      background: rgba(255, 255, 255, 0.46);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    .toc strong {
+      display: block;
+      margin-bottom: 10px;
+      color: var(--text);
+      font-size: 14px;
+      letter-spacing: 0.02em;
+    }
+
+    .toc ol {
+      margin: 0;
+      padding-left: 24px;
+      columns: 2;
+      column-gap: 36px;
+    }
+
+    .toc a {
+      color: #35507a;
+      text-decoration: none;
+    }
+
+    .toc a:hover {
+      color: var(--blue);
+      text-decoration: underline;
+    }
+
+    section {
+      margin-top: 24px;
+      padding: 30px 34px;
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      font-size: 25px;
+      letter-spacing: -0.02em;
+    }
+
+    h3 {
+      margin: 28px 0 10px;
+      font-size: 18px;
+    }
+
+    p {
+      margin: 0 0 14px;
+      color: #33415c;
+    }
+
+    a {
+      color: var(--blue);
+    }
+
+    code {
+      font-family: "Cascadia Code", "JetBrains Mono", Consolas, "SFMono-Regular",
+        "Liberation Mono", monospace;
+      font-size: 0.92em;
+    }
+
+    code.inline {
+      padding: 3px 8px;
+      border-radius: 8px;
+      background: rgba(37, 99, 235, 0.10);
+      color: #1d4ed8;
+    }
+
+    pre {
+      margin: 18px 0 20px;
+      padding: 20px 22px;
+      overflow: auto;
+      border-radius: 18px;
+      background: var(--code-bg);
+      color: #e5edf8;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      line-height: 1.58;
+    }
+
+    pre code {
+      color: inherit;
+      background: transparent;
+    }
+
+    .note {
+      margin: 22px 0 0;
+      padding: 16px 18px;
+      border-left: 4px solid #38bdf8;
+      border-radius: 14px;
+      background: rgba(224, 242, 254, 0.55);
+      color: #1e3a5f;
+    }
+
+    .tip {
+      border-left-color: #34d399;
+      background: rgba(209, 250, 229, 0.52);
+      color: #14532d;
+    }
+
+    .danger {
+      border-left-color: #f59e0b;
+      background: rgba(254, 243, 199, 0.58);
+      color: #713f12;
+    }
+
+    .step-list {
+      margin: 0 0 18px;
+      padding-left: 24px;
+    }
+
+    .step-list li {
+      margin: 8px 0;
+      color: #33415c;
+    }
+
+    .footer {
+      margin-top: 24px;
+      padding: 22px 26px;
+      text-align: center;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.40);
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        width: min(100% - 20px, 1040px);
+        padding-top: 20px;
+      }
+
+      .hero,
+      section {
+        padding: 24px 20px;
+      }
+
+      .toc ol {
+        columns: 1;
+      }
+
+      pre {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero glass">
+      <span class="eyebrow">TypeScript · 从 0 到 1</span>
+      <h1>TypeScript 从 0 到 1 教程</h1>
+      <p>
+        这是一份面向初学者的完整中文教程。从安装、类型系统、函数、接口，到泛型、类和工程化配置，
+        跟着一步步写，就能建立对 TypeScript 的完整认知。
+      </p>
+    </header>
+
+    <nav class="toc" aria-label="目录">
+      <strong>目录</strong>
+      <ol>
+        <li><a href="#what">TypeScript 是什么</a></li>
+        <li><a href="#why">为什么使用它</a></li>
+        <li><a href="#setup">安装环境</a></li>
+        <li><a href="#hello">第一个程序</a></li>
+        <li><a href="#types">基础类型</a></li>
+        <li><a href="#inference">类型推断</a></li>
+        <li><a href="#functions">函数与类型</a></li>
+        <li><a href="#interface">interface 与 type</a></li>
+        <li><a href="#union">联合与交叉类型</a></li>
+        <li><a href="#narrowing">类型收窄</a></li>
+        <li><a href="#generics">泛型</a></li>
+        <li><a href="#classes">类与访问修饰符</a></li>
+        <li><a href="#modules">模块导入导出</a></li>
+        <li><a href="#tsconfig">tsconfig 配置</a></li>
+        <li><a href="#run">编译与运行</a></li>
+        <li><a href="#utility">常用实用类型</a></li>
+        <li><a href="#next">下一步学什么</a></li>
+      </ol>
+    </nav>
+
+    <main>
+      <section id="what" class="glass">
+        <h2>1. TypeScript 是什么</h2>
+        <p>
+          TypeScript 是 JavaScript 的超集，由微软开发。它在 JavaScript 的基础上增加了静态类型系统，
+          最后仍然会编译成普通的 JavaScript 运行。
+        </p>
+        <p>也就是说，你写的 <code class="inline">.ts</code> 文件不能直接运行，需要先经过编译器 <code class="inline">tsc</code> 转换成 <code class="inline">.js</code> 文件。</p>
+        <div class="note">
+          TypeScript 的类型只在编译阶段存在，不会进入最终的 JavaScript。类型系统的作用，是在你写代码时提前发现错误。
+        </div>
+      </section>
+
+      <section id="why" class="glass">
+        <h2>2. 为什么使用 TypeScript</h2>
+        <p>下面这段 JavaScript 在运行时才会暴露问题：</p>
+        <pre><code>const user = { name: "Ada" };
+console.log(user.age.toFixed(2));</code></pre>
+        <p>
+          如果 <code class="inline">age</code> 不存在，浏览器会报错。TypeScript 则能在编译阶段告诉你：
+        </p>
+        <pre><code>Property 'age' does not exist on type '{ name: string; }'.</code></pre>
+        <p>它能带来的好处包括：</p>
+        <ul class="step-list">
+          <li>提前发现拼写错误和类型错误</li>
+          <li>更好的编辑器和 IDE 自动补全</li>
+          <li>让函数签名更清晰，减少沟通成本</li>
+          <li>在大型项目中更容易重构和维护</li>
+        </ul>
+      </section>
+
+      <section id="setup" class="glass">
+        <h2>3. 安装环境</h2>
+        <p>先检查 Node.js 和 npm：</p>
+        <pre><code>node -v
+npm -v</code></pre>
+        <p>建议使用 Node.js 18 或更高版本。如果未安装，请前往：</p>
+        <p><a href="https://nodejs.org/">https://nodejs.org/</a></p>
+        <p>创建项目并安装 TypeScript：</p>
+        <pre><code>mkdir ts-zero-to-one
+cd ts-zero-to-one
+npm init -y
+npm install -D typescript @types/node</code></pre>
+      </section>
+
+      <section id="hello" class="glass">
+        <h2>4. 第一个 TypeScript 程序</h2>
+        <p>创建文件 <code class="inline">src/hello.ts</code>：</p>
+        <pre><code>const message: string = "Hello, TypeScript!";
+console.log(message);</code></pre>
+        <p>先用一条简单命令编译它：</p>
+        <pre><code>npx tsc src/hello.ts --outDir dist --target ES2020 --module commonjs</code></pre>
+        <p>再用 Node.js 运行编译产物：</p>
+        <pre><code>node dist/hello.js</code></pre>
+        <p>你会看到：</p>
+        <pre><code>Hello, TypeScript!</code></pre>
+        <div class="note">
+          这里的 <code class="inline">: string</code> 就是类型标注。它告诉编译器 <code class="inline">message</code> 只能是字符串。
+        </div>
+      </section>
+
+      <section id="types" class="glass">
+        <h2>5. 基础类型</h2>
+        <p>TypeScript 内置了这些常用类型：</p>
+        <pre><code>let isDone: boolean = false;
+let age: number = 18;
+let username: string = "Ada";
+
+let list: number[] = [1, 2, 3];
+let tuple: [string, number] = ["Ada", 28];
+
+let notSure: unknown = 4;
+let anything: any = "hello";
+
+function logMessage(): void {
+  console.log("没有返回值");
+}</code></pre>
+        <p>几个容易混淆的类型：</p>
+        <ul class="step-list">
+          <li><code class="inline">unknown</code>：不知道具体类型，使用前必须先收窄类型，比较安全</li>
+          <li><code class="inline">any</code>：放弃类型检查，应该尽量少用</li>
+          <li><code class="inline">void</code>：函数没有返回值</li>
+          <li><code class="inline">never</code>：永远不会有返回值，例如抛出异常或死循环</li>
+        </ul>
+      </section>
+
+      <section id="inference" class="glass">
+        <h2>6. 类型推断</h2>
+        <p>
+          大多数时候不需要手动写类型。TypeScript 会根据初始值自动推断：
+        </p>
+        <pre><code>let count = 10;        // 推断为 number
+let title = "教程";     // 推断为 string
+const items = [1, 2, 3]; // 推断为 number[]</code></pre>
+        <p>当没有初始值，或者类型不明确时，才需要显式标注：</p>
+        <pre><code>let result: number;
+result = 42;</code></pre>
+        <div class="tip">
+          先让 TypeScript 自动推断，必要时再补类型。不要为了写类型而写类型。
+        </div>
+      </section>
+
+      <section id="functions" class="glass">
+        <h2>7. 函数与类型</h2>
+        <p>参数和返回值都可以标注类型：</p>
+        <pre><code>function add(a: number, b: number): number {
+  return a + b;
+}
+
+const greet = (name: string): string =&gt; {
+  return `Hello, ${name}`;
+};</code></pre>
+        <p>可选参数使用 <code class="inline">?</code>：</p>
+        <pre><code>function introduce(name: string, age?: number): string {
+  return age ? `${name}, ${age} 岁` : name;
+}</code></pre>
+        <p>默认参数也可以写：</p>
+        <pre><code>function multiply(a: number, b = 2): number {
+  return a * b;
+}</code></pre>
+      </section>
+
+      <section id="interface" class="glass">
+        <h2>8. interface 与 type</h2>
+        <p><code class="inline">interface</code> 用来描述对象的形状：</p>
+        <pre><code>interface User {
+  id: number;
+  name: string;
+  email?: string;
+}
+
+const user: User = {
+  id: 1,
+  name: "Ada",
+};</code></pre>
+        <p><code class="inline">type</code> 可以给任何类型起别名：</p>
+        <pre><code>type ID = string | number;
+type Point = {
+  x: number;
+  y: number;
+};</code></pre>
+        <p>二者的区别：</p>
+        <ul class="step-list">
+          <li><code class="inline">interface</code> 更适合描述对象，可以被继承和合并声明</li>
+          <li><code class="inline">type</code> 更灵活，能表达联合类型、元组等</li>
+          <li>日常开发中，描述对象结构优先用 <code class="inline">interface</code>，其他复杂类型用 <code class="inline">type</code></li>
+        </ul>
+      </section>
+
+      <section id="union" class="glass">
+        <h2>9. 联合类型与交叉类型</h2>
+        <p>联合类型表示“可能是 A 或 B”：</p>
+        <pre><code>type Status = "success" | "error" | "loading";
+
+function render(status: Status): string {
+  return `当前状态：${status}`;
+}</code></pre>
+        <p>交叉类型表示“同时拥有 A 和 B 的属性”：</p>
+        <pre><code>type Named = { name: string };
+type Aged = { age: number };
+
+type Person = Named &amp; Aged;
+
+const person: Person = {
+  name: "Ada",
+  age: 28,
+};</code></pre>
+      </section>
+
+      <section id="narrowing" class="glass">
+        <h2>10. 类型收窄</h2>
+        <p>当参数是联合类型时，TypeScript 会根据判断自动缩小类型范围：</p>
+        <pre><code>function format(value: string | number): string {
+  if (typeof value === "string") {
+    return value.toUpperCase();
+  }
+
+  return value.toFixed(2);
+}</code></pre>
+        <p>处理 <code class="inline">unknown</code> 时也必须先收窄：</p>
+        <pre><code>function getLength(value: unknown): number {
+  if (typeof value === "string") {
+    return value.length;
+  }
+
+  return 0;
+}</code></pre>
+        <div class="note">
+          TypeScript 无法确定 <code class="inline">unknown</code> 的原始类型，所以不会让你直接访问它的属性。这是它与 <code class="inline">any</code> 的重要区别。
+        </div>
+      </section>
+
+      <section id="generics" class="glass">
+        <h2>11. 泛型</h2>
+        <p>泛型让函数或类型可以处理任意类型，同时保留类型信息：</p>
+        <pre><code>function first&lt;T&gt;(items: T[]): T | undefined {
+  return items[0];
+}
+
+const number = first([1, 2, 3]);       // number | undefined
+const name = first(["Ada", "Grace"]);  // string | undefined</code></pre>
+        <p>也可以用泛型约束：</p>
+        <pre><code>function getProperty&lt;T, K extends keyof T&gt;(obj: T, key: K): T[K] {
+  return obj[key];
+}
+
+const value = getProperty({ id: 1, name: "Ada" }, "name");</code></pre>
+        <p>这里的 <code class="inline">&lt;T&gt;</code> 是类型参数，<code class="inline">keyof T</code> 表示 T 的所有键。</p>
+      </section>
+
+      <section id="classes" class="glass">
+        <h2>12. 类与访问修饰符</h2>
+        <p>TypeScript 的类支持 <code class="inline">public</code>、<code class="inline">private</code>、<code class="inline">protected</code> 和 <code class="inline">readonly</code>：</p>
+        <pre><code>class Animal {
+  constructor(protected name: string) {}
+
+  speak(): string {
+    return `${this.name} makes a sound.`;
+  }
+}
+
+class Dog extends Animal {
+  speak(): string {
+    return `${this.name} barks.`;
+  }
+}
+
+const dog = new Dog("Lucky");
+console.log(dog.speak());</code></pre>
+        <p>说明：</p>
+        <ul class="step-list">
+          <li><code class="inline">public</code>：任何地方都可以访问</li>
+          <li><code class="inline">private</code>：只有当前类可以访问</li>
+          <li><code class="inline">protected</code>：当前类和子类可以访问</li>
+          <li><code class="inline">readonly</code>：只读，初始化后不能修改</li>
+        </ul>
+      </section>
+
+      <section id="modules" class="glass">
+        <h2>13. 模块导入导出</h2>
+        <p>创建 <code class="inline">src/math.ts</code>：</p>
+        <pre><code>export function add(a: number, b: number): number {
+  return a + b;
+}
+
+export const PI = 3.14159;</code></pre>
+        <p>在 <code class="inline">src/index.ts</code> 中导入：</p>
+        <pre><code>import { add, PI } from "./math";
+
+console.log(add(2, 3));
+console.log(PI);</code></pre>
+        <p>也可以使用默认导出：</p>
+        <pre><code>export default function greet(name: string): string {
+  return `Hello, ${name}`;
+}</code></pre>
+      </section>
+
+      <section id="tsconfig" class="glass">
+        <h2>14. tsconfig 配置</h2>
+        <p>生成默认配置文件：</p>
+        <pre><code>npx tsc --init</code></pre>
+        <p>替换成下面这份适合入门的配置：</p>
+        <pre><code>{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "rootDir": "src",
+    "outDir": "dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  "include": ["src"]
+}</code></pre>
+        <p>关键配置说明：</p>
+        <ul class="step-list">
+          <li><code class="inline">target</code>：编译成哪个版本的 JavaScript</li>
+          <li><code class="inline">module</code>：使用哪种模块系统</li>
+          <li><code class="inline">rootDir</code>：源码根目录</li>
+          <li><code class="inline">outDir</code>：输出目录</li>
+          <li><code class="inline">strict</code>：开启所有严格类型检查</li>
+        </ul>
+      </section>
+
+      <section id="run" class="glass">
+        <h2>15. 编译与运行</h2>
+        <p>在 <code class="inline">package.json</code> 中添加脚本：</p>
+        <pre><code>{
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  }
+}</code></pre>
+        <p>编译：</p>
+        <pre><code>npm run build</code></pre>
+        <p>运行：</p>
+        <pre><code>npm run start</code></pre>
+        <p>开发时也可以让编译器监听文件变化：</p>
+        <pre><code>npx tsc --watch</code></pre>
+        <p>只想检查类型而不生成文件：</p>
+        <pre><code>npx tsc --noEmit</code></pre>
+      </section>
+
+      <section id="utility" class="glass">
+        <h2>16. 常用实用类型</h2>
+        <p>TypeScript 提供了一批内置工具类型，可以组合出更简洁的代码：</p>
+        <pre><code>type Todo = {
+  title: string;
+  completed: boolean;
+};
+
+type TodoPatch = Partial&lt;Todo&gt;;
+type TodoTitle = Pick&lt;Todo, "title"&gt;;
+type TodoWithoutCompleted = Omit&lt;Todo, "completed"&gt;;
+type ReadonlyTodo = Readonly&lt;Todo&gt;;</code></pre>
+        <p>常用工具类型：</p>
+        <ul class="step-list">
+          <li><code class="inline">Partial&lt;T&gt;</code>：所有属性变成可选</li>
+          <li><code class="inline">Required&lt;T&gt;</code>：所有属性变成必填</li>
+          <li><code class="inline">Pick&lt;T, K&gt;</code>：只保留指定属性</li>
+          <li><code class="inline">Omit&lt;T, K&gt;</code>：移除指定属性</li>
+          <li><code class="inline">Readonly&lt;T&gt;</code>：所有属性变成只读</li>
+          <li><code class="inline">Record&lt;K, T&gt;</code>：构造一个键值对象类型</li>
+        </ul>
+      </section>
+
+      <section id="next" class="glass">
+        <h2>17. 下一步学什么</h2>
+        <p>掌握这些基础后，可以按顺序继续：</p>
+        <ul class="step-list">
+          <li>练习 <code class="inline">keyof</code>、<code class="inline">typeof</code> 和条件类型</li>
+          <li>学习声明合并和命名空间</li>
+          <li>用 <code class="inline">tsx</code> 直接运行 TypeScript 脚本</li>
+          <li>尝试在 React、Vue 或 Node.js 项目中使用 TypeScript</li>
+          <li>阅读官方文档和 <code class="inline">utility-types</code> 工具类型</li>
+        </ul>
+        <p>
+          完整资料可以参考 TypeScript 官网：
+          <a href="https://www.typescriptlang.org/">https://www.typescriptlang.org/</a>
+        </p>
+      </section>
+    </main>
+
+    <footer class="footer glass">
+      TypeScript 从 0 到 1 教程 · 现代化透明浅色主题
+    </footer>
+  </div>
+</body>
+</html>
