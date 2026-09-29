@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TypeScript 手把手教程 · 命令行到 HTML</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --text: #1c2942;
+      --muted: #667085;
+      --line: rgba(255, 255, 255, 0.72);
+      --card: rgba(255, 255, 255, 0.62);
+      --card-strong: rgba(255, 255, 255, 0.78);
+      --blue: #2563eb;
+      --code-bg: rgba(16, 24, 40, 0.94);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+        "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+      color: var(--text);
+      line-height: 1.72;
+      background:
+        linear-gradient(135deg, rgba(239, 246, 255, 0.88), rgba(255, 244, 248, 0.76), rgba(255, 255, 255, 0.64)),
+        radial-gradient(circle at 12% 8%, rgba(147, 197, 253, 0.42), transparent 34%),
+        radial-gradient(circle at 88% 12%, rgba(251, 207, 232, 0.40), transparent 34%),
+        radial-gradient(circle at 20% 92%, rgba(187, 247, 208, 0.38), transparent 30%),
+        radial-gradient(circle at 86% 88%, rgba(254, 240, 138, 0.30), transparent 32%);
+      background-attachment: fixed;
+    }
+
+    .page {
+      width: min(1040px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 44px 0 84px;
+    }
+
+    .glass {
+      background: var(--card);
+      border: 1px solid var(--line);
+      box-shadow: 0 20px 55px rgba(30, 41, 59, 0.10);
+      backdrop-filter: blur(20px) saturate(130%);
+      -webkit-backdrop-filter: blur(20px) saturate(130%);
+      border-radius: 26px;
+    }
+
+    .hero {
+      padding: 38px 38px 34px;
+      background: var(--card-strong);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, 0.10);
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .hero h1 {
+      margin: 0;
+      max-width: 780px;
+      font-size: clamp(34px, 5vw, 58px);
+      line-height: 1.08;
+      letter-spacing: -0.035em;
+    }
+
+    .hero p {
+      max-width: 760px;
+      margin: 20px 0 0;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .toc {
+      margin: 24px 0 0;
+      padding: 20px 24px;
+      background: rgba(255, 255, 255, 0.46);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    .toc strong {
+      display: block;
+      margin-bottom: 10px;
+      color: var(--text);
+      font-size: 14px;
+      letter-spacing: 0.02em;
+    }
+
+    .toc ol {
+      margin: 0;
+      padding-left: 24px;
+      columns: 2;
+      column-gap: 36px;
+    }
+
+    .toc a {
+      color: #35507a;
+      text-decoration: none;
+    }
+
+    .toc a:hover {
+      color: var(--blue);
+      text-decoration: underline;
+    }
+
+    section {
+      margin-top: 24px;
+      padding: 30px 34px;
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      font-size: 25px;
+      letter-spacing: -0.02em;
+    }
+
+    h3 {
+      margin: 28px 0 10px;
+      font-size: 18px;
+    }
+
+    p {
+      margin: 0 0 14px;
+      color: #33415c;
+    }
+
+    a {
+      color: var(--blue);
+    }
+
+    code {
+      font-family: "Cascadia Code", "JetBrains Mono", Consolas, "SFMono-Regular",
+        "Liberation Mono", monospace;
+      font-size: 0.92em;
+    }
+
+    code.inline {
+      padding: 3px 8px;
+      border-radius: 8px;
+      background: rgba(37, 99, 235, 0.10);
+      color: #1d4ed8;
+    }
+
+    pre {
+      margin: 18px 0 20px;
+      padding: 20px 22px;
+      overflow: auto;
+      border-radius: 18px;
+      background: var(--code-bg);
+      color: #e5edf8;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      line-height: 1.58;
+    }
+
+    pre code {
+      color: inherit;
+      background: transparent;
+    }
+
+    .note {
+      margin: 22px 0 0;
+      padding: 16px 18px;
+      border-left: 4px solid #38bdf8;
+      border-radius: 14px;
+      background: rgba(224, 242, 254, 0.55);
+      color: #1e3a5f;
+    }
+
+    .tip {
+      border-left-color: #34d399;
+      background: rgba(209, 250, 229, 0.52);
+      color: #14532d;
+    }
+
+    .danger {
+      border-left-color: #f59e0b;
+      background: rgba(254, 243, 199, 0.58);
+      color: #713f12;
+    }
+
+    .step-list {
+      margin: 0 0 18px;
+      padding-left: 24px;
+    }
+
+    .step-list li {
+      margin: 8px 0;
+      color: #33415c;
+    }
+
+    .footer {
+      margin-top: 24px;
+      padding: 22px 26px;
+      text-align: center;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.40);
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        width: min(100% - 20px, 1040px);
+        padding-top: 20px;
+      }
+
+      .hero,
+      section {
+        padding: 24px 20px;
+      }
+
+      .toc ol {
+        columns: 1;
+      }
+
+      pre {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero glass">
+      <span class="eyebrow">TypeScript · 命令行实战</span>
+      <h1>从零开始：用 TypeScript 在命令行生成 HTML</h1>
+      <p>
+        这是一份可以跟着敲的手把手教程。你会先理解 TypeScript 的编译流程，再写一个脚本，
+        从命令行生成一个真实的 <code class="inline">index.html</code> 文件，并用浏览器打开。
+      </p>
+    </header>
+
+    <nav class="toc" aria-label="目录">
+      <strong>目录</strong>
+      <ol>
+        <li><a href="#goal">教程目标</a></li>
+        <li><a href="#prepare">环境准备</a></li>
+        <li><a href="#init">初始化项目</a></li>
+        <li><a href="#install">安装 TypeScript</a></li>
+        <li><a href="#tsconfig">配置 tsconfig.json</a></li>
+        <li><a href="#code">编写第一段代码</a></li>
+        <li><a href="#compile">编译与运行</a></li>
+        <li><a href="#generate">生成 HTML 文件</a></li>
+        <li><a href="#browser">浏览器里运行 TypeScript</a></li>
+        <li><a href="#commands">常用命令速查</a></li>
+        <li><a href="#next">下一步学什么</a></li>
+      </ol>
+    </nav>
+
+    <main>
+      <section id="goal" class="glass">
+        <h2>1. 教程目标</h2>
+        <p>
+          学完后你会掌握：
+        </p>
+        <ul class="step-list">
+          <li>在命令行初始化一个 TypeScript 项目</li>
+          <li>理解 <code class="inline">tsconfig.json</code> 的关键配置</li>
+          <li>把 <code class="inline">.ts</code> 编译成可执行的 <code class="inline">.js</code></li>
+          <li>用 Node.js 运行编译产物</li>
+          <li>让脚本自动写出一个 <code class="inline">index.html</code> 文件</li>
+        </ul>
+        <div class="note">
+          重要概念：TypeScript 不能直接由浏览器或 Node.js 运行。它需要先由编译器
+          <code class="inline">tsc</code> 转换成 JavaScript。
+        </div>
+      </section>
+
+      <section id="prepare" class="glass">
+        <h2>2. 环境准备</h2>
+        <p>先确认已经安装 Node.js 和 npm。打开终端，运行：</p>
+        <pre><code>node -v
+npm -v</code></pre>
+        <p>建议使用 Node.js 18 或更高版本。如果没有安装，请先到官网安装 LTS 版本：</p>
+        <p><a href="https://nodejs.org/">https://nodejs.org/</a></p>
+      </section>
+
+      <section id="init" class="glass">
+        <h2>3. 初始化项目</h2>
+        <p>在你希望存放代码的位置打开终端，依次执行：</p>
+        <pre><code>mkdir ts-html-demo
+cd ts-html-demo
+npm init -y</code></pre>
+        <p>
+          这会生成一个 <code class="inline">package.json</code>，它记录项目名称、脚本和依赖。
+          后面我们会把编译命令也放进去。
+        </p>
+      </section>
+
+      <section id="install" class="glass">
+        <h2>4. 安装 TypeScript</h2>
+        <pre><code>npm install -D typescript @types/node</code></pre>
+        <p>这里的两项依赖分别是：</p>
+        <ul class="step-list">
+          <li><code class="inline">typescript</code>：TypeScript 编译器 <code class="inline">tsc</code></li>
+          <li><code class="inline">@types/node</code>：让 TypeScript 认识 Node.js 的 <code class="inline">fs</code>、<code class="inline">path</code> 等模块</li>
+        </ul>
+        <div class="note">
+          <code class="inline">-D</code> 表示安装到开发依赖。因为编译后的运行环境只需要 JavaScript，不需要 TypeScript 编译器。
+        </div>
+      </section>
+
+      <section id="tsconfig" class="glass">
+        <h2>5. 配置 tsconfig.json</h2>
+        <p>生成默认配置文件：</p>
+        <pre><code>npx tsc --init</code></pre>
+        <p>然后把它替换为下面这份精简配置：</p>
+        <pre><code>{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "rootDir": "src",
+    "outDir": "dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  "include": ["src"]
+}</code></pre>
+        <p>关键字段说明：</p>
+        <ul class="step-list">
+          <li><code class="inline">rootDir: "src"</code>：TypeScript 源码放在 <code class="inline">src</code> 目录</li>
+          <li><code class="inline">outDir: "dist"</code>：编译后的 JavaScript 输出到 <code class="inline">dist</code> 目录</li>
+          <li><code class="inline">strict: true</code>：开启严格类型检查，适合认真学类型</li>
+        </ul>
+      </section>
+
+      <section id="code" class="glass">
+        <h2>6. 编写第一段 TypeScript 代码</h2>
+        <p>先创建源码目录：</p>
+        <pre><code>mkdir src</code></pre>
+        <p>新建文件 <code class="inline">src/generate.ts</code>，写入以下内容：</p>
+        <pre><code>import { writeFileSync } from "fs";
+import { join } from "path";
+
+type Course = {
+  name: string;
+  hours: number;
+};
+
+const courses: Course[] = [
+  { name: "TypeScript 基础", hours: 4 },
+  { name: "类型与接口", hours: 3 },
+  { name: "泛型", hours: 2 },
+];
+
+function renderCourse(course: Course): string {
+  return `&lt;li&gt;${course.name}（${course.hours} 小时）&lt;/li&gt;`;
+}
+
+function buildPage(courseList: Course[]): string {
+  const items = courseList.map(renderCourse).join("\n      ");
+
+  return `&lt;!doctype html&gt;
+&lt;html lang="zh-CN"&gt;
+  &lt;head&gt;
+    &lt;meta charset="UTF-8" /&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;
+    &lt;title&gt;TypeScript 生成的页面&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;main&gt;
+      &lt;h1&gt;TypeScript 命令行生成 HTML&lt;/h1&gt;
+      &lt;p&gt;这个文件由 TypeScript 编译后的 Node.js 脚本生成。&lt;/p&gt;
+      &lt;ul&gt;
+      ${items}
+      &lt;/ul&gt;
+    &lt;/main&gt;
+  &lt;/body&gt;
+&lt;/html&gt;`;
+}
+
+const outputPath = join(__dirname, "..", "index.html");
+writeFileSync(outputPath, buildPage(courses), "utf8");
+
+console.log("已生成:", outputPath);</code></pre>
+        <div class="note">
+          这段代码用到了类型标注、类型别名、数组类型和模板字符串。它们不会进入最终的 HTML，
+          只负责在编译阶段帮你检查错误。
+        </div>
+      </section>
+
+      <section id="compile" class="glass">
+        <h2>7. 编译与运行</h2>
+        <p>先手动编译一次：</p>
+        <pre><code>npx tsc</code></pre>
+        <p>
+          编译完成后，会生成 <code class="inline">dist/generate.js</code>。
+          再用 Node.js 执行它：
+        </p>
+        <pre><code>node dist/generate.js</code></pre>
+        <p>你会看到类似输出：</p>
+        <pre><code>已生成: D:\你的路径\ts-html-demo\index.html</code></pre>
+        <p>
+          把这两步放进 <code class="inline">package.json</code>，以后一条命令完成：
+        </p>
+        <pre><code>{
+  "scripts": {
+    "build": "tsc",
+    "generate": "tsc &amp;&amp; node dist/generate.js"
+  }
+}</code></pre>
+        <p>然后运行：</p>
+        <pre><code>npm run generate</code></pre>
+      </section>
+
+      <section id="generate" class="glass">
+        <h2>8. 查看生成的 HTML 文件</h2>
+        <p>项目根目录会多出一个 <code class="inline">index.html</code>。Windows 下可以直接打开：</p>
+        <pre><code>start .\index.html</code></pre>
+        <p>macOS 下：</p>
+        <pre><code>open index.html</code></pre>
+        <p>Linux 下：</p>
+        <pre><code>xdg-open index.html</code></pre>
+        <div class="tip">
+          如果你想边改边自动编译，可以另开一个终端运行 <code class="inline">npx tsc --watch</code>。
+        </div>
+      </section>
+
+      <section id="browser" class="glass">
+        <h2>9. 在浏览器里直接运行 TypeScript</h2>
+        <p>
+          上一节是“用 TypeScript 生成 HTML 文件”。如果你更想写一个网页，让浏览器加载编译后的 JavaScript，
+          可以换成下面的做法。
+        </p>
+        <h3>编写 src/index.ts</h3>
+        <pre><code>const app = document.getElementById("app")!;
+
+function greet(name: string): string {
+  return `你好，${name}！`;
+}
+
+const h1 = document.createElement("h1");
+h1.textContent = greet("TypeScript");
+app.appendChild(h1);</code></pre>
+        <h3>编写 index.html</h3>
+        <pre><code>&lt;!doctype html&gt;
+&lt;html lang="zh-CN"&gt;
+  &lt;head&gt;
+    &lt;meta charset="UTF-8" /&gt;
+    &lt;title&gt;TypeScript 网页&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;div id="app"&gt;&lt;/div&gt;
+    &lt;script src="dist/index.js"&gt;&lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+        <p>编译后直接打开页面：</p>
+        <pre><code>npx tsc
+start .\index.html</code></pre>
+        <div class="danger">
+          如果浏览器报错说找不到 <code class="inline">dist/index.js</code>，请先确认你已经执行了
+          <code class="inline">npx tsc</code>，并且 <code class="inline">tsconfig.json</code> 里包含
+          <code class="inline">"lib": ["DOM"]</code>。
+        </div>
+      </section>
+
+      <section id="commands" class="glass">
+        <h2>10. 常用命令速查</h2>
+        <pre><code># 初始化项目
+npm init -y
+
+# 安装编译器
+npm install -D typescript @types/node
+
+# 生成默认配置
+npx tsc --init
+
+# 编译一次
+npx tsc
+
+# 只检查类型，不生成文件
+npx tsc --noEmit
+
+# 监视文件变化并自动编译
+npx tsc --watch
+
+# 编译并执行生成脚本
+npm run generate</code></pre>
+      </section>
+
+      <section id="next" class="glass">
+        <h2>11. 下一步学什么</h2>
+        <p>掌握基础后，可以按这个顺序继续：</p>
+        <ul class="step-list">
+          <li>学习 <code class="inline">interface</code> 和 <code class="inline">type</code> 的区别</li>
+          <li>理解联合类型、字面量类型和类型收窄</li>
+          <li>用泛型写出可复用的函数</li>
+          <li>了解 <code class="inline">tsconfig</code> 里的 <code class="inline">strict</code> 系列选项</li>
+          <li>尝试用 <code class="inline">tsx</code> 直接运行 TypeScript 脚本</li>
+        </ul>
+        <p>
+          完整文档可以参考 TypeScript 官方网站：
+          <a href="https://www.typescriptlang.org/">https://www.typescriptlang.org/</a>
+        </p>
+      </section>
+    </main>
+
+    <footer class="footer glass">
+      由 TypeScript 命令行教程生成 · 现代化透明浅色主题
+    </footer>
+  </div>
+</body>
+</html>
