@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>深色模式 Dark Mode - Electron 官方示例教程</title>
+  <title>深色模式 Dark Mode - Electron 原创示例教程</title>
   <style>
     :root { --bg:#f7fafc; --panel:#fff; --panel2:#eef3f8; --text:#0f172a; --muted:#526072; --line:#dbe4ee; --accent:#0284c7; --accent2:#0ea5e9; --code:#f6f8fb; --radius:14px; }
     * { box-sizing:border-box; }
@@ -13,10 +13,10 @@
     a:hover { text-decoration:underline; }
     .wrap { max-width:1000px; margin:0 auto; padding:1.6rem 1.2rem 4rem; }
     .top { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.4rem; }
-    .back { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.45rem .85rem; font-size:.9rem; }
-    .pager a { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.4rem .75rem; font-size:.88rem; }
+    .back, .pager a { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.4rem .8rem; font-size:.88rem; }
     main { background:rgba(255,255,255,.72); border:1px solid var(--line); border-radius:var(--radius); padding:2rem; box-shadow:0 18px 50px rgba(15,23,42,.06); }
     h1 { margin:0 0 .35rem; font-size:clamp(2rem,5vw,3rem); line-height:1.15; letter-spacing:-.02em; }
+    .subtitle { color:var(--accent); margin:0 0 .4rem; }
     .meta { color:var(--muted); margin:0 0 1.8rem; }
     h2 { margin:2.1rem 0 .7rem; font-size:1.45rem; }
     h3 { margin:1.6rem 0 .5rem; font-size:1.1rem; }
@@ -32,12 +32,7 @@
     .copy-btn:hover { border-color:var(--accent); color:var(--accent); }
     pre { margin:0; padding:1rem 1.1rem; overflow:auto; color:#0f172a; font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; font-size:.9rem; line-height:1.55; }
     code { font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; }
-    blockquote { border-left:4px solid #b6c5d6; background:#f7fafc; margin:1rem 0; padding:.8rem 1rem; color:#475569; }
-    img { max-width:100%; height:auto; border:1px solid var(--line); border-radius:10px; }
-    hr { border:0; border-top:1px solid var(--line); margin:2rem 0; }
-    table { border-collapse:collapse; width:100%; margin:1rem 0; background:#fff; }
-    th, td { border:1px solid var(--line); padding:.5rem .65rem; text-align:left; vertical-align:top; font-size:.9rem; }
-    th { background:#eef3f8; }
+    .verify, .notes { background:#f8fafc; border:1px solid var(--line); border-radius:var(--radius); padding:1rem 1.2rem; margin-top:1.2rem; }
     footer { color:var(--muted); font-size:.85rem; margin-top:1.4rem; text-align:center; }
     @media (max-width:640px) { main { padding:1.2rem; } .top { align-items:flex-start; } }
   </style>
@@ -49,187 +44,106 @@
       <nav class="pager"><a href="index.html">目录</a><a href="devices.html">设备访问 →</a></nav>
     </header>
     <main>
+      <p class="subtitle">使用 nativeTheme 与 CSS 媒体查询实现手动切换主题</p>
       <h1>深色模式 Dark Mode</h1>
-      <p class="meta">Electron 官方示例 · dark-mode · 第 1 / 20 个</p>
+      <p class="meta">第 1 / 20 个原创示例</p>
 
       <section>
-        <h2>手把手操作步骤</h2>
-        <div class="callout">本页面基于 Electron 官方文档整理。先在本地运行起来，再阅读下面的官方说明和代码。</div>
+        <h2>这个例子做什么</h2>
+        <p>这个例子不复制官方示例，而是从零写一个“一键切换浅色/深色”的小应用。主进程负责修改 nativeTheme，渲染进程通过 preload 暴露的安全接口调用它。</p>
+      </section>
+
+      <section>
+        <h2>操作步骤</h2>
         <div class="steps"><ol>
-          <li>打开 PowerShell，进入总目录：</li><li><pre><code>cd D:\hf\L\electron</code></pre></li><li>创建一个独立的示例项目目录并进入：</li><li><pre><code>New-Item -ItemType Directory -Path apps\dark-mode -Force
-cd apps\dark-mode</code></pre></li><li>初始化 npm 项目：</li><li><pre><code>npm init -y</code></pre></li><li>安装 Electron。国内网络可以先设置镜像再安装：</li><li><pre><code>$env:ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
-npm install --save-dev electron</code></pre></li><li>根据下方官方代码创建对应文件。大多数示例需要 <code>main.js</code> 和 <code>index.html</code>，部分还需要 <code>preload.js</code> 或 <code>renderer.js</code>。代码块已经标注用途。</li><li>确认 <code>package.json</code> 中有启动脚本，然后运行：</li><li><pre><code>npm pkg set scripts.start="electron ."
-npm start</code></pre></li><li>观察窗口效果。修改代码后退出应用，再重新执行 <code>npm start</code>。</li>
+          <li>打开 PowerShell，进入总目录：<pre><code>cd D:\hf\L\electron</code></pre></li><li>创建独立项目目录并进入：<pre><code>New-Item -ItemType Directory -Path apps\dark-mode -Force
+cd apps\dark-mode</code></pre></li><li>初始化 npm 项目：<pre><code>npm init -y</code></pre></li><li>设置主入口和启动脚本：<pre><code>npm pkg set main="main.js"
+npm pkg set scripts.start="electron ."</code></pre></li><li>安装 Electron，国内网络可先设置镜像：<pre><code>$env:ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
+npm install --save-dev electron</code></pre></li><li>按照下面“代码文件”一节创建对应文件。文件名必须一致。</li><li>回到 PowerShell 运行：<pre><code>npm start</code></pre></li>
         </ol></div>
       </section>
 
       <section>
-        <h2>官方文档与代码</h2>
-        <h2>Dark Mode</h2><h3>Overview</h3><h4>Automatically update the native interfaces</h4><p>&quot;Native interfaces&quot; include the file picker, window border, dialogs, context<br>menus, and more - anything where the UI comes from your operating system and<br>not from your app. The default behavior is to opt into this automatic theming<br>from the OS.</p><h4>Automatically update your own interfaces</h4><p>If your app has its own dark mode, you should toggle it on and off in sync with<br>the system's dark mode setting. You can do this by using the<br><code>prefers-color-scheme</code> CSS media query.</p><h4>Manually update your own interfaces</h4><p>If you want to manually switch between light/dark modes, you can do this by<br>setting the desired mode in the<br><a href="../api/native-theme.md#nativethemethemesource" target="_blank" rel="noopener">themeSource</a><br>property of the <code>nativeTheme</code> module. This property's value will be propagated<br>to your Renderer process. Any CSS rules related to <code>prefers-color-scheme</code> will<br>be updated accordingly.</p><h3>macOS settings</h3><p>In macOS 10.14 Mojave, Apple introduced a new [system-wide dark mode][system-wide-dark-mode]<br>for all macOS computers. If your Electron app has a dark mode, you can make it<br>follow the system-wide dark mode setting using<br><a href="../api/native-theme.md" target="_blank" rel="noopener">the <code>nativeTheme</code> API</a>.</p><p>In macOS 10.15 Catalina, Apple introduced a new &quot;automatic&quot; dark mode option<br>for all macOS computers. In order for the <code>nativeTheme.shouldUseDarkColors</code> and<br><code>Tray</code> APIs to work correctly in this mode on Catalina, you need to use Electron<br><code>&gt;=7.0.0</code>, or set <code>NSRequiresAquaSystemAppearance</code> to <code>false</code> in your<br><code>Info.plist</code> file for older versions. Both [Electron Packager][electron-packager]<br>and [Electron Forge][electron-forge] have a<br>[<code>darwinDarkModeSupport</code> option][packager-darwindarkmode-api]<br>to automate the <code>Info.plist</code> changes during app build time.</p><p>If you wish to opt-out while using Electron &amp;gt; 8.0.0, you must<br>set the <code>NSRequiresAquaSystemAppearance</code> key in the <code>Info.plist</code> file to<br><code>true</code>. Please note that Electron 8.0.0 and above will not let you opt-out<br>of this theming, due to the use of the macOS 10.14 SDK.</p><h3>Example</h3><p>This example demonstrates an Electron application that derives its theme colors from the<br><code>nativeTheme</code>. Additionally, it provides theme toggle and reset controls using IPC channels.</p><h4>How does this work?</h4><p>Starting with the <code>index.html</code> file:</p><div class="codebox"><div class="codebar"><span>index.html</span><button type="button" class="copy-btn">复制</button></div><pre><code>&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-&lt;head&gt;
-    &lt;meta charset=&quot;UTF-8&quot;&gt;
-    &lt;title&gt;Hello World!&lt;/title&gt;
-    &lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;script-src 'self' 'unsafe-inline';&quot; /&gt;
-    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;./styles.css&quot;&gt;
-&lt;/head&gt;
-&lt;body&gt;
-    &lt;h1&gt;Hello World!&lt;/h1&gt;
-    &lt;p&gt;Current theme source: &lt;strong id=&quot;theme-source&quot;&gt;System&lt;/strong&gt;&lt;/p&gt;
-
-    &lt;button id=&quot;toggle-dark-mode&quot;&gt;Toggle Dark Mode&lt;/button&gt;
-    &lt;button id=&quot;reset-to-system&quot;&gt;Reset to System Theme&lt;/button&gt;
-
-    &lt;script src=&quot;renderer.js&quot;&gt;&lt;/script&gt;
-&lt;/body&gt;
-&lt;/html&gt;</code></pre></div><p>And the <code>styles.css</code> file:</p><div class="codebox"><div class="codebar"><span>styles.css</span><button type="button" class="copy-btn">复制</button></div><pre><code>@media (prefers-color-scheme: dark) {
-  body { background: #333; color: white; }
-}
-
-@media (prefers-color-scheme: light) {
-  body { background: #ddd; color: black; }
-}</code></pre></div><p>The example renders an HTML page with a couple elements. The <code>&lt;strong id=&quot;theme-source&quot;&gt;</code><br> element shows which theme is currently selected, and the two <code>&lt;button&gt;</code> elements are the<br> controls. The CSS file uses the [<code>prefers-color-scheme</code>][prefers-color-scheme] media query<br> to set the <code>&lt;body&gt;</code> element background and text colors.</p><p>The <code>preload.js</code> script adds a new API to the <code>window</code> object called <code>darkMode</code>. This API<br> exposes two IPC channels to the renderer process, <code>'dark-mode:toggle'</code> and <code>'dark-mode:system'</code>.<br> It also assigns two methods, <code>toggle</code> and <code>system</code>, which pass messages from the renderer to the<br> main process.</p><div class="codebox"><div class="codebar"><span>preload.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { contextBridge, ipcRenderer } = require('electron')
-
-contextBridge.exposeInMainWorld('darkMode', {
-  toggle: () =&gt; ipcRenderer.invoke('dark-mode:toggle'),
-  system: () =&gt; ipcRenderer.invoke('dark-mode:system')
-})</code></pre></div><p>Now the renderer process can communicate with the main process securely and perform the necessary<br> mutations to the <code>nativeTheme</code> object.</p><p>The <code>renderer.js</code> file is responsible for controlling the <code>&lt;button&gt;</code> functionality.</p><div class="codebox"><div class="codebar"><span>renderer.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>document.getElementById('toggle-dark-mode').addEventListener('click', async () =&gt; {
-  const isDarkMode = await window.darkMode.toggle()
-  document.getElementById('theme-source').innerHTML = isDarkMode ? 'Dark' : 'Light'
-})
-
-document.getElementById('reset-to-system').addEventListener('click', async () =&gt; {
-  await window.darkMode.system()
-  document.getElementById('theme-source').innerHTML = 'System'
-})</code></pre></div><p>Using <code>addEventListener</code>, the <code>renderer.js</code> file adds <code>'click'</code> [event listeners][event-listeners]<br> to each button element. Each event listener handler makes calls to the respective <code>window.darkMode</code><br> API methods.</p><p>Finally, the <code>main.js</code> file represents the main process and contains the actual <code>nativeTheme</code> API.</p><div class="codebox"><div class="codebar"><span>JavaScript</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { app, BrowserWindow, ipcMain, nativeTheme } = require('electron')
-
-const path = require('node:path')
-
-const createWindow = () =&gt; {
-  const win = new BrowserWindow({
-    width: 800,
-    height: 600,
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
-    }
-  })
-
-  win.loadFile('index.html')
-
-  ipcMain.handle('dark-mode:toggle', () =&gt; {
-    if (nativeTheme.shouldUseDarkColors) {
-      nativeTheme.themeSource = 'light'
-    } else {
-      nativeTheme.themeSource = 'dark'
-    }
-    return nativeTheme.shouldUseDarkColors
-  })
-
-  ipcMain.handle('dark-mode:system', () =&gt; {
-    nativeTheme.themeSource = 'system'
-  })
-}
-
-app.whenReady().then(() =&gt; {
-  createWindow()
-
-  app.on('activate', () =&gt; {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow()
-    }
-  })
-})
-
-app.on('window-all-closed', () =&gt; {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
-})</code></pre></div><p>The <code>ipcMain.handle</code> methods are how the main process responds to the click events from the buttons<br> on the HTML page.</p><p>The <code>'dark-mode:toggle'</code> IPC channel handler method checks the <code>shouldUseDarkColors</code> boolean property,<br> sets the corresponding <code>themeSource</code>, and then returns the current <code>shouldUseDarkColors</code> property.<br> Looking back on the renderer process event listener for this IPC channel, the return value from this<br> handler is utilized to assign the correct text to the <code>&lt;strong id='theme-source'&gt;</code> element.</p><p>The <code>'dark-mode:system'</code> IPC channel handler method assigns the string <code>'system'</code> to the <code>themeSource</code><br> and returns nothing. This also corresponds with the relative renderer process event listener as the<br> method is awaited with no return value expected.</p><p>Run the example using Electron Fiddle and then click the &quot;Toggle Dark Mode&quot; button; the app should<br> start alternating between a light and dark background color.</p><p><img src="https://raw.githubusercontent.com/electron/electron/main/docs/images/dark_mode.gif" alt="Dark Mode"></p><h3>完整可运行代码：Dark Mode</h3><h4>index.html</h4><div class="codebox"><div class="codebar"><span>index.html</span><button type="button" class="copy-btn">复制</button></div><pre><code>&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-&lt;head&gt;
-    &lt;meta charset=&quot;UTF-8&quot;&gt;
-    &lt;title&gt;Hello World!&lt;/title&gt;
-    &lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;script-src 'self' 'unsafe-inline';&quot; /&gt;
-    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;./styles.css&quot;&gt;
-&lt;/head&gt;
-&lt;body&gt;
-    &lt;h1&gt;Hello World!&lt;/h1&gt;
-    &lt;p&gt;Current theme source: &lt;strong id=&quot;theme-source&quot;&gt;System&lt;/strong&gt;&lt;/p&gt;
-
-    &lt;button id=&quot;toggle-dark-mode&quot;&gt;Toggle Dark Mode&lt;/button&gt;
-    &lt;button id=&quot;reset-to-system&quot;&gt;Reset to System Theme&lt;/button&gt;
-
-    &lt;script src=&quot;renderer.js&quot;&gt;&lt;/script&gt;
-&lt;/body&gt;
-&lt;/html&gt;</code></pre></div><h4>main.js</h4><div class="codebox"><div class="codebar"><span>main.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { app, BrowserWindow, ipcMain, nativeTheme } = require('electron/main')
+        <h2>代码文件</h2>
+        <h3>main.js</h3><p>创建窗口，并注册两个 IPC 处理函数：读取当前主题和切换主题。</p><div class="codebox"><div class="codebar"><span>main.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { app, BrowserWindow, ipcMain, nativeTheme } = require('electron')
 const path = require('node:path')
 
 function createWindow () {
   const win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 720,
+    height: 480,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js')
     }
   })
-
   win.loadFile('index.html')
 }
 
-ipcMain.handle('dark-mode:toggle', () =&gt; {
-  if (nativeTheme.shouldUseDarkColors) {
-    nativeTheme.themeSource = 'light'
-  } else {
-    nativeTheme.themeSource = 'dark'
-  }
+ipcMain.handle('theme:get', () =&gt; nativeTheme.shouldUseDarkColors)
+ipcMain.handle('theme:toggle', () =&gt; {
+  nativeTheme.themeSource = nativeTheme.shouldUseDarkColors ? 'light' : 'dark'
   return nativeTheme.shouldUseDarkColors
-})
-
-ipcMain.handle('dark-mode:system', () =&gt; {
-  nativeTheme.themeSource = 'system'
 })
 
 app.whenReady().then(() =&gt; {
   createWindow()
-
   app.on('activate', () =&gt; {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow()
-    }
+    if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 })
 
 app.on('window-all-closed', () =&gt; {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
-})</code></pre></div><h4>preload.js</h4><div class="codebox"><div class="codebar"><span>preload.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { contextBridge, ipcRenderer } = require('electron/renderer')
+  if (process.platform !== 'darwin') app.quit()
+})</code></pre></div><h3>preload.js</h3><p>只把两个明确的主题方法暴露给页面，不暴露 ipcRenderer 本身。</p><div class="codebox"><div class="codebar"><span>preload.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { contextBridge, ipcRenderer } = require('electron')
 
-contextBridge.exposeInMainWorld('darkMode', {
-  toggle: () =&gt; ipcRenderer.invoke('dark-mode:toggle'),
-  system: () =&gt; ipcRenderer.invoke('dark-mode:system')
-})</code></pre></div><h4>renderer.js</h4><div class="codebox"><div class="codebar"><span>renderer.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>document.getElementById('toggle-dark-mode').addEventListener('click', async () =&gt; {
-  const isDarkMode = await window.darkMode.toggle()
-  document.getElementById('theme-source').innerHTML = isDarkMode ? 'Dark' : 'Light'
+contextBridge.exposeInMainWorld('theme', {
+  get: () =&gt; ipcRenderer.invoke('theme:get'),
+  toggle: () =&gt; ipcRenderer.invoke('theme:toggle')
+})</code></pre></div><h3>index.html</h3><p>CSS 使用 prefers-color-scheme 自动响应 nativeTheme 的变化。</p><div class="codebox"><div class="codebar"><span>index.html</span><button type="button" class="copy-btn">复制</button></div><pre><code>&lt;!doctype html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;title&gt;深色模式示例&lt;/title&gt;
+  &lt;style&gt;
+    body { font-family: system-ui, sans-serif; padding: 32px; background: #ffffff; color: #111827; }
+    @media (prefers-color-scheme: dark) {
+      body { background: #0f172a; color: #f8fafc; }
+    }
+    button { padding: 10px 16px; cursor: pointer; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;深色模式&lt;/h1&gt;
+  &lt;p&gt;点击按钮切换 nativeTheme，页面会自动响应。&lt;/p&gt;
+  &lt;button id=&quot;toggle&quot;&gt;切换主题&lt;/button&gt;
+  &lt;script src=&quot;renderer.js&quot;&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div><h3>renderer.js</h3><p>调用 preload 暴露的 API，并更新按钮文字。</p><div class="codebox"><div class="codebar"><span>renderer.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const button = document.getElementById('toggle')
+
+async function updateLabel () {
+  const dark = await window.theme.get()
+  button.textContent = dark ? '切换到浅色' : '切换到深色'
+}
+
+button.addEventListener('click', async () =&gt; {
+  await window.theme.toggle()
+  updateLabel()
 })
 
-document.getElementById('reset-to-system').addEventListener('click', async () =&gt; {
-  await window.darkMode.system()
-  document.getElementById('theme-source').innerHTML = 'System'
-})</code></pre></div><h4>styles.css</h4><div class="codebox"><div class="codebar"><span>styles.css</span><button type="button" class="copy-btn">复制</button></div><pre><code>:root {
-  color-scheme: light dark;
-}
+updateLabel()</code></pre></div>
+      </section>
 
-@media (prefers-color-scheme: dark) {
-  body { background: #333; color: white; }
-}
+      <section>
+        <h2>运行后应该看到什么</h2>
+        <div class="verify">运行后点击“切换主题”，窗口背景和文字颜色会在浅色、深色之间切换，按钮文字也会同步变化。</div>
+      </section>
 
-@media (prefers-color-scheme: light) {
-  body { background: #ddd; color: black; }
-}</code></pre></div>
+      <section>
+        <h2>补充说明</h2>
+        <div class="notes">nativeTheme.themeSource 可以设为 system、light 或 dark。使用 prefers-color-scheme 后，不需要手动给页面添加 class。</div>
       </section>
     </main>
-    <footer>Electron 官方示例教程 · 生成自 electronjs.org 文档</footer>
+    <footer>Electron 原创示例教程 · 代码由 Codex 编写生成</footer>
   </div>
   <script>
     function copyText(text) {

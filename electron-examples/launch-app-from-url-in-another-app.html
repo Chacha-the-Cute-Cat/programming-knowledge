@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>深度链接 Deep Links - Electron 官方示例教程</title>
+  <title>深度链接 Deep Links - Electron 原创示例教程</title>
   <style>
     :root { --bg:#f7fafc; --panel:#fff; --panel2:#eef3f8; --text:#0f172a; --muted:#526072; --line:#dbe4ee; --accent:#0284c7; --accent2:#0ea5e9; --code:#f6f8fb; --radius:14px; }
     * { box-sizing:border-box; }
@@ -13,10 +13,10 @@
     a:hover { text-decoration:underline; }
     .wrap { max-width:1000px; margin:0 auto; padding:1.6rem 1.2rem 4rem; }
     .top { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.4rem; }
-    .back { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.45rem .85rem; font-size:.9rem; }
-    .pager a { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.4rem .75rem; font-size:.88rem; }
+    .back, .pager a { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.4rem .8rem; font-size:.88rem; }
     main { background:rgba(255,255,255,.72); border:1px solid var(--line); border-radius:var(--radius); padding:2rem; box-shadow:0 18px 50px rgba(15,23,42,.06); }
     h1 { margin:0 0 .35rem; font-size:clamp(2rem,5vw,3rem); line-height:1.15; letter-spacing:-.02em; }
+    .subtitle { color:var(--accent); margin:0 0 .4rem; }
     .meta { color:var(--muted); margin:0 0 1.8rem; }
     h2 { margin:2.1rem 0 .7rem; font-size:1.45rem; }
     h3 { margin:1.6rem 0 .5rem; font-size:1.1rem; }
@@ -32,12 +32,7 @@
     .copy-btn:hover { border-color:var(--accent); color:var(--accent); }
     pre { margin:0; padding:1rem 1.1rem; overflow:auto; color:#0f172a; font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; font-size:.9rem; line-height:1.55; }
     code { font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; }
-    blockquote { border-left:4px solid #b6c5d6; background:#f7fafc; margin:1rem 0; padding:.8rem 1rem; color:#475569; }
-    img { max-width:100%; height:auto; border:1px solid var(--line); border-radius:10px; }
-    hr { border:0; border-top:1px solid var(--line); margin:2rem 0; }
-    table { border-collapse:collapse; width:100%; margin:1rem 0; background:#fff; }
-    th, td { border:1px solid var(--line); padding:.5rem .65rem; text-align:left; vertical-align:top; font-size:.9rem; }
-    th { background:#eef3f8; }
+    .verify, .notes { background:#f8fafc; border:1px solid var(--line); border-radius:var(--radius); padding:1rem 1.2rem; margin-top:1.2rem; }
     footer { color:var(--muted); font-size:.85rem; margin-top:1.4rem; text-align:center; }
     @media (max-width:640px) { main { padding:1.2rem; } .top { align-items:flex-start; } }
   </style>
@@ -49,276 +44,111 @@
       <nav class="pager"><a href="keyboard-shortcuts.html">← 键盘快捷键</a><a href="index.html">目录</a><a href="linux-desktop-actions.html">桌面启动器快捷操作 →</a></nav>
     </header>
     <main>
+      <p class="subtitle">让应用注册自定义协议，并从外部链接打开</p>
       <h1>深度链接 Deep Links</h1>
-      <p class="meta">Electron 官方示例 · launch-app-from-url-in-another-app · 第 5 / 20 个</p>
+      <p class="meta">第 5 / 20 个原创示例</p>
 
       <section>
-        <h2>手把手操作步骤</h2>
-        <div class="callout">本页面基于 Electron 官方文档整理。先在本地运行起来，再阅读下面的官方说明和代码。</div>
+        <h2>这个例子做什么</h2>
+        <p>这个例子从零实现 myapp:// 协议处理，并处理 Windows/Linux 的 second-instance 和 macOS 的 open-url。</p>
+      </section>
+
+      <section>
+        <h2>操作步骤</h2>
         <div class="steps"><ol>
-          <li>打开 PowerShell，进入总目录：</li><li><pre><code>cd D:\hf\L\electron</code></pre></li><li>创建一个独立的示例项目目录并进入：</li><li><pre><code>New-Item -ItemType Directory -Path apps\launch-app-from-url-in-another-app -Force
-cd apps\launch-app-from-url-in-another-app</code></pre></li><li>初始化 npm 项目：</li><li><pre><code>npm init -y</code></pre></li><li>安装 Electron。国内网络可以先设置镜像再安装：</li><li><pre><code>$env:ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
-npm install --save-dev electron</code></pre></li><li>根据下方官方代码创建对应文件。大多数示例需要 <code>main.js</code> 和 <code>index.html</code>，部分还需要 <code>preload.js</code> 或 <code>renderer.js</code>。代码块已经标注用途。</li><li>确认 <code>package.json</code> 中有启动脚本，然后运行：</li><li><pre><code>npm pkg set scripts.start="electron ."
-npm start</code></pre></li><li>观察窗口效果。修改代码后退出应用，再重新执行 <code>npm start</code>。</li>
+          <li>打开 PowerShell，进入总目录：<pre><code>cd D:\hf\L\electron</code></pre></li><li>创建独立项目目录并进入：<pre><code>New-Item -ItemType Directory -Path apps\launch-app-from-url-in-another-app -Force
+cd apps\launch-app-from-url-in-another-app</code></pre></li><li>初始化 npm 项目：<pre><code>npm init -y</code></pre></li><li>设置主入口和启动脚本：<pre><code>npm pkg set main="main.js"
+npm pkg set scripts.start="electron ."</code></pre></li><li>安装 Electron，国内网络可先设置镜像：<pre><code>$env:ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
+npm install --save-dev electron</code></pre></li><li>按照下面“代码文件”一节创建对应文件。文件名必须一致。</li><li>回到 PowerShell 运行：<pre><code>npm start</code></pre></li>
         </ol></div>
       </section>
 
       <section>
-        <h2>官方文档与代码</h2>
-        <h2>Deep Links</h2><h3>Overview</h3><p>&lt;!-- ✍ Update this section if you want to provide more details --&gt;</p><p>This guide will take you through the process of setting your Electron app as the default<br>handler for a specific <a href="../api/protocol.md" target="_blank" rel="noopener">protocol</a>.</p><p>By the end of this tutorial, we will have set our app to intercept and handle<br>any clicked URLs that start with a specific protocol. In this guide, the protocol<br>we will use will be &quot;<code>electron-fiddle://</code>&quot;.</p><h3>Examples</h3><h4>Main Process (main.js)</h4><p>First, we will import the required modules from <code>electron</code>. These modules help<br>control our application lifecycle and create a native browser window.</p><div class="codebox"><div class="codebar"><span>JavaScript</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { app, BrowserWindow, shell } = require('electron')
+        <h2>代码文件</h2>
+        <h3>main.js</h3><p>注册协议、获取单实例锁，并把收到的 URL 显示出来。</p><div class="codebox"><div class="codebar"><span>main.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { app, BrowserWindow, dialog } = require('electron')
 
-const path = require('node:path')</code></pre></div><p>Next, we will proceed to register our application to handle all &quot;<code>electron-fiddle://</code>&quot; protocols.</p><div class="codebox"><div class="codebar"><span>JavaScript</span><button type="button" class="copy-btn">复制</button></div><pre><code>if (process.defaultApp) {
-  if (process.argv.length &gt;= 2) {
-    app.setAsDefaultProtocolClient('electron-fiddle', process.execPath, [path.resolve(process.argv[1])])
-  }
-} else {
-  app.setAsDefaultProtocolClient('electron-fiddle')
-}</code></pre></div><p>On Windows, when running through the default Electron executable (for example, <code>electron .</code>),<br>registration must include the app entry path so protocol launches load the correct application.<br>Packaged apps launch their own executable and do not need these additional arguments.</p><p>We will now define the function in charge of creating our browser window and load our application's <code>index.html</code> file.</p><div class="codebox"><div class="codebar"><span>JavaScript</span><button type="button" class="copy-btn">复制</button></div><pre><code>let mainWindow
-
-const createWindow = () =&gt; {
-  // Create the browser window.
-  mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
-    }
-  })
-
-  mainWindow.loadFile('index.html')
-}</code></pre></div><p>In this next step, we will create our <code>BrowserWindow</code> and tell our application how to handle an event in which an external protocol is clicked.</p><p>This code will be different in Windows and Linux compared to macOS. This is due to both platforms emitting the <code>second-instance</code> event rather than the <code>open-url</code> event and Windows requiring additional code in order to open the contents of the protocol link within the same Electron instance. Read more about this <a href="../api/app.md#apprequestsingleinstancelockadditionaldata" target="_blank" rel="noopener">here</a>.</p><h5>Windows and Linux code:</h5><div class="codebox"><div class="codebar"><span>JavaScript</span><button type="button" class="copy-btn">复制</button></div><pre><code>const gotTheLock = app.requestSingleInstanceLock()
-
-if (!gotTheLock) {
-  app.quit()
-} else {
-  app.on('second-instance', (event, commandLine) =&gt; {
-    // Someone tried to run a second instance, we should focus our window.
-    if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore()
-      mainWindow.focus()
-    }
-    // the commandLine is array of strings in which last element is deep link url
-    dialog.showErrorBox('Welcome Back', `You arrived from: ${commandLine.pop()}`)
-  })
-
-  // Create mainWindow, load the rest of the app, etc...
-  app.whenReady().then(() =&gt; {
-    createWindow()
-    // Check for deep link on cold start
-    if (process.argv.length &gt;= 2) {
-      const lastArg = process.argv[process.argv.length - 1]
-      if (lastArg.startsWith('electron-fiddle://')) {
-        dialog.showErrorBox('Welcome Back', `You arrived from: ${lastArg}`)
-      }
-    }
-  })
-}</code></pre></div><h5>macOS code:</h5><blockquote>[!IMPORTANT]<br>Register an <code>open-url</code> listener during initial startup, before waiting for <code>ready</code> or other<br>asynchronous initialization. Listeners registered later may miss a launch URL delivered by macOS.</blockquote><div class="codebox"><div class="codebar"><span>JavaScript</span><button type="button" class="copy-btn">复制</button></div><pre><code>// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.whenReady().then(() =&gt; {
-  createWindow()
-})
-
-// Handle the protocol. In this case, we choose to show an Error Box.
-app.on('open-url', (event, url) =&gt; {
-  dialog.showErrorBox('Welcome Back', `You arrived from: ${url}`)
-})</code></pre></div><p>Finally, we will add some additional code to handle when someone closes our application.</p><div class="codebox"><div class="codebar"><span>JavaScript</span><button type="button" class="copy-btn">复制</button></div><pre><code>// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
-app.on('window-all-closed', () =&gt; {
-  if (process.platform !== 'darwin') app.quit()
-})</code></pre></div><h3>Important notes</h3><h4>Packaging</h4><p>On macOS and Linux, this feature will only work when your app is packaged. It will not work when<br>you're launching it in development from the command-line. When you package your app you'll need to<br>make sure the macOS <code>Info.plist</code> and the Linux <code>.desktop</code> files for the app are updated to include<br>the new protocol handler. Some of the Electron tools for bundling and distributing apps handle<br>this for you.</p><h5><a href="https://electronforge.io" target="_blank" rel="noopener">Electron Forge</a></h5><p>If you're using Electron Forge, adjust <code>packagerConfig</code> for macOS support, and the configuration for<br>the appropriate Linux makers for Linux support, in your <a href="https://www.electronforge.io/configuration" target="_blank" rel="noopener">Forge configuration</a><br>_(please note the following example only shows the bare minimum needed to add the configuration changes)_:</p><div class="codebox"><div class="codebar"><span>JSON</span><button type="button" class="copy-btn">复制</button></div><pre><code>{
-  &quot;config&quot;: {
-    &quot;forge&quot;: {
-      &quot;packagerConfig&quot;: {
-        &quot;protocols&quot;: [
-          {
-            &quot;name&quot;: &quot;Electron Fiddle&quot;,
-            &quot;schemes&quot;: [&quot;electron-fiddle&quot;]
-          }
-        ]
-      },
-      &quot;makers&quot;: [
-        {
-          &quot;name&quot;: &quot;@electron-forge/maker-deb&quot;,
-          &quot;config&quot;: {
-            &quot;mimeType&quot;: [&quot;x-scheme-handler/electron-fiddle&quot;]
-          }
-        }
-      ]
-    }
-  }
-}</code></pre></div><h5><a href="https://github.com/electron/packager" target="_blank" rel="noopener">Electron Packager</a></h5><p>For macOS support:</p><p>If you're using Electron Packager's API, adding support for protocol handlers is similar to how<br>Electron Forge is handled, except<br><code>protocols</code> is part of the Packager options passed to the <code>packager</code> function.</p><div class="codebox"><div class="codebar"><span>JavaScript</span><button type="button" class="copy-btn">复制</button></div><pre><code>const packager = require('@electron/packager')
-
-packager({
-  // ...other options...
-  protocols: [
-    {
-      name: 'Electron Fiddle',
-      schemes: ['electron-fiddle']
-    }
-  ]
-})
-  .then((paths) =&gt; console.log(`SUCCESS: Created ${paths.join(', ')}`))
-  .catch((err) =&gt; console.error(`ERROR: ${err.message}`))</code></pre></div><p>If you're using Electron Packager's CLI, use the <code>--protocol</code> and <code>--protocol-name</code> flags. For<br>example:</p><div class="codebox"><div class="codebar"><span>PowerShell / Bash</span><button type="button" class="copy-btn">复制</button></div><pre><code>npx electron-packager . --protocol=electron-fiddle --protocol-name=&quot;Electron Fiddle&quot;</code></pre></div><h3>Conclusion</h3><p>After you start your Electron app, you can enter in a URL in your browser that contains the custom<br>protocol, for example <code>&quot;electron-fiddle://open&quot;</code> and observe that the application will respond and<br>show an error dialog box.</p><p>&lt;!--<br>    Because Electron examples usually require multiple files (HTML, CSS, JS<br>    for the main and renderer process, etc.), we use this custom code block<br>    for Fiddle (https://www.electronjs.org/fiddle).<br>    Please modify any of the files in the referenced folder to fit your<br>    example.<br>    The content in this codeblock will not be rendered in the website so you<br>    can leave it empty.<br>--&gt;</p><p>&lt;!-- ✍ Explanation of the code below --&gt;</p><h3>完整可运行代码：Deep Links</h3><h4>index.html</h4><div class="codebox"><div class="codebar"><span>index.html</span><button type="button" class="copy-btn">复制</button></div><pre><code>&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-
-&lt;head&gt;
-  &lt;meta charset=&quot;UTF-8&quot;&gt;
-  &lt;!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP --&gt;
-  &lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;default-src 'self'; script-src 'self'&quot;&gt;
-  &lt;meta http-equiv=&quot;X-Content-Security-Policy&quot; content=&quot;default-src 'self'; script-src 'self'&quot;&gt;
-  &lt;title&gt;app.setAsDefaultProtocol Demo&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body&gt;
-  &lt;h1&gt;App Default Protocol Demo&lt;/h1&gt;
-
-  &lt;p&gt;The protocol API allows us to register a custom protocol and intercept existing protocol requests.&lt;/p&gt;
-  &lt;p&gt;These methods allow you to set and unset the protocols your app should be the default app for. Similar to when a
-    browser asks to be your default for viewing web pages.&lt;/p&gt;
-
-  &lt;p&gt;Open the &lt;a href=&quot;https://www.electronjs.org/docs/latest/api/protocol&quot;&gt;full protocol API documentation&lt;/a&gt; in your
-    browser.&lt;/p&gt;
-
-  -----
-
-  &lt;h3&gt;Demo&lt;/h3&gt;
-  &lt;p&gt;
-    First: Launch current page in browser
-    &lt;button id=&quot;open-in-browser&quot; class=&quot;js-container-target demo-toggle-button&quot;&gt;
-        Click to Launch Browser
-      &lt;/button&gt;
-  &lt;/p&gt;
-
-  &lt;p&gt;
-    Then: Launch the app from a web link!
-    &lt;a href=&quot;electron-fiddle://open&quot;&gt;Click here to launch the app&lt;/a&gt;
-  &lt;/p&gt;
-
-  ----
-
-  &lt;p&gt;You can set your app as the default app to open for a specific protocol. For instance, in this demo we set this app
-    as the default for &lt;code&gt;electron-fiddle://&lt;/code&gt;. The demo button above will launch a page in your default
-    browser with a link. Click that link and it will re-launch this app.&lt;/p&gt;
-
-
-  &lt;h3&gt;Packaging&lt;/h3&gt;
-  &lt;p&gt;This feature will only work on macOS when your app is packaged. It will not work when you're launching it in
-    development from the command-line. When you package your app you'll need to make sure the macOS &lt;code&gt;plist&lt;/code&gt;
-    for the app is updated to include the new protocol handler. If you're using &lt;code&gt;@electron/packager&lt;/code&gt; then you
-    can add the flag &lt;code&gt;--extend-info&lt;/code&gt; with a path to the &lt;code&gt;plist&lt;/code&gt; you've created. The one for this
-    app is below:&lt;/p&gt;
-
-  &lt;p&gt;
-  &lt;h5&gt;macOS plist&lt;/h5&gt;
-  &lt;pre&gt;&lt;code&gt;
-    &amp;lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&amp;gt;
-    &amp;lt;!DOCTYPE plist PUBLIC &quot;-//Apple//DTD PLIST 1.0//EN&quot; &quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;&amp;gt;
-            &amp;lt;plist version=&quot;1.0&quot;&amp;gt;
-                &amp;lt;dict&amp;gt;
-                    &amp;lt;key&amp;gt;CFBundleURLTypes&amp;lt;/key&amp;gt;
-                    &amp;lt;array&amp;gt;
-                        &amp;lt;dict&amp;gt;
-                            &amp;lt;key&amp;gt;CFBundleURLSchemes&amp;lt;/key&amp;gt;
-                            &amp;lt;array&amp;gt;
-                                &amp;lt;string&amp;gt;electron-api-demos&amp;lt;/string&amp;gt;
-                            &amp;lt;/array&amp;gt;
-                            &amp;lt;key&amp;gt;CFBundleURLName&amp;lt;/key&amp;gt;
-                            &amp;lt;string&amp;gt;Electron API Demos Protocol&amp;lt;/string&amp;gt;
-                        &amp;lt;/dict&amp;gt;
-                    &amp;lt;/array&amp;gt;
-                    &amp;lt;key&amp;gt;ElectronTeamID&amp;lt;/key&amp;gt;
-                    &amp;lt;string&amp;gt;VEKTX9H2N7&amp;lt;/string&amp;gt;
-                &amp;lt;/dict&amp;gt;
-            &amp;lt;/plist&amp;gt;
-        &lt;/code&gt;
-    &lt;/pre&gt;
-  &lt;p&gt;
-
-    &lt;!-- You can also require other files to run in this process --&gt;
-    &lt;script src=&quot;./renderer.js&quot;&gt;&lt;/script&gt;
-&lt;/body&gt;
-
-&lt;/html&gt;</code></pre></div><h4>main.js</h4><div class="codebox"><div class="codebar"><span>main.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>// Modules to control application life and create native browser window
-const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron/main')
-const path = require('node:path')
-
-let mainWindow
+let mainWindow = null
 
 if (process.defaultApp) {
   if (process.argv.length &gt;= 2) {
-    app.setAsDefaultProtocolClient('electron-fiddle', process.execPath, [path.resolve(process.argv[1])])
+    app.setAsDefaultProtocolClient('myapp', process.execPath, [process.argv[1]])
   }
 } else {
-  app.setAsDefaultProtocolClient('electron-fiddle')
+  app.setAsDefaultProtocolClient('myapp')
 }
 
-const gotTheLock = app.requestSingleInstanceLock()
+function showUrl (url) {
+  dialog.showMessageBox({ title: '收到深度链接', message: url })
+}
 
-if (!gotTheLock) {
+function findUrl (argv) {
+  return argv.find((item) =&gt; item.startsWith('myapp://'))
+}
+
+const gotLock = app.requestSingleInstanceLock()
+if (!gotLock) {
   app.quit()
 } else {
-  app.on('second-instance', (event, commandLine) =&gt; {
-    // Someone tried to run a second instance, we should focus our window.
+  app.on('second-instance', (event, argv) =&gt; {
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore()
       mainWindow.focus()
     }
-
-    dialog.showErrorBox('Welcome Back', `You arrived from: ${commandLine.pop().slice(0, -1)}`)
-  })
-
-  // Create mainWindow, load the rest of the app, etc...
-  app.whenReady().then(() =&gt; {
-    createWindow()
+    const url = findUrl(argv)
+    if (url) showUrl(url)
   })
 
   app.on('open-url', (event, url) =&gt; {
-    dialog.showErrorBox('Welcome Back', `You arrived from: ${url}`)
+    event.preventDefault()
+    showUrl(url)
   })
 }
 
 function createWindow () {
-  // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
-    }
+    width: 760,
+    height: 460
   })
-
   mainWindow.loadFile('index.html')
+  mainWindow.on('closed', () =&gt; {
+    mainWindow = null
+  })
 }
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
-app.on('window-all-closed', function () {
-  if (process.platform !== 'darwin') app.quit()
+app.whenReady().then(() =&gt; {
+  createWindow()
+  app.on('activate', () =&gt; {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+  })
 })
 
-// Handle window controls via IPC
-ipcMain.on('shell:open', () =&gt; {
-  const pageDirectory = __dirname.replace('app.asar', 'app.asar.unpacked')
-  const pagePath = path.join('file://', pageDirectory, 'index.html')
-  shell.openExternal(pagePath)
-})</code></pre></div><h4>preload.js</h4><div class="codebox"><div class="codebar"><span>preload.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { contextBridge, ipcRenderer } = require('electron/renderer')
+app.on('window-all-closed', () =&gt; {
+  if (process.platform !== 'darwin') app.quit()
+})</code></pre></div><h3>index.html</h3><p>页面提示如何测试深度链接。</p><div class="codebox"><div class="codebar"><span>index.html</span><button type="button" class="copy-btn">复制</button></div><pre><code>&lt;!doctype html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;title&gt;深度链接示例&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;深度链接&lt;/h1&gt;
+  &lt;p&gt;应用已注册 myapp:// 协议。&lt;/p&gt;
+  &lt;p&gt;可以打开浏览器地址栏，输入：myapp://hello?from=test&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+      </section>
 
-contextBridge.exposeInMainWorld('shell', {
-  open: () =&gt; ipcRenderer.send('shell:open')
-})</code></pre></div><h4>renderer.js</h4><div class="codebox"><div class="codebar"><span>renderer.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>// This file is required by the index.html file and will
-// be executed in the renderer process for that window.
-// All APIs exposed by the context bridge are available here.
+      <section>
+        <h2>运行后应该看到什么</h2>
+        <div class="verify">运行后，在浏览器或“运行”中打开 myapp://hello，应用会弹出对话框显示收到的 URL。</div>
+      </section>
 
-// Binds the buttons to the context bridge API.
-document.getElementById('open-in-browser').addEventListener('click', () =&gt; {
-  window.shell.open()
-})</code></pre></div>
+      <section>
+        <h2>补充说明</h2>
+        <div class="notes">Windows/Linux 使用 second-instance 事件，macOS 使用 open-url 事件。打包后的应用通常无需额外参数。</div>
       </section>
     </main>
-    <footer>Electron 官方示例教程 · 生成自 electronjs.org 文档</footer>
+    <footer>Electron 原创示例教程 · 代码由 Codex 编写生成</footer>
   </div>
   <script>
     function copyText(text) {

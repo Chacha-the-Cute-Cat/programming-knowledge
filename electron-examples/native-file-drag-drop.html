@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>原生文件拖 &amp; 放 Native File Drag &amp; Drop - Electron 官方示例教程</title>
+  <title>原生文件拖 &amp; 放 Native File Drag &amp; Drop - Electron 原创示例教程</title>
   <style>
     :root { --bg:#f7fafc; --panel:#fff; --panel2:#eef3f8; --text:#0f172a; --muted:#526072; --line:#dbe4ee; --accent:#0284c7; --accent2:#0ea5e9; --code:#f6f8fb; --radius:14px; }
     * { box-sizing:border-box; }
@@ -13,10 +13,10 @@
     a:hover { text-decoration:underline; }
     .wrap { max-width:1000px; margin:0 auto; padding:1.6rem 1.2rem 4rem; }
     .top { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.4rem; }
-    .back { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.45rem .85rem; font-size:.9rem; }
-    .pager a { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.4rem .75rem; font-size:.88rem; }
+    .back, .pager a { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.4rem .8rem; font-size:.88rem; }
     main { background:rgba(255,255,255,.72); border:1px solid var(--line); border-radius:var(--radius); padding:2rem; box-shadow:0 18px 50px rgba(15,23,42,.06); }
     h1 { margin:0 0 .35rem; font-size:clamp(2rem,5vw,3rem); line-height:1.15; letter-spacing:-.02em; }
+    .subtitle { color:var(--accent); margin:0 0 .4rem; }
     .meta { color:var(--muted); margin:0 0 1.8rem; }
     h2 { margin:2.1rem 0 .7rem; font-size:1.45rem; }
     h3 { margin:1.6rem 0 .5rem; font-size:1.1rem; }
@@ -32,12 +32,7 @@
     .copy-btn:hover { border-color:var(--accent); color:var(--accent); }
     pre { margin:0; padding:1rem 1.1rem; overflow:auto; color:#0f172a; font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; font-size:.9rem; line-height:1.55; }
     code { font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; }
-    blockquote { border-left:4px solid #b6c5d6; background:#f7fafc; margin:1rem 0; padding:.8rem 1rem; color:#475569; }
-    img { max-width:100%; height:auto; border:1px solid var(--line); border-radius:10px; }
-    hr { border:0; border-top:1px solid var(--line); margin:2rem 0; }
-    table { border-collapse:collapse; width:100%; margin:1rem 0; background:#fff; }
-    th, td { border:1px solid var(--line); padding:.5rem .65rem; text-align:left; vertical-align:top; font-size:.9rem; }
-    th { background:#eef3f8; }
+    .verify, .notes { background:#f8fafc; border:1px solid var(--line); border-radius:var(--radius); padding:1rem 1.2rem; margin-top:1.2rem; }
     footer { color:var(--muted); font-size:.85rem; margin-top:1.4rem; text-align:center; }
     @media (max-width:640px) { main { padding:1.2rem; } .top { align-items:flex-start; } }
   </style>
@@ -49,81 +44,92 @@
       <nav class="pager"><a href="multithreading.html">← 多线程</a><a href="index.html">目录</a><a href="navigation-history.html">导航历史 →</a></nav>
     </header>
     <main>
+      <p class="subtitle">从窗口拖出一个动态生成的文件到系统</p>
       <h1>原生文件拖 &amp; 放 Native File Drag &amp; Drop</h1>
-      <p class="meta">Electron 官方示例 · native-file-drag-drop · 第 9 / 20 个</p>
+      <p class="meta">第 9 / 20 个原创示例</p>
 
       <section>
-        <h2>手把手操作步骤</h2>
-        <div class="callout">本页面基于 Electron 官方文档整理。先在本地运行起来，再阅读下面的官方说明和代码。</div>
+        <h2>这个例子做什么</h2>
+        <p>这是自己编写的拖拽示例：页面元素被拖出窗口时，主进程动态创建文件并调用 webContents.startDrag。</p>
+      </section>
+
+      <section>
+        <h2>操作步骤</h2>
         <div class="steps"><ol>
-          <li>打开 PowerShell，进入总目录：</li><li><pre><code>cd D:\hf\L\electron</code></pre></li><li>创建一个独立的示例项目目录并进入：</li><li><pre><code>New-Item -ItemType Directory -Path apps\native-file-drag-drop -Force
-cd apps\native-file-drag-drop</code></pre></li><li>初始化 npm 项目：</li><li><pre><code>npm init -y</code></pre></li><li>安装 Electron。国内网络可以先设置镜像再安装：</li><li><pre><code>$env:ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
-npm install --save-dev electron</code></pre></li><li>根据下方官方代码创建对应文件。大多数示例需要 <code>main.js</code> 和 <code>index.html</code>，部分还需要 <code>preload.js</code> 或 <code>renderer.js</code>。代码块已经标注用途。</li><li>确认 <code>package.json</code> 中有启动脚本，然后运行：</li><li><pre><code>npm pkg set scripts.start="electron ."
-npm start</code></pre></li><li>观察窗口效果。修改代码后退出应用，再重新执行 <code>npm start</code>。</li>
+          <li>打开 PowerShell，进入总目录：<pre><code>cd D:\hf\L\electron</code></pre></li><li>创建独立项目目录并进入：<pre><code>New-Item -ItemType Directory -Path apps\native-file-drag-drop -Force
+cd apps\native-file-drag-drop</code></pre></li><li>初始化 npm 项目：<pre><code>npm init -y</code></pre></li><li>设置主入口和启动脚本：<pre><code>npm pkg set main="main.js"
+npm pkg set scripts.start="electron ."</code></pre></li><li>安装 Electron，国内网络可先设置镜像：<pre><code>$env:ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
+npm install --save-dev electron</code></pre></li><li>按照下面“代码文件”一节创建对应文件。文件名必须一致。</li><li>回到 PowerShell 运行：<pre><code>npm start</code></pre></li>
         </ol></div>
       </section>
 
       <section>
-        <h2>官方文档与代码</h2>
-        <h2>Native File Drag &amp; Drop</h2><h3>Overview</h3><p>Certain kinds of applications that manipulate files might want to support<br>the operating system's native file drag &amp; drop feature. Dragging files into<br>web content is common and supported by many websites. Electron additionally<br>supports dragging files and content out from web content into the operating<br>system's world.</p><p>To implement this feature in your app, you need to call the<br><a href="../api/web-contents.md#contentsstartdragitem" target="_blank" rel="noopener"><code>webContents.startDrag(item)</code></a><br>API in response to the <code>ondragstart</code> event.</p><h3>Example</h3><p>An example demonstrating how you can create a file on the fly to be dragged out of the window.</p><h4>Preload.js</h4><p>In <code>preload.js</code> use the <code><code>contextBridge</code></code> to inject a method <code>window.electron.startDrag(...)</code> that will send an IPC message to the main process.</p><div class="codebox"><div class="codebar"><span>JavaScript</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { contextBridge, ipcRenderer } = require('electron')
-
-contextBridge.exposeInMainWorld('electron', {
-  startDrag: (fileName) =&gt; ipcRenderer.send('ondragstart', fileName)
-})</code></pre></div><h4>Index.html</h4><p>Add a draggable element to <code>index.html</code>, and reference your renderer script:</p><div class="codebox"><div class="codebar"><span>HTML</span><button type="button" class="copy-btn">复制</button></div><pre><code>&lt;div style=&quot;border:2px solid black;border-radius:3px;padding:5px;display:inline-block&quot; draggable=&quot;true&quot; id=&quot;drag&quot;&gt;Drag me&lt;/div&gt;
-&lt;script src=&quot;renderer.js&quot;&gt;&lt;/script&gt;</code></pre></div><h4>Renderer.js</h4><p>In <code>renderer.js</code> set up the renderer process to handle drag events by calling the method you added via the <code><code>contextBridge</code></code> above.</p><div class="codebox"><div class="codebar"><span>JavaScript</span><button type="button" class="copy-btn">复制</button></div><pre><code>document.getElementById('drag').ondragstart = (event) =&gt; {
-  event.preventDefault()
-  window.electron.startDrag('drag-and-drop.md')
-}</code></pre></div><h4>Main.js</h4><p>In the Main process (<code>main.js</code> file), expand the received event with a path to the file that is<br>being dragged and an icon:</p><div class="codebox"><div class="codebar"><span>Electron Fiddle 完整示例</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { app, BrowserWindow, ipcMain } = require('electron/main')
+        <h2>代码文件</h2>
+        <h3>main.js</h3><p>接收拖拽事件，创建临时文件后调用 startDrag。</p><div class="codebox"><div class="codebar"><span>main.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('node:path')
 const fs = require('node:fs')
-const https = require('node:https')
 
 function createWindow () {
   const win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 640,
+    height: 420,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js')
     }
   })
-
   win.loadFile('index.html')
 }
 
-const iconName = path.join(__dirname, 'iconForDragAndDrop.png')
-const icon = fs.createWriteStream(iconName)
-
-// Create a new file to copy - you can also copy existing files.
-fs.writeFileSync(path.join(__dirname, 'drag-and-drop-1.md'), '# First file to test drag and drop')
-fs.writeFileSync(path.join(__dirname, 'drag-and-drop-2.md'), '# Second file to test drag and drop')
-
-https.get('https://img.icons8.com/ios/452/drag-and-drop.png', (response) =&gt; {
-  response.pipe(icon)
+ipcMain.on('drag:start', (event, fileName) =&gt; {
+  const filePath = path.join(app.getPath('temp'), fileName)
+  fs.writeFileSync(filePath, '这是从 Electron 窗口拖出来的文件。')
+  event.sender.startDrag({ file: filePath })
 })
 
-app.whenReady().then(createWindow)
-
-ipcMain.on('ondragstart', (event, filePath) =&gt; {
-  event.sender.startDrag({
-    file: path.join(__dirname, filePath),
-    icon: iconName
+app.whenReady().then(() =&gt; {
+  createWindow()
+  app.on('activate', () =&gt; {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 })
 
 app.on('window-all-closed', () =&gt; {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
-})
+  if (process.platform !== 'darwin') app.quit()
+})</code></pre></div><h3>preload.js</h3><p>暴露 startDrag 方法。</p><div class="codebox"><div class="codebar"><span>preload.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { contextBridge, ipcRenderer } = require('electron')
 
-app.on('activate', () =&gt; {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow()
-  }
-})</code></pre></div><p>After launching the Electron application, try dragging and dropping<br>the item from the BrowserWindow onto your desktop. In this guide,<br>the item is a Markdown file located in the root of the project:</p><p><img src="https://raw.githubusercontent.com/electron/electron/main/docs/images/drag-and-drop.gif" alt="Drag and drop"></p><h3>Dragging files into your app</h3><p>You can use the standard<br><a href="https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API" target="_blank" rel="noopener">Drag and Drop web API</a><br>for dragging and dropping files into your app.</p>
+contextBridge.exposeInMainWorld('drag', {
+  start: (fileName) =&gt; ipcRenderer.send('drag:start', fileName)
+})</code></pre></div><h3>index.html</h3><p>给一个元素设置 draggable，并加载 renderer.js。</p><div class="codebox"><div class="codebar"><span>index.html</span><button type="button" class="copy-btn">复制</button></div><pre><code>&lt;!doctype html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;title&gt;原生文件拖放&lt;/title&gt;
+  &lt;style&gt;
+    #drag { display: inline-block; padding: 20px; border: 2px dashed #0284c7; border-radius: 10px; user-select: none; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;把下面的方块拖到桌面或文件夹&lt;/h1&gt;
+  &lt;div id=&quot;drag&quot; draggable=&quot;true&quot;&gt;拖我出去&lt;/div&gt;
+  &lt;script src=&quot;renderer.js&quot;&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div><h3>renderer.js</h3><p>在 ondragstart 中调用 preload 暴露的方法。</p><div class="codebox"><div class="codebar"><span>renderer.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>document.getElementById('drag').ondragstart = (event) =&gt; {
+  event.preventDefault()
+  window.drag.start('dragged-from-electron.txt')
+}</code></pre></div>
+      </section>
+
+      <section>
+        <h2>运行后应该看到什么</h2>
+        <div class="verify">运行后把方块拖到桌面或文件夹，会生成一个 dragged-from-electron.txt 文件。</div>
+      </section>
+
+      <section>
+        <h2>补充说明</h2>
+        <div class="notes">startDrag 中的 file 必须指向真实存在的本地文件。</div>
       </section>
     </main>
-    <footer>Electron 官方示例教程 · 生成自 electronjs.org 文档</footer>
+    <footer>Electron 原创示例教程 · 代码由 Codex 编写生成</footer>
   </div>
   <script>
     function copyText(text) {

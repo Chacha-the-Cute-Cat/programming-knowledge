@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>自定义窗口 Window Customization - Electron 官方示例教程</title>
+  <title>自定义窗口 Window Customization - Electron 原创示例教程</title>
   <style>
     :root { --bg:#f7fafc; --panel:#fff; --panel2:#eef3f8; --text:#0f172a; --muted:#526072; --line:#dbe4ee; --accent:#0284c7; --accent2:#0ea5e9; --code:#f6f8fb; --radius:14px; }
     * { box-sizing:border-box; }
@@ -13,10 +13,10 @@
     a:hover { text-decoration:underline; }
     .wrap { max-width:1000px; margin:0 auto; padding:1.6rem 1.2rem 4rem; }
     .top { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.4rem; }
-    .back { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.45rem .85rem; font-size:.9rem; }
-    .pager a { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.4rem .75rem; font-size:.88rem; }
+    .back, .pager a { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.4rem .8rem; font-size:.88rem; }
     main { background:rgba(255,255,255,.72); border:1px solid var(--line); border-radius:var(--radius); padding:2rem; box-shadow:0 18px 50px rgba(15,23,42,.06); }
     h1 { margin:0 0 .35rem; font-size:clamp(2rem,5vw,3rem); line-height:1.15; letter-spacing:-.02em; }
+    .subtitle { color:var(--accent); margin:0 0 .4rem; }
     .meta { color:var(--muted); margin:0 0 1.8rem; }
     h2 { margin:2.1rem 0 .7rem; font-size:1.45rem; }
     h3 { margin:1.6rem 0 .5rem; font-size:1.1rem; }
@@ -32,12 +32,7 @@
     .copy-btn:hover { border-color:var(--accent); color:var(--accent); }
     pre { margin:0; padding:1rem 1.1rem; overflow:auto; color:#0f172a; font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; font-size:.9rem; line-height:1.55; }
     code { font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; }
-    blockquote { border-left:4px solid #b6c5d6; background:#f7fafc; margin:1rem 0; padding:.8rem 1rem; color:#475569; }
-    img { max-width:100%; height:auto; border:1px solid var(--line); border-radius:10px; }
-    hr { border:0; border-top:1px solid var(--line); margin:2rem 0; }
-    table { border-collapse:collapse; width:100%; margin:1rem 0; background:#fff; }
-    th, td { border:1px solid var(--line); padding:.5rem .65rem; text-align:left; vertical-align:top; font-size:.9rem; }
-    th { background:#eef3f8; }
+    .verify, .notes { background:#f8fafc; border:1px solid var(--line); border-radius:var(--radius); padding:1rem 1.2rem; margin-top:1.2rem; }
     footer { color:var(--muted); font-size:.85rem; margin-top:1.4rem; text-align:center; }
     @media (max-width:640px) { main { padding:1.2rem; } .top { align-items:flex-start; } }
   </style>
@@ -49,69 +44,106 @@
       <nav class="pager"><a href="windows-taskbar.html">← 任务栏自定义</a><a href="index.html">目录</a></nav>
     </header>
     <main>
+      <p class="subtitle">创建无边框、透明并支持拖拽的自定义窗口</p>
       <h1>自定义窗口 Window Customization</h1>
-      <p class="meta">Electron 官方示例 · window-customization · 第 20 / 20 个</p>
+      <p class="meta">第 20 / 20 个原创示例</p>
 
       <section>
-        <h2>手把手操作步骤</h2>
-        <div class="callout">本页面基于 Electron 官方文档整理。先在本地运行起来，再阅读下面的官方说明和代码。</div>
+        <h2>这个例子做什么</h2>
+        <p>这是自己编写的窗口自定义示例，实现 frameless、transparent、拖拽区域和窗口控制按钮。</p>
+      </section>
+
+      <section>
+        <h2>操作步骤</h2>
         <div class="steps"><ol>
-          <li>打开 PowerShell，进入总目录：</li><li><pre><code>cd D:\hf\L\electron</code></pre></li><li>创建一个独立的示例项目目录并进入：</li><li><pre><code>New-Item -ItemType Directory -Path apps\window-customization -Force
-cd apps\window-customization</code></pre></li><li>初始化 npm 项目：</li><li><pre><code>npm init -y</code></pre></li><li>安装 Electron。国内网络可以先设置镜像再安装：</li><li><pre><code>$env:ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
-npm install --save-dev electron</code></pre></li><li>根据下方官方代码创建对应文件。大多数示例需要 <code>main.js</code> 和 <code>index.html</code>，部分还需要 <code>preload.js</code> 或 <code>renderer.js</code>。代码块已经标注用途。</li><li>确认 <code>package.json</code> 中有启动脚本，然后运行：</li><li><pre><code>npm pkg set scripts.start="electron ."
-npm start</code></pre></li><li>观察窗口效果。修改代码后退出应用，再重新执行 <code>npm start</code>。</li>
+          <li>打开 PowerShell，进入总目录：<pre><code>cd D:\hf\L\electron</code></pre></li><li>创建独立项目目录并进入：<pre><code>New-Item -ItemType Directory -Path apps\window-customization -Force
+cd apps\window-customization</code></pre></li><li>初始化 npm 项目：<pre><code>npm init -y</code></pre></li><li>设置主入口和启动脚本：<pre><code>npm pkg set main="main.js"
+npm pkg set scripts.start="electron ."</code></pre></li><li>安装 Electron，国内网络可先设置镜像：<pre><code>$env:ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
+npm install --save-dev electron</code></pre></li><li>按照下面“代码文件”一节创建对应文件。文件名必须一致。</li><li>回到 PowerShell 运行：<pre><code>npm start</code></pre></li>
         </ol></div>
       </section>
 
       <section>
-        <h2>官方文档与代码</h2>
-        <p>import DocCardList from '@theme/DocCardList';</p><h2>Window Customization</h2><p>The <code><code>BrowserWindow</code></code> module is the foundation of your Electron application, and<br>it exposes many APIs that let you customize the look and behavior of your app’s windows.<br>This section covers how to implement various use cases for window customization on macOS,<br>Windows, and Linux.</p><blockquote>[!NOTE]<br><code>BrowserWindow</code> is a subclass of the <code><code>BaseWindow</code></code> module. Both modules allow<br>you to create and manage application windows in Electron, with the main difference<br>being that <code>BrowserWindow</code> supports a single, full size web view while <code>BaseWindow</code><br>supports composing many web views. <code>BaseWindow</code> can be used interchangeably with <code>BrowserWindow</code><br>in the examples of the documents in this section.</blockquote><p>&lt;DocCardList /&gt;</p><h3>完整示例：自定义 BrowserWindow 窗口</h3><p>这个示例创建一个无边框、透明背景、不可调整大小、始终置顶的窗口。</p><h4>main.js</h4><div class="codebox"><div class="codebar"><span>main.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { app, BrowserWindow } = require('electron/main')
+        <h2>代码文件</h2>
+        <h3>main.js</h3><p>创建无边框透明窗口，并处理最小化、最大化和关闭。</p><div class="codebox"><div class="codebar"><span>main.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('node:path')
 
 function createWindow () {
   const win = new BrowserWindow({
     width: 800,
-    height: 600,
+    height: 520,
     frame: false,
     transparent: true,
-    resizable: false,
-    alwaysOnTop: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js')
     }
   })
-
   win.loadFile('index.html')
+  return win
 }
 
 app.whenReady().then(() =&gt; {
-  createWindow()
-
-  app.on('activate', () =&gt; {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+  const win = createWindow()
+  ipcMain.on('window:minimize', () =&gt; win.minimize())
+  ipcMain.on('window:maximize', () =&gt; {
+    if (win.isMaximized()) win.unmaximize()
+    else win.maximize()
   })
+  ipcMain.on('window:close', () =&gt; win.close())
 })
 
 app.on('window-all-closed', () =&gt; {
   if (process.platform !== 'darwin') app.quit()
-})</code></pre></div><h4>index.html</h4><div class="codebox"><div class="codebar"><span>index.html</span><button type="button" class="copy-btn">复制</button></div><pre><code>&lt;!doctype html&gt;
+})</code></pre></div><h3>preload.js</h3><p>暴露窗口控制方法。</p><div class="codebox"><div class="codebar"><span>preload.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { contextBridge, ipcRenderer } = require('electron')
+
+contextBridge.exposeInMainWorld('windowControls', {
+  minimize: () =&gt; ipcRenderer.send('window:minimize'),
+  maximize: () =&gt; ipcRenderer.send('window:maximize'),
+  close: () =&gt; ipcRenderer.send('window:close')
+})</code></pre></div><h3>index.html</h3><p>拖拽区域使用 -webkit-app-region，按钮使用 no-drag。</p><div class="codebox"><div class="codebar"><span>index.html</span><button type="button" class="copy-btn">复制</button></div><pre><code>&lt;!doctype html&gt;
 &lt;html lang=&quot;zh-CN&quot;&gt;
-  &lt;head&gt;
-    &lt;meta charset=&quot;UTF-8&quot;&gt;
-    &lt;title&gt;自定义窗口&lt;/title&gt;
-    &lt;style&gt;
-      body { background: rgba(15, 23, 42, 0.75); color: white; font-family: system-ui, sans-serif; }
-      .bar { -webkit-app-region: drag; padding: 16px; }
-    &lt;/style&gt;
-  &lt;/head&gt;
-  &lt;body&gt;
-    &lt;div class=&quot;bar&quot;&gt;拖拽这里可以移动窗口&lt;/div&gt;
-    &lt;p&gt;这是一个 frameless + transparent 窗口。&lt;/p&gt;
-  &lt;/body&gt;
-&lt;/html&gt;</code></pre></div>
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;title&gt;自定义窗口示例&lt;/title&gt;
+  &lt;style&gt;
+    html, body { margin: 0; height: 100%; background: transparent; }
+    body { display: grid; place-items: center; font-family: system-ui, sans-serif; }
+    .window { width: 90%; height: 85%; border-radius: 18px; background: rgba(15, 23, 42, 0.88); color: white; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+    .titlebar { display: flex; justify-content: space-between; align-items: center; padding: 12px 18px; -webkit-app-region: drag; }
+    .controls button { -webkit-app-region: no-drag; margin-left: 6px; }
+    .content { padding: 20px; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div class=&quot;window&quot;&gt;
+    &lt;div class=&quot;titlebar&quot;&gt;
+      &lt;strong&gt;自定义窗口&lt;/strong&gt;
+      &lt;div class=&quot;controls&quot;&gt;
+        &lt;button id=&quot;min&quot;&gt;最小化&lt;/button&gt;
+        &lt;button id=&quot;max&quot;&gt;最大化&lt;/button&gt;
+        &lt;button id=&quot;close&quot;&gt;关闭&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;content&quot;&gt;拖拽顶部标题栏可以移动窗口。&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;script src=&quot;renderer.js&quot;&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div><h3>renderer.js</h3><p>给三个按钮绑定窗口控制方法。</p><div class="codebox"><div class="codebar"><span>renderer.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>document.getElementById('min').addEventListener('click', () =&gt; window.windowControls.minimize())
+document.getElementById('max').addEventListener('click', () =&gt; window.windowControls.maximize())
+document.getElementById('close').addEventListener('click', () =&gt; window.windowControls.close())</code></pre></div>
+      </section>
+
+      <section>
+        <h2>运行后应该看到什么</h2>
+        <div class="verify">运行后显示无边框半透明窗口，顶部标题栏可以拖拽，三个按钮分别控制最小化、最大化和关闭。</div>
+      </section>
+
+      <section>
+        <h2>补充说明</h2>
+        <div class="notes">transparent 在部分 Linux 环境中可能无效。拖拽区域上的交互元素需要设置 -webkit-app-region: no-drag。</div>
       </section>
     </main>
-    <footer>Electron 官方示例教程 · 生成自 electronjs.org 文档</footer>
+    <footer>Electron 原创示例教程 · 代码由 Codex 编写生成</footer>
   </div>
   <script>
     function copyText(text) {

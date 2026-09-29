@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>在线/离线事件探测 Online/Offline Events - Electron 官方示例教程</title>
+  <title>在线/离线事件探测 Online/Offline Events - Electron 原创示例教程</title>
   <style>
     :root { --bg:#f7fafc; --panel:#fff; --panel2:#eef3f8; --text:#0f172a; --muted:#526072; --line:#dbe4ee; --accent:#0284c7; --accent2:#0ea5e9; --code:#f6f8fb; --radius:14px; }
     * { box-sizing:border-box; }
@@ -13,10 +13,10 @@
     a:hover { text-decoration:underline; }
     .wrap { max-width:1000px; margin:0 auto; padding:1.6rem 1.2rem 4rem; }
     .top { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.4rem; }
-    .back { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.45rem .85rem; font-size:.9rem; }
-    .pager a { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.4rem .75rem; font-size:.88rem; }
+    .back, .pager a { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.4rem .8rem; font-size:.88rem; }
     main { background:rgba(255,255,255,.72); border:1px solid var(--line); border-radius:var(--radius); padding:2rem; box-shadow:0 18px 50px rgba(15,23,42,.06); }
     h1 { margin:0 0 .35rem; font-size:clamp(2rem,5vw,3rem); line-height:1.15; letter-spacing:-.02em; }
+    .subtitle { color:var(--accent); margin:0 0 .4rem; }
     .meta { color:var(--muted); margin:0 0 1.8rem; }
     h2 { margin:2.1rem 0 .7rem; font-size:1.45rem; }
     h3 { margin:1.6rem 0 .5rem; font-size:1.1rem; }
@@ -32,12 +32,7 @@
     .copy-btn:hover { border-color:var(--accent); color:var(--accent); }
     pre { margin:0; padding:1rem 1.1rem; overflow:auto; color:#0f172a; font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; font-size:.9rem; line-height:1.55; }
     code { font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; }
-    blockquote { border-left:4px solid #b6c5d6; background:#f7fafc; margin:1rem 0; padding:.8rem 1rem; color:#475569; }
-    img { max-width:100%; height:auto; border:1px solid var(--line); border-radius:10px; }
-    hr { border:0; border-top:1px solid var(--line); margin:2rem 0; }
-    table { border-collapse:collapse; width:100%; margin:1rem 0; background:#fff; }
-    th, td { border:1px solid var(--line); padding:.5rem .65rem; text-align:left; vertical-align:top; font-size:.9rem; }
-    th { background:#eef3f8; }
+    .verify, .notes { background:#f8fafc; border:1px solid var(--line); border-radius:var(--radius); padding:1rem 1.2rem; margin-top:1.2rem; }
     footer { color:var(--muted); font-size:.85rem; margin-top:1.4rem; text-align:center; }
     @media (max-width:640px) { main { padding:1.2rem; } .top { align-items:flex-start; } }
   </style>
@@ -49,73 +44,87 @@
       <nav class="pager"><a href="offscreen-rendering.html">← 离屏渲染</a><a href="index.html">目录</a><a href="progress-bar.html">进度条 →</a></nav>
     </header>
     <main>
+      <p class="subtitle">监听网络状态变化并显示当前状态</p>
       <h1>在线/离线事件探测 Online/Offline Events</h1>
-      <p class="meta">Electron 官方示例 · online-offline-events · 第 13 / 20 个</p>
+      <p class="meta">第 13 / 20 个原创示例</p>
 
       <section>
-        <h2>手把手操作步骤</h2>
-        <div class="callout">本页面基于 Electron 官方文档整理。先在本地运行起来，再阅读下面的官方说明和代码。</div>
+        <h2>这个例子做什么</h2>
+        <p>这是自己编写的网络状态示例，使用渲染进程的 online 和 offline 事件。</p>
+      </section>
+
+      <section>
+        <h2>操作步骤</h2>
         <div class="steps"><ol>
-          <li>打开 PowerShell，进入总目录：</li><li><pre><code>cd D:\hf\L\electron</code></pre></li><li>创建一个独立的示例项目目录并进入：</li><li><pre><code>New-Item -ItemType Directory -Path apps\online-offline-events -Force
-cd apps\online-offline-events</code></pre></li><li>初始化 npm 项目：</li><li><pre><code>npm init -y</code></pre></li><li>安装 Electron。国内网络可以先设置镜像再安装：</li><li><pre><code>$env:ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
-npm install --save-dev electron</code></pre></li><li>根据下方官方代码创建对应文件。大多数示例需要 <code>main.js</code> 和 <code>index.html</code>，部分还需要 <code>preload.js</code> 或 <code>renderer.js</code>。代码块已经标注用途。</li><li>确认 <code>package.json</code> 中有启动脚本，然后运行：</li><li><pre><code>npm pkg set scripts.start="electron ."
-npm start</code></pre></li><li>观察窗口效果。修改代码后退出应用，再重新执行 <code>npm start</code>。</li>
+          <li>打开 PowerShell，进入总目录：<pre><code>cd D:\hf\L\electron</code></pre></li><li>创建独立项目目录并进入：<pre><code>New-Item -ItemType Directory -Path apps\online-offline-events -Force
+cd apps\online-offline-events</code></pre></li><li>初始化 npm 项目：<pre><code>npm init -y</code></pre></li><li>设置主入口和启动脚本：<pre><code>npm pkg set main="main.js"
+npm pkg set scripts.start="electron ."</code></pre></li><li>安装 Electron，国内网络可先设置镜像：<pre><code>$env:ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
+npm install --save-dev electron</code></pre></li><li>按照下面“代码文件”一节创建对应文件。文件名必须一致。</li><li>回到 PowerShell 运行：<pre><code>npm start</code></pre></li>
         </ol></div>
       </section>
 
       <section>
-        <h2>官方文档与代码</h2>
-        <h2>Online/Offline Event Detection</h2><h3>Overview</h3><p>Online and offline event detection can be implemented in both the main and renderer processes:</p><ul><li><strong>Renderer process</strong>: Use the <a href="http://html5index.org/Offline%20-%20NavigatorOnLine.html" target="_blank" rel="noopener"><code>navigator.onLine</code></a> attribute and <a href="https://developer.mozilla.org/en-US/docs/Online_and_offline_events" target="_blank" rel="noopener">online/offline events</a>, part of standard HTML5 API.</li><li><strong>Main process</strong>: Use the <a href="../api/net.md#netisonline" target="_blank" rel="noopener"><code>net.isOnline()</code></a> method or the <a href="../api/net.md#netonline-readonly" target="_blank" rel="noopener"><code>net.online</code></a> property.</li></ul><p>The <code>navigator.onLine</code> attribute returns:</p><ul><li><code>false</code> if all network requests are guaranteed to fail (e.g. when disconnected from the network).</li><li><code>true</code> in all other cases.</li></ul><p>Since many cases return <code>true</code>, you should treat with care situations of<br>getting false positives, as we cannot always assume that <code>true</code> value means<br>that Electron can access the Internet. For example, in cases when the computer<br>is running a virtualization software that has virtual Ethernet adapters in &quot;always<br>connected&quot; state. Therefore, if you want to determine the Internet access<br>status of Electron, you should develop additional means for this check.</p><h3>Main Process Detection</h3><p>In the main process, you can use the <code>net</code> module to detect online/offline status:</p><div class="codebox"><div class="codebar"><span>JavaScript</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { net } = require('electron')
+        <h2>代码文件</h2>
+        <h3>main.js</h3><p>创建普通窗口即可。</p><div class="codebox"><div class="codebar"><span>main.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { app, BrowserWindow } = require('electron')
 
-// Method 1: Using net.isOnline()
-const isOnline = net.isOnline()
-console.log('Online status:', isOnline)
-
-// Method 2: Using net.online property
-console.log('Online status:', net.online)</code></pre></div><p>Both <code>net.isOnline()</code> and <code>net.online</code> return the same boolean value with the same reliability characteristics as <code>navigator.onLine</code> - they provide a strong indicator when offline (<code>false</code>), but a <code>true</code> value doesn't guarantee successful internet connectivity.</p><blockquote>[!NOTE]<br>The <code>net</code> module is only available after the app emits the <code>ready</code> event.</blockquote><h3>Renderer Process Example</h3><p>Starting with an HTML file <code>index.html</code>, this example will demonstrate how the <code>navigator.onLine</code> API can be used to build a connection status indicator.</p><div class="codebox"><div class="codebar"><span>index.html</span><button type="button" class="copy-btn">复制</button></div><pre><code>&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-&lt;head&gt;
-    &lt;meta charset=&quot;UTF-8&quot;&gt;
-    &lt;title&gt;Hello World!&lt;/title&gt;
-    &lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;script-src 'self' 'unsafe-inline';&quot; /&gt;
-&lt;/head&gt;
-&lt;body&gt;
-    &lt;h1&gt;Connection status: &lt;strong id='status'&gt;&lt;/strong&gt;&lt;/h1&gt;
-    &lt;script src=&quot;renderer.js&quot;&gt;&lt;/script&gt;
-&lt;/body&gt;
-&lt;/html&gt;</code></pre></div><p>In order to mutate the DOM, create a <code>renderer.js</code> file that adds event listeners to the <code>'online'</code> and <code>'offline'</code> <code>window</code> events. The event handler sets the content of the <code>&lt;strong id='status'&gt;</code> element depending on the result of <code>navigator.onLine</code>.</p><div class="codebox"><div class="codebar"><span>renderer.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const updateOnlineStatus = () =&gt; {
-  document.getElementById('status').innerHTML = navigator.onLine ? 'online' : 'offline'
-}
-
-window.addEventListener('online', updateOnlineStatus)
-window.addEventListener('offline', updateOnlineStatus)
-
-updateOnlineStatus()</code></pre></div><p>Finally, create a <code>main.js</code> file for main process that creates the window.</p><div class="codebox"><div class="codebar"><span>main.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { app, BrowserWindow } = require('electron')
-
-const createWindow = () =&gt; {
-  const onlineStatusWindow = new BrowserWindow()
-
-  onlineStatusWindow.loadFile('index.html')
+function createWindow () {
+  const win = new BrowserWindow({
+    width: 640,
+    height: 400
+  })
+  win.loadFile('index.html')
 }
 
 app.whenReady().then(() =&gt; {
   createWindow()
-
   app.on('activate', () =&gt; {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow()
-    }
+    if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 })
 
 app.on('window-all-closed', () =&gt; {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
-})</code></pre></div><p>After launching the Electron application, you should see the notification:</p><p><img src="https://raw.githubusercontent.com/electron/electron/main/docs/images/connection-status.png" alt="Connection status"></p><blockquote>[!NOTE]<br>If you need to check the connection status in the main process, you can use <a href="../api/net.md#netisonline" target="_blank" rel="noopener"><code>net.isOnline()</code></a> directly instead of communicating from the renderer process via <a href="../api/ipc-renderer.md" target="_blank" rel="noopener">IPC</a>.</blockquote>
+  if (process.platform !== 'darwin') app.quit()
+})</code></pre></div><h3>index.html</h3><p>用一个明显的大色块显示网络状态。</p><div class="codebox"><div class="codebar"><span>index.html</span><button type="button" class="copy-btn">复制</button></div><pre><code>&lt;!doctype html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;title&gt;在线/离线事件&lt;/title&gt;
+  &lt;style&gt;
+    body { font-family: system-ui, sans-serif; padding: 32px; }
+    #status { display: inline-block; padding: 10px 18px; border-radius: 999px; color: white; }
+    .online { background: #16a34a; }
+    .offline { background: #dc2626; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;网络状态&lt;/h1&gt;
+  &lt;p&gt;当前状态：&lt;span id=&quot;status&quot;&gt;检测中...&lt;/span&gt;&lt;/p&gt;
+  &lt;script src=&quot;renderer.js&quot;&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div><h3>renderer.js</h3><p>监听 online 和 offline 事件。</p><div class="codebox"><div class="codebar"><span>renderer.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const status = document.getElementById('status')
+
+function update () {
+  const online = navigator.onLine
+  status.textContent = online ? '在线' : '离线'
+  status.className = online ? 'online' : 'offline'
+}
+
+window.addEventListener('online', update)
+window.addEventListener('offline', update)
+update()</code></pre></div>
+      </section>
+
+      <section>
+        <h2>运行后应该看到什么</h2>
+        <div class="verify">运行后显示“在线”。可以临时断开网络或切换飞行模式，状态会变成“离线”；恢复网络后会变回“在线”。</div>
+      </section>
+
+      <section>
+        <h2>补充说明</h2>
+        <div class="notes">navigator.onLine 主要反映系统网络连接状态，不一定能保证目标网站可达。</div>
       </section>
     </main>
-    <footer>Electron 官方示例教程 · 生成自 electronjs.org 文档</footer>
+    <footer>Electron 原创示例教程 · 代码由 Codex 编写生成</footer>
   </div>
   <script>
     function copyText(text) {

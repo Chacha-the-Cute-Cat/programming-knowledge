@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>任务栏自定义 Windows Taskbar - Electron 官方示例教程</title>
+  <title>任务栏自定义 Windows Taskbar - Electron 原创示例教程</title>
   <style>
     :root { --bg:#f7fafc; --panel:#fff; --panel2:#eef3f8; --text:#0f172a; --muted:#526072; --line:#dbe4ee; --accent:#0284c7; --accent2:#0ea5e9; --code:#f6f8fb; --radius:14px; }
     * { box-sizing:border-box; }
@@ -13,10 +13,10 @@
     a:hover { text-decoration:underline; }
     .wrap { max-width:1000px; margin:0 auto; padding:1.6rem 1.2rem 4rem; }
     .top { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.4rem; }
-    .back { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.45rem .85rem; font-size:.9rem; }
-    .pager a { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.4rem .75rem; font-size:.88rem; }
+    .back, .pager a { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.4rem .8rem; font-size:.88rem; }
     main { background:rgba(255,255,255,.72); border:1px solid var(--line); border-radius:var(--radius); padding:2rem; box-shadow:0 18px 50px rgba(15,23,42,.06); }
     h1 { margin:0 0 .35rem; font-size:clamp(2rem,5vw,3rem); line-height:1.15; letter-spacing:-.02em; }
+    .subtitle { color:var(--accent); margin:0 0 .4rem; }
     .meta { color:var(--muted); margin:0 0 1.8rem; }
     h2 { margin:2.1rem 0 .7rem; font-size:1.45rem; }
     h3 { margin:1.6rem 0 .5rem; font-size:1.1rem; }
@@ -32,12 +32,7 @@
     .copy-btn:hover { border-color:var(--accent); color:var(--accent); }
     pre { margin:0; padding:1rem 1.1rem; overflow:auto; color:#0f172a; font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; font-size:.9rem; line-height:1.55; }
     code { font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; }
-    blockquote { border-left:4px solid #b6c5d6; background:#f7fafc; margin:1rem 0; padding:.8rem 1rem; color:#475569; }
-    img { max-width:100%; height:auto; border:1px solid var(--line); border-radius:10px; }
-    hr { border:0; border-top:1px solid var(--line); margin:2rem 0; }
-    table { border-collapse:collapse; width:100%; margin:1rem 0; background:#fff; }
-    th, td { border:1px solid var(--line); padding:.5rem .65rem; text-align:left; vertical-align:top; font-size:.9rem; }
-    th { background:#eef3f8; }
+    .verify, .notes { background:#f8fafc; border:1px solid var(--line); border-radius:var(--radius); padding:1rem 1.2rem; margin-top:1.2rem; }
     footer { color:var(--muted); font-size:.85rem; margin-top:1.4rem; text-align:center; }
     @media (max-width:640px) { main { padding:1.2rem; } .top { align-items:flex-start; } }
   </style>
@@ -49,73 +44,84 @@
       <nav class="pager"><a href="web-embeds.html">← Web</a><a href="index.html">目录</a><a href="window-customization.html">自定义窗口 →</a></nav>
     </header>
     <main>
+      <p class="subtitle">设置 JumpList、窗口闪烁和进度条</p>
       <h1>任务栏自定义 Windows Taskbar</h1>
-      <p class="meta">Electron 官方示例 · windows-taskbar · 第 19 / 20 个</p>
+      <p class="meta">第 19 / 20 个原创示例</p>
 
       <section>
-        <h2>手把手操作步骤</h2>
-        <div class="callout">本页面基于 Electron 官方文档整理。先在本地运行起来，再阅读下面的官方说明和代码。</div>
+        <h2>这个例子做什么</h2>
+        <p>这是自己编写的 Windows 任务栏示例，演示用户任务、闪烁提示和进度显示。</p>
+      </section>
+
+      <section>
+        <h2>操作步骤</h2>
         <div class="steps"><ol>
-          <li>打开 PowerShell，进入总目录：</li><li><pre><code>cd D:\hf\L\electron</code></pre></li><li>创建一个独立的示例项目目录并进入：</li><li><pre><code>New-Item -ItemType Directory -Path apps\windows-taskbar -Force
-cd apps\windows-taskbar</code></pre></li><li>初始化 npm 项目：</li><li><pre><code>npm init -y</code></pre></li><li>安装 Electron。国内网络可以先设置镜像再安装：</li><li><pre><code>$env:ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
-npm install --save-dev electron</code></pre></li><li>根据下方官方代码创建对应文件。大多数示例需要 <code>main.js</code> 和 <code>index.html</code>，部分还需要 <code>preload.js</code> 或 <code>renderer.js</code>。代码块已经标注用途。</li><li>确认 <code>package.json</code> 中有启动脚本，然后运行：</li><li><pre><code>npm pkg set scripts.start="electron ."
-npm start</code></pre></li><li>观察窗口效果。修改代码后退出应用，再重新执行 <code>npm start</code>。</li>
+          <li>打开 PowerShell，进入总目录：<pre><code>cd D:\hf\L\electron</code></pre></li><li>创建独立项目目录并进入：<pre><code>New-Item -ItemType Directory -Path apps\windows-taskbar -Force
+cd apps\windows-taskbar</code></pre></li><li>初始化 npm 项目：<pre><code>npm init -y</code></pre></li><li>设置主入口和启动脚本：<pre><code>npm pkg set main="main.js"
+npm pkg set scripts.start="electron ."</code></pre></li><li>安装 Electron，国内网络可先设置镜像：<pre><code>$env:ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
+npm install --save-dev electron</code></pre></li><li>按照下面“代码文件”一节创建对应文件。文件名必须一致。</li><li>回到 PowerShell 运行：<pre><code>npm start</code></pre></li>
         </ol></div>
       </section>
 
       <section>
-        <h2>官方文档与代码</h2>
-        <h2>Taskbar Customization</h2><h3>Overview</h3><p>Electron has APIs to configure the app's icon in the Windows taskbar. This API<br>supports both Windows-only features like <a href="#jumplist" target="_blank" rel="noopener">creation of a <code>JumpList</code></a>,<br><a href="#thumbnail-toolbars" target="_blank" rel="noopener">custom thumbnails and toolbars</a>,<br><a href="#icon-overlays-in-taskbar" target="_blank" rel="noopener">icon overlays</a>, and the so-called<br><a href="#flash-frame" target="_blank" rel="noopener">&quot;Flash Frame&quot; effect</a>, and cross-platform features<br>like [recent documents][recent-documents] and<br>[application progress][progress-bar].</p><h3>JumpList</h3><p>Windows allows apps to define a custom context menu that shows up when users<br>right-click the app's icon in the taskbar. That context menu is called<br><code>JumpList</code>. You specify custom actions in the <code>Tasks</code> category of JumpList,<br>as quoted from [MSDN][msdn-jumplist]:</p><blockquote>Applications define tasks based on both the program's features and the key<br>things a user is expected to do with them. Tasks should be context-free, in<br>that the application does not need to be running for them to work. They<br>should also be the statistically most common actions that a normal user would<br>perform in an application, such as compose an email message or open the<br>calendar in a mail program, create a new document in a word processor, launch<br>an application in a certain mode, or launch one of its subcommands. An<br>application should not clutter the menu with advanced features that standard<br>users won't need or one-time actions such as registration. Do not use tasks<br>for promotional items such as upgrades or special offers.<br><br>It is strongly recommended that the task list be static. It should remain the<br>same regardless of the state or status of the application. While it is<br>possible to vary the list dynamically, you should consider that this could<br>confuse the user who does not expect that portion of the destination list to<br>change.</blockquote><p><img src="https://raw.githubusercontent.com/electron/electron/main/docs/images/windows-taskbar-jumplist.png" alt="Taskbar JumpList"></p><blockquote>NOTE: The screenshot above is an example of general tasks for Microsoft Edge</blockquote><p>Unlike the dock menu in macOS which is a real menu, user tasks in Windows work<br>like application shortcuts. For example, when a user clicks a task, the program<br>will be executed with specified arguments.</p><p>To set user tasks for your application, you can use<br>[app.setUserTasks][setusertaskstasks] API.</p><h5>Examples</h5><h6>Set user tasks</h6><p>Starting with a working application from the<br>[tutorial starter code][tutorial-starter-code], update the <code>main.js</code> file with the<br>following lines:</p><div class="codebox"><div class="codebar"><span>JavaScript</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { app } = require('electron')
+        <h2>代码文件</h2>
+        <h3>main.js</h3><p>使用 app.setUserTasks、win.flashFrame 和 win.setProgressBar。</p><div class="codebox"><div class="codebar"><span>main.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { app, BrowserWindow } = require('electron')
 
-app.setUserTasks([
-  {
-    program: process.execPath,
-    arguments: '--new-window',
-    iconPath: process.execPath,
-    iconIndex: 0,
-    title: 'New Window',
-    description: 'Create a new window'
-  }
-])</code></pre></div><h6>Clear tasks list</h6><p>To clear your tasks list, you need to call <code>app.setUserTasks</code> with an empty<br>array in the <code>main.js</code> file.</p><div class="codebox"><div class="codebar"><span>JavaScript</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { app } = require('electron')
+function createWindow () {
+  const win = new BrowserWindow({
+    width: 720,
+    height: 420
+  })
+  win.loadFile('index.html')
 
-app.setUserTasks([])</code></pre></div><blockquote>NOTE: The user tasks will still be displayed even after closing your</blockquote><p>application, so the icon and program path specified for a task should exist until your application is uninstalled.</p><h4>Thumbnail Toolbars</h4><p>On Windows, you can add a thumbnail toolbar with specified buttons to a taskbar<br>layout of an application window. It provides users with a way to access a<br>particular window's command without restoring or activating the window.</p><p>As quoted from [MSDN][msdn-thumbnail]:</p><blockquote>This toolbar is the familiar standard toolbar common control. It has a<br>maximum of seven buttons. Each button's ID, image, tooltip, and state are defined<br>in a structure, which is then passed to the taskbar. The application can show,<br>enable, disable, or hide buttons from the thumbnail toolbar as required by its<br>current state.<br><br>For example, Windows Media Player might offer standard media transport controls<br>such as play, pause, mute, and stop.</blockquote><p><img src="https://raw.githubusercontent.com/electron/electron/main/docs/images/windows-taskbar-thumbnail-toolbar.png" alt="Thumbnail toolbar"></p><blockquote>NOTE: The screenshot above is an example of thumbnail toolbar of Windows</blockquote><p>Media Player</p><p>To set thumbnail toolbar in your application, you need to use<br>[BrowserWindow.setThumbarButtons][setthumbarbuttons]</p><h5>Examples</h5><h6>Set thumbnail toolbar</h6><p>Starting with a working application from the<br>[tutorial starter code][tutorial-starter-code], update the <code>main.js</code> file with the<br>following lines:</p><div class="codebox"><div class="codebar"><span>JavaScript</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { BrowserWindow, nativeImage } = require('electron')
-
-const path = require('node:path')
-
-const win = new BrowserWindow()
-
-win.setThumbarButtons([
-  {
-    tooltip: 'button1',
-    icon: nativeImage.createFromPath(path.join(__dirname, 'button1.png')),
-    click() {
-      console.log('button1 clicked')
+  app.setUserTasks([
+    {
+      program: process.execPath,
+      arguments: '--new-window',
+      title: '新建窗口',
+      description: '打开一个新的应用窗口'
     }
-  },
-  {
-    tooltip: 'button2',
-    icon: nativeImage.createFromPath(path.join(__dirname, 'button2.png')),
-    flags: ['enabled', 'dismissonclick'],
-    click() {
-      console.log('button2 clicked.')
-    }
-  }
-])</code></pre></div><h6>Clear thumbnail toolbar</h6><p>To clear thumbnail toolbar buttons, you need to call<br><code>BrowserWindow.setThumbarButtons</code> with an empty array in the <code>main.js</code> file.</p><div class="codebox"><div class="codebar"><span>JavaScript</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { BrowserWindow } = require('electron')
+  ])
 
-const win = new BrowserWindow()
-win.setThumbarButtons([])</code></pre></div><h4>Icon Overlays in Taskbar</h4><p>On Windows, a taskbar button can use a small overlay to display application<br>status.</p><p>As quoted from [MSDN][msdn-icon-overlay]:</p><blockquote>Icon overlays serve as a contextual notification of status, and are intended<br>to negate the need for a separate notification area status icon to communicate<br>that information to the user. For instance, the new mail status in Microsoft<br>Outlook, currently shown in the notification area, can now be indicated<br>through an overlay on the taskbar button. Again, you must decide during your<br>development cycle which method is best for your application. Overlay icons are<br>intended to supply important, long-standing status or notifications such as<br>network status, messenger status, or new mail. The user should not be<br>presented with constantly changing overlays or animations.</blockquote><p><img src="https://raw.githubusercontent.com/electron/electron/main/docs/images/windows-taskbar-icon-overlay.png" alt="Overlay on taskbar button"></p><blockquote>NOTE: The screenshot above is an example of overlay on a taskbar button</blockquote><p>To set the overlay icon for a window, you need to use the<br>[BrowserWindow.setOverlayIcon][setoverlayicon] API.</p><h5>Example</h5><p>Starting with a working application from the<br>[tutorial starter code][tutorial-starter-code], update the <code>main.js</code> file with the<br>following lines:</p><div class="codebox"><div class="codebar"><span>JavaScript</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { BrowserWindow, nativeImage } = require('electron')
+  win.setProgressBar(0.65)
+  win.flashFrame(true)
+  setTimeout(() =&gt; win.flashFrame(false), 3000)
+}
 
-const win = new BrowserWindow()
+app.whenReady().then(() =&gt; {
+  createWindow()
+  app.on('activate', () =&gt; {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+  })
+})
 
-win.setOverlayIcon(nativeImage.createFromPath('path/to/overlay.png'), 'Description for overlay')</code></pre></div><h4>Flash Frame</h4><p>On Windows, you can highlight the taskbar button to get the user's attention.<br>This is similar to bouncing the dock icon in macOS.</p><p>As quoted from [MSDN][msdn-flash-frame]:</p><blockquote>Typically, a window is flashed to inform the user that the window requires<br>attention but that it does not currently have the keyboard focus.</blockquote><p>To flash the BrowserWindow taskbar button, you need to use the<br>[BrowserWindow.flashFrame][flashframe] API.</p><h5>Example</h5><p>Starting with a working application from the<br>[tutorial starter code][tutorial-starter-code], update the <code>main.js</code> file with the<br>following lines:</p><div class="codebox"><div class="codebar"><span>JavaScript</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { BrowserWindow } = require('electron')
+app.on('window-all-closed', () =&gt; {
+  if (process.platform !== 'darwin') app.quit()
+})</code></pre></div><h3>index.html</h3><p>页面提示任务栏效果。</p><div class="codebox"><div class="codebar"><span>index.html</span><button type="button" class="copy-btn">复制</button></div><pre><code>&lt;!doctype html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;title&gt;Windows 任务栏示例&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Windows 任务栏&lt;/h1&gt;
+  &lt;p&gt;任务栏按钮会显示 65% 进度，并闪烁约 3 秒。&lt;/p&gt;
+  &lt;p&gt;右键任务栏图标可以看到“新建窗口”快捷任务。&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+      </section>
 
-const win = new BrowserWindow()
+      <section>
+        <h2>运行后应该看到什么</h2>
+        <div class="verify">运行后观察任务栏按钮：有进度、会闪烁，右键图标会出现“新建窗口”。</div>
+      </section>
 
-win.once('focus', () =&gt; win.flashFrame(false))
-win.flashFrame(true)</code></pre></div><blockquote>NOTE: Don't forget to call <code>win.flashFrame(false)</code> to turn off the flash.</blockquote><p>In the above example, it is called when the window comes into focus,<br>but you might use a timeout or some other event to disable it.</p>
+      <section>
+        <h2>补充说明</h2>
+        <div class="notes">这些功能主要针对 Windows。JumpList 任务需要应用保持运行或正确注册。</div>
       </section>
     </main>
-    <footer>Electron 官方示例教程 · 生成自 electronjs.org 文档</footer>
+    <footer>Electron 原创示例教程 · 代码由 Codex 编写生成</footer>
   </div>
   <script>
     function copyText(text) {

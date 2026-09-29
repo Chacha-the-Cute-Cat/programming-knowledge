@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>进度条 Progress Bar - Electron 官方示例教程</title>
+  <title>进度条 Progress Bar - Electron 原创示例教程</title>
   <style>
     :root { --bg:#f7fafc; --panel:#fff; --panel2:#eef3f8; --text:#0f172a; --muted:#526072; --line:#dbe4ee; --accent:#0284c7; --accent2:#0ea5e9; --code:#f6f8fb; --radius:14px; }
     * { box-sizing:border-box; }
@@ -13,10 +13,10 @@
     a:hover { text-decoration:underline; }
     .wrap { max-width:1000px; margin:0 auto; padding:1.6rem 1.2rem 4rem; }
     .top { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.4rem; }
-    .back { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.45rem .85rem; font-size:.9rem; }
-    .pager a { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.4rem .75rem; font-size:.88rem; }
+    .back, .pager a { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.4rem .8rem; font-size:.88rem; }
     main { background:rgba(255,255,255,.72); border:1px solid var(--line); border-radius:var(--radius); padding:2rem; box-shadow:0 18px 50px rgba(15,23,42,.06); }
     h1 { margin:0 0 .35rem; font-size:clamp(2rem,5vw,3rem); line-height:1.15; letter-spacing:-.02em; }
+    .subtitle { color:var(--accent); margin:0 0 .4rem; }
     .meta { color:var(--muted); margin:0 0 1.8rem; }
     h2 { margin:2.1rem 0 .7rem; font-size:1.45rem; }
     h3 { margin:1.6rem 0 .5rem; font-size:1.1rem; }
@@ -32,12 +32,7 @@
     .copy-btn:hover { border-color:var(--accent); color:var(--accent); }
     pre { margin:0; padding:1rem 1.1rem; overflow:auto; color:#0f172a; font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; font-size:.9rem; line-height:1.55; }
     code { font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; }
-    blockquote { border-left:4px solid #b6c5d6; background:#f7fafc; margin:1rem 0; padding:.8rem 1rem; color:#475569; }
-    img { max-width:100%; height:auto; border:1px solid var(--line); border-radius:10px; }
-    hr { border:0; border-top:1px solid var(--line); margin:2rem 0; }
-    table { border-collapse:collapse; width:100%; margin:1rem 0; background:#fff; }
-    th, td { border:1px solid var(--line); padding:.5rem .65rem; text-align:left; vertical-align:top; font-size:.9rem; }
-    th { background:#eef3f8; }
+    .verify, .notes { background:#f8fafc; border:1px solid var(--line); border-radius:var(--radius); padding:1rem 1.2rem; margin-top:1.2rem; }
     footer { color:var(--muted); font-size:.85rem; margin-top:1.4rem; text-align:center; }
     @media (max-width:640px) { main { padding:1.2rem; } .top { align-items:flex-start; } }
   </style>
@@ -49,73 +44,80 @@
       <nav class="pager"><a href="online-offline-events.html">← 在线/离线事件探测</a><a href="index.html">目录</a><a href="recent-documents.html">最近的文件 →</a></nav>
     </header>
     <main>
+      <p class="subtitle">在任务栏或 Dock 上显示模拟进度</p>
       <h1>进度条 Progress Bar</h1>
-      <p class="meta">Electron 官方示例 · progress-bar · 第 14 / 20 个</p>
+      <p class="meta">第 14 / 20 个原创示例</p>
 
       <section>
-        <h2>手把手操作步骤</h2>
-        <div class="callout">本页面基于 Electron 官方文档整理。先在本地运行起来，再阅读下面的官方说明和代码。</div>
+        <h2>这个例子做什么</h2>
+        <p>这是自己编写的进度条示例，用定时器不断增加 setProgressBar 的值。</p>
+      </section>
+
+      <section>
+        <h2>操作步骤</h2>
         <div class="steps"><ol>
-          <li>打开 PowerShell，进入总目录：</li><li><pre><code>cd D:\hf\L\electron</code></pre></li><li>创建一个独立的示例项目目录并进入：</li><li><pre><code>New-Item -ItemType Directory -Path apps\progress-bar -Force
-cd apps\progress-bar</code></pre></li><li>初始化 npm 项目：</li><li><pre><code>npm init -y</code></pre></li><li>安装 Electron。国内网络可以先设置镜像再安装：</li><li><pre><code>$env:ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
-npm install --save-dev electron</code></pre></li><li>根据下方官方代码创建对应文件。大多数示例需要 <code>main.js</code> 和 <code>index.html</code>，部分还需要 <code>preload.js</code> 或 <code>renderer.js</code>。代码块已经标注用途。</li><li>确认 <code>package.json</code> 中有启动脚本，然后运行：</li><li><pre><code>npm pkg set scripts.start="electron ."
-npm start</code></pre></li><li>观察窗口效果。修改代码后退出应用，再重新执行 <code>npm start</code>。</li>
+          <li>打开 PowerShell，进入总目录：<pre><code>cd D:\hf\L\electron</code></pre></li><li>创建独立项目目录并进入：<pre><code>New-Item -ItemType Directory -Path apps\progress-bar -Force
+cd apps\progress-bar</code></pre></li><li>初始化 npm 项目：<pre><code>npm init -y</code></pre></li><li>设置主入口和启动脚本：<pre><code>npm pkg set main="main.js"
+npm pkg set scripts.start="electron ."</code></pre></li><li>安装 Electron，国内网络可先设置镜像：<pre><code>$env:ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
+npm install --save-dev electron</code></pre></li><li>按照下面“代码文件”一节创建对应文件。文件名必须一致。</li><li>回到 PowerShell 运行：<pre><code>npm start</code></pre></li>
         </ol></div>
       </section>
 
       <section>
-        <h2>官方文档与代码</h2>
-        <h2>Progress Bars</h2><h3>Overview</h3><p>A progress bar enables a window to provide progress information to the user<br>without the need of switching to the window itself.</p><p>On Windows, you can use a taskbar button to display a progress bar.</p><p><img src="https://raw.githubusercontent.com/electron/electron/main/docs/images/windows-progress-bar.png" alt="Windows Progress Bar"></p><p>On macOS, the progress bar will be displayed as a part of the dock icon.</p><p><img src="https://raw.githubusercontent.com/electron/electron/main/docs/images/macos-progress-bar.png" alt="macOS Progress Bar"></p><blockquote>NOTE: on Windows, each window can have its own progress bar, whereas on macOS</blockquote><p>there can be only one progress bar for the application. On Linux, progress bars<br>are not supported.</p><hr><p>All three cases are covered by the same API - the<br>[<code>setProgressBar()</code>][setprogressbar] method available on an instance of<br><code>BrowserWindow</code>. To indicate your progress, call this method with a number<br>between <code>0</code> and <code>1</code>. For example, if you have a long-running task that is<br>currently at 63% towards completion, you would call it as<br><code>setProgressBar(0.63)</code>.</p><p>Setting the parameter to negative values (e.g. <code>-1</code>) will remove the progress<br>bar. Setting it to a value greater than <code>1</code> will indicate an indeterminate progress bar<br>in Windows or clamp to 100% in other operating systems. An indeterminate progress bar<br>remains active but does not show an actual percentage, and is used for situations when<br>you do not know how long an operation will take to complete.</p><p>See the [API documentation for more options and modes][setprogressbar].</p><h3>Example</h3><p>In this example, we add a progress bar to the main window that increments over time<br>using Node.js timers.</p><div class="codebox"><div class="codebar"><span>Electron Fiddle 完整示例</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { app, BrowserWindow } = require('electron/main')
-
-let progressInterval
+        <h2>代码文件</h2>
+        <h3>main.js</h3><p>每 200ms 增加一次进度，完成后清除定时器并移除进度条。</p><div class="codebox"><div class="codebar"><span>main.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { app, BrowserWindow } = require('electron')
 
 function createWindow () {
   const win = new BrowserWindow({
-    width: 800,
-    height: 600
+    width: 640,
+    height: 360
   })
-
   win.loadFile('index.html')
 
-  const INCREMENT = 0.03
-  const INTERVAL_DELAY = 100 // ms
-
-  let c = 0
-  progressInterval = setInterval(() =&gt; {
-    // update progress bar to next value
-    // values between 0 and 1 will show progress, &gt;1 will show indeterminate or stick at 100%
-    win.setProgressBar(c)
-
-    // increment or reset progress bar
-    if (c &lt; 2) {
-      c += INCREMENT
-    } else {
-      c = (-INCREMENT * 5) // reset to a bit less than 0 to show reset state
+  let progress = 0
+  const timer = setInterval(() =&gt; {
+    progress += 0.05
+    win.setProgressBar(progress)
+    if (progress &gt;= 1) {
+      clearInterval(timer)
+      setTimeout(() =&gt; win.setProgressBar(-1), 600)
     }
-  }, INTERVAL_DELAY)
+  }, 200)
 }
 
-app.whenReady().then(createWindow)
-
-// before the app is terminated, clear both timers
-app.on('before-quit', () =&gt; {
-  clearInterval(progressInterval)
+app.whenReady().then(() =&gt; {
+  createWindow()
+  app.on('activate', () =&gt; {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+  })
 })
 
 app.on('window-all-closed', () =&gt; {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
-})
+  if (process.platform !== 'darwin') app.quit()
+})</code></pre></div><h3>index.html</h3><p>页面提示进度显示在任务栏或 Dock。</p><div class="codebox"><div class="codebar"><span>index.html</span><button type="button" class="copy-btn">复制</button></div><pre><code>&lt;!doctype html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;title&gt;进度条示例&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;任务栏进度条&lt;/h1&gt;
+  &lt;p&gt;进度会显示在 Windows 任务栏按钮或 macOS Dock 图标上。&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+      </section>
 
-app.on('activate', () =&gt; {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow()
-  }
-})</code></pre></div><p>After launching the Electron application, the dock (macOS) or taskbar (Windows)<br>should show a progress bar that starts at zero and progresses through 100% to completion.<br>It should then show indeterminate (Windows) or pin to 100% (other operating systems)<br>briefly and then loop.</p><p><img src="https://raw.githubusercontent.com/electron/electron/main/docs/images/dock-progress-bar.png" alt="macOS dock progress bar"></p><p>For macOS, the progress bar will also be indicated for your application<br>when using <a href="https://support.apple.com/en-us/HT204100" target="_blank" rel="noopener">Mission Control</a>:</p><p><img src="https://raw.githubusercontent.com/electron/electron/main/docs/images/mission-control-progress-bar.png" alt="Mission Control Progress Bar"></p>
+      <section>
+        <h2>运行后应该看到什么</h2>
+        <div class="verify">运行后观察任务栏应用按钮，进度会从 0 增加到 100%，然后消失。</div>
+      </section>
+
+      <section>
+        <h2>补充说明</h2>
+        <div class="notes">setProgressBar(-1) 会移除进度条。0 到 1 显示确定进度，大于 1 在 Windows 上显示不确定进度。</div>
       </section>
     </main>
-    <footer>Electron 官方示例教程 · 生成自 electronjs.org 文档</footer>
+    <footer>Electron 原创示例教程 · 代码由 Codex 编写生成</footer>
   </div>
   <script>
     function copyText(text) {

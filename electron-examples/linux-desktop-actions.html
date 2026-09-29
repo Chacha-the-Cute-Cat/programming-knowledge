@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>桌面启动器快捷操作 Linux Desktop Actions - Electron 官方示例教程</title>
+  <title>桌面启动器快捷操作 Linux Desktop Actions - Electron 原创示例教程</title>
   <style>
     :root { --bg:#f7fafc; --panel:#fff; --panel2:#eef3f8; --text:#0f172a; --muted:#526072; --line:#dbe4ee; --accent:#0284c7; --accent2:#0ea5e9; --code:#f6f8fb; --radius:14px; }
     * { box-sizing:border-box; }
@@ -13,10 +13,10 @@
     a:hover { text-decoration:underline; }
     .wrap { max-width:1000px; margin:0 auto; padding:1.6rem 1.2rem 4rem; }
     .top { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.4rem; }
-    .back { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.45rem .85rem; font-size:.9rem; }
-    .pager a { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.4rem .75rem; font-size:.88rem; }
+    .back, .pager a { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.4rem .8rem; font-size:.88rem; }
     main { background:rgba(255,255,255,.72); border:1px solid var(--line); border-radius:var(--radius); padding:2rem; box-shadow:0 18px 50px rgba(15,23,42,.06); }
     h1 { margin:0 0 .35rem; font-size:clamp(2rem,5vw,3rem); line-height:1.15; letter-spacing:-.02em; }
+    .subtitle { color:var(--accent); margin:0 0 .4rem; }
     .meta { color:var(--muted); margin:0 0 1.8rem; }
     h2 { margin:2.1rem 0 .7rem; font-size:1.45rem; }
     h3 { margin:1.6rem 0 .5rem; font-size:1.1rem; }
@@ -32,12 +32,7 @@
     .copy-btn:hover { border-color:var(--accent); color:var(--accent); }
     pre { margin:0; padding:1rem 1.1rem; overflow:auto; color:#0f172a; font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; font-size:.9rem; line-height:1.55; }
     code { font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; }
-    blockquote { border-left:4px solid #b6c5d6; background:#f7fafc; margin:1rem 0; padding:.8rem 1rem; color:#475569; }
-    img { max-width:100%; height:auto; border:1px solid var(--line); border-radius:10px; }
-    hr { border:0; border-top:1px solid var(--line); margin:2rem 0; }
-    table { border-collapse:collapse; width:100%; margin:1rem 0; background:#fff; }
-    th, td { border:1px solid var(--line); padding:.5rem .65rem; text-align:left; vertical-align:top; font-size:.9rem; }
-    th { background:#eef3f8; }
+    .verify, .notes { background:#f8fafc; border:1px solid var(--line); border-radius:var(--radius); padding:1rem 1.2rem; margin-top:1.2rem; }
     footer { color:var(--muted); font-size:.85rem; margin-top:1.4rem; text-align:center; }
     @media (max-width:640px) { main { padding:1.2rem; } .top { align-items:flex-start; } }
   </style>
@@ -49,38 +44,79 @@
       <nav class="pager"><a href="launch-app-from-url-in-another-app.html">← 深度链接</a><a href="index.html">目录</a><a href="menus.html">菜单 →</a></nav>
     </header>
     <main>
+      <p class="subtitle">在 Linux .desktop 文件中定义应用快捷动作</p>
       <h1>桌面启动器快捷操作 Linux Desktop Actions</h1>
-      <p class="meta">Electron 官方示例 · linux-desktop-actions · 第 6 / 20 个</p>
+      <p class="meta">第 6 / 20 个原创示例</p>
 
       <section>
-        <h2>手把手操作步骤</h2>
-        <div class="callout">本页面基于 Electron 官方文档整理。先在本地运行起来，再阅读下面的官方说明和代码。</div>
+        <h2>这个例子做什么</h2>
+        <p>这是针对 Linux 桌面环境的原创示例，演示 .desktop 文件的 Actions 配置，并让 Electron 读取传入参数。</p>
+      </section>
+
+      <section>
+        <h2>操作步骤</h2>
         <div class="steps"><ol>
-          <li>打开 PowerShell，进入总目录：</li><li><pre><code>cd D:\hf\L\electron</code></pre></li><li>创建一个独立的示例项目目录并进入：</li><li><pre><code>New-Item -ItemType Directory -Path apps\linux-desktop-actions -Force
-cd apps\linux-desktop-actions</code></pre></li><li>初始化 npm 项目：</li><li><pre><code>npm init -y</code></pre></li><li>安装 Electron。国内网络可以先设置镜像再安装：</li><li><pre><code>$env:ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
-npm install --save-dev electron</code></pre></li><li>根据下方官方代码创建对应文件。大多数示例需要 <code>main.js</code> 和 <code>index.html</code>，部分还需要 <code>preload.js</code> 或 <code>renderer.js</code>。代码块已经标注用途。</li><li>确认 <code>package.json</code> 中有启动脚本，然后运行：</li><li><pre><code>npm pkg set scripts.start="electron ."
-npm start</code></pre></li><li>观察窗口效果。修改代码后退出应用，再重新执行 <code>npm start</code>。</li>
+          <li>打开 PowerShell，进入总目录：<pre><code>cd D:\hf\L\electron</code></pre></li><li>创建独立项目目录并进入：<pre><code>New-Item -ItemType Directory -Path apps\linux-desktop-actions -Force
+cd apps\linux-desktop-actions</code></pre></li><li>初始化 npm 项目：<pre><code>npm init -y</code></pre></li><li>设置主入口和启动脚本：<pre><code>npm pkg set main="main.js"
+npm pkg set scripts.start="electron ."</code></pre></li><li>安装 Electron，国内网络可先设置镜像：<pre><code>$env:ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
+npm install --save-dev electron</code></pre></li><li>按照下面“代码文件”一节创建对应文件。文件名必须一致。</li><li>回到 PowerShell 运行：<pre><code>npm start</code></pre></li>
         </ol></div>
       </section>
 
       <section>
-        <h2>官方文档与代码</h2>
-        <h2>Desktop Launcher Actions</h2><h3>Overview</h3><p>On many Linux environments, you can add custom entries to the system launcher<br>by modifying the <code>.desktop</code> file. For details, see the<br>[freedesktop.org Desktop Entry Specification][spec].</p><p>To create a shortcut, you need to provide <code>Name</code> and <code>Exec</code> properties for the<br>entry you want to add to the shortcut menu. The desktop will execute the<br>command defined in the <code>Exec</code> field after the user clicks the shortcut menu<br>item. An example of the <code>.desktop</code> file may look as follows:</p><div class="codebox"><div class="codebar"><span>plaintext</span><button type="button" class="copy-btn">复制</button></div><pre><code>Actions=PlayPause;Next;Previous
+        <h2>代码文件</h2>
+        <h3>my-app.desktop</h3><p>把 Exec 路径替换成你的应用实际路径。</p><div class="codebox"><div class="codebar"><span>my-app.desktop</span><button type="button" class="copy-btn">复制</button></div><pre><code>[Desktop Entry]
+Type=Application
+Name=My Electron App
+Comment=Electron 桌面快捷操作示例
+Exec=/opt/my-app/my-app %U
+Actions=new;open
 
-[Desktop Action PlayPause]
-Name=Play-Pause
-Exec=audacious -t
+[Desktop Action new]
+Name=新建窗口
+Exec=/opt/my-app/my-app --new
 
-[Desktop Action Next]
-Name=Next
-Exec=audacious -f
+[Desktop Action open]
+Name=打开文件
+Exec=/opt/my-app/my-app --open</code></pre></div><h3>main.js</h3><p>读取命令行参数，打印用户选择的桌面动作。</p><div class="codebox"><div class="codebar"><span>main.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { app, BrowserWindow } = require('electron')
 
-[Desktop Action Previous]
-Name=Previous
-Exec=audacious -r</code></pre></div><p>The preferred way for the desktop to instruct your application on what to do<br>is using parameters. You can find them in your application in the global<br>variable <code>process.argv</code>.</p>
+function createWindow () {
+  const win = new BrowserWindow({ width: 700, height: 420 })
+  win.loadFile('index.html')
+}
+
+app.whenReady().then(() =&gt; {
+  const action = process.argv.find((item) =&gt; item === '--new' || item === '--open')
+  if (action) console.log('桌面动作：' + action)
+  createWindow()
+})
+
+app.on('window-all-closed', () =&gt; {
+  if (process.platform !== 'darwin') app.quit()
+})</code></pre></div><h3>index.html</h3><p>页面提示这是 Linux 桌面动作示例。</p><div class="codebox"><div class="codebar"><span>index.html</span><button type="button" class="copy-btn">复制</button></div><pre><code>&lt;!doctype html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;title&gt;Linux Desktop Actions&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Linux 桌面快捷操作&lt;/h1&gt;
+  &lt;p&gt;请查看终端，确认收到的 --new 或 --open 参数。&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+      </section>
+
+      <section>
+        <h2>运行后应该看到什么</h2>
+        <div class="verify">在 Linux 上安装 .desktop 文件后，右键应用图标会看到“新建窗口”和“打开文件”两个动作。</div>
+      </section>
+
+      <section>
+        <h2>补充说明</h2>
+        <div class="notes">这个功能主要针对 Linux。Windows 可以使用 app.setUserTasks 实现类似的 JumpList。</div>
       </section>
     </main>
-    <footer>Electron 官方示例教程 · 生成自 electronjs.org 文档</footer>
+    <footer>Electron 原创示例教程 · 代码由 Codex 编写生成</footer>
   </div>
   <script>
     function copyText(text) {

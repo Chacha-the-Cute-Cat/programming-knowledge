@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>菜单 Menus - Electron 官方示例教程</title>
+  <title>菜单 Menus - Electron 原创示例教程</title>
   <style>
     :root { --bg:#f7fafc; --panel:#fff; --panel2:#eef3f8; --text:#0f172a; --muted:#526072; --line:#dbe4ee; --accent:#0284c7; --accent2:#0ea5e9; --code:#f6f8fb; --radius:14px; }
     * { box-sizing:border-box; }
@@ -13,10 +13,10 @@
     a:hover { text-decoration:underline; }
     .wrap { max-width:1000px; margin:0 auto; padding:1.6rem 1.2rem 4rem; }
     .top { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.4rem; }
-    .back { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.45rem .85rem; font-size:.9rem; }
-    .pager a { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.4rem .75rem; font-size:.88rem; }
+    .back, .pager a { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.4rem .8rem; font-size:.88rem; }
     main { background:rgba(255,255,255,.72); border:1px solid var(--line); border-radius:var(--radius); padding:2rem; box-shadow:0 18px 50px rgba(15,23,42,.06); }
     h1 { margin:0 0 .35rem; font-size:clamp(2rem,5vw,3rem); line-height:1.15; letter-spacing:-.02em; }
+    .subtitle { color:var(--accent); margin:0 0 .4rem; }
     .meta { color:var(--muted); margin:0 0 1.8rem; }
     h2 { margin:2.1rem 0 .7rem; font-size:1.45rem; }
     h3 { margin:1.6rem 0 .5rem; font-size:1.1rem; }
@@ -32,12 +32,7 @@
     .copy-btn:hover { border-color:var(--accent); color:var(--accent); }
     pre { margin:0; padding:1rem 1.1rem; overflow:auto; color:#0f172a; font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; font-size:.9rem; line-height:1.55; }
     code { font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; }
-    blockquote { border-left:4px solid #b6c5d6; background:#f7fafc; margin:1rem 0; padding:.8rem 1rem; color:#475569; }
-    img { max-width:100%; height:auto; border:1px solid var(--line); border-radius:10px; }
-    hr { border:0; border-top:1px solid var(--line); margin:2rem 0; }
-    table { border-collapse:collapse; width:100%; margin:1rem 0; background:#fff; }
-    th, td { border:1px solid var(--line); padding:.5rem .65rem; text-align:left; vertical-align:top; font-size:.9rem; }
-    th { background:#eef3f8; }
+    .verify, .notes { background:#f8fafc; border:1px solid var(--line); border-radius:var(--radius); padding:1rem 1.2rem; margin-top:1.2rem; }
     footer { color:var(--muted); font-size:.85rem; margin-top:1.4rem; text-align:center; }
     @media (max-width:640px) { main { padding:1.2rem; } .top { align-items:flex-start; } }
   </style>
@@ -49,81 +44,101 @@
       <nav class="pager"><a href="linux-desktop-actions.html">← 桌面启动器快捷操作</a><a href="index.html">目录</a><a href="multithreading.html">多线程 →</a></nav>
     </header>
     <main>
+      <p class="subtitle">创建应用菜单和右键上下文菜单</p>
       <h1>菜单 Menus</h1>
-      <p class="meta">Electron 官方示例 · menus · 第 7 / 20 个</p>
+      <p class="meta">第 7 / 20 个原创示例</p>
 
       <section>
-        <h2>手把手操作步骤</h2>
-        <div class="callout">本页面基于 Electron 官方文档整理。先在本地运行起来，再阅读下面的官方说明和代码。</div>
+        <h2>这个例子做什么</h2>
+        <p>这是我自己编写的菜单示例，包含顶部应用菜单和页面内右键菜单。</p>
+      </section>
+
+      <section>
+        <h2>操作步骤</h2>
         <div class="steps"><ol>
-          <li>打开 PowerShell，进入总目录：</li><li><pre><code>cd D:\hf\L\electron</code></pre></li><li>创建一个独立的示例项目目录并进入：</li><li><pre><code>New-Item -ItemType Directory -Path apps\menus -Force
-cd apps\menus</code></pre></li><li>初始化 npm 项目：</li><li><pre><code>npm init -y</code></pre></li><li>安装 Electron。国内网络可以先设置镜像再安装：</li><li><pre><code>$env:ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
-npm install --save-dev electron</code></pre></li><li>根据下方官方代码创建对应文件。大多数示例需要 <code>main.js</code> 和 <code>index.html</code>，部分还需要 <code>preload.js</code> 或 <code>renderer.js</code>。代码块已经标注用途。</li><li>确认 <code>package.json</code> 中有启动脚本，然后运行：</li><li><pre><code>npm pkg set scripts.start="electron ."
-npm start</code></pre></li><li>观察窗口效果。修改代码后退出应用，再重新执行 <code>npm start</code>。</li>
+          <li>打开 PowerShell，进入总目录：<pre><code>cd D:\hf\L\electron</code></pre></li><li>创建独立项目目录并进入：<pre><code>New-Item -ItemType Directory -Path apps\menus -Force
+cd apps\menus</code></pre></li><li>初始化 npm 项目：<pre><code>npm init -y</code></pre></li><li>设置主入口和启动脚本：<pre><code>npm pkg set main="main.js"
+npm pkg set scripts.start="electron ."</code></pre></li><li>安装 Electron，国内网络可先设置镜像：<pre><code>$env:ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
+npm install --save-dev electron</code></pre></li><li>按照下面“代码文件”一节创建对应文件。文件名必须一致。</li><li>回到 PowerShell 运行：<pre><code>npm start</code></pre></li>
         </ol></div>
       </section>
 
       <section>
-        <h2>官方文档与代码</h2>
-        <p>import Tabs from '@theme/Tabs';<br>import TabItem from '@theme/TabItem';<br>import DocCardList from '@theme/DocCardList';</p><h2>Menus</h2><p>Electron's <a href="../api/menu.md" target="_blank" rel="noopener">Menu</a> class provides a standardized way to create cross-platform native<br>menus throughout your application.</p><h3>Available menus in Electron</h3><p>The same menu API is used for multiple use cases:</p><ul><li>The <strong>application menu</strong> is the top-level menu for your application. Each app only has a single</li></ul><p>  application menu at a time.</p><ul><li><strong>Context menus</strong> are triggered by the user when right-clicking on a portion of your app's</li></ul><p>  interface.</p><ul><li>The <strong>tray menu</strong> is a special context menu triggered when right-clicking on your app's <a href="../api/tray.md" target="_blank" rel="noopener">Tray</a></li></ul><p>  instance.</p><ul><li>On macOS, the <strong>dock menu</strong> is a special context menu triggered when right-clicking on your app's</li></ul><p>  icon in the system <a href="https://support.apple.com/en-ca/guide/mac-help/mh35859/mac" target="_blank" rel="noopener">Dock</a>.</p><p>To learn more about the various kinds of native menus you can create and how to specify keyboard<br>shortcuts, see the individual guides in this section:</p><p>&lt;DocCardList /&gt;</p><h3>Building menus</h3><p>Each <code>Menu</code> instance is composed of an array of <a href="../api/menu-item.md" target="_blank" rel="noopener">MenuItem</a> objects accessible via<br>the <code>menu.items</code> instance property. Menus can be nested by setting the <code>item.submenu</code> property to<br>another menu.</p><p>There are two ways to build a menu: either by directly calling <a href="../api/menu.md#menuappendmenuitem" target="_blank" rel="noopener"><code>menu.append</code></a><br>or by using the static <a href="../api/menu.md#menubuildfromtemplatetemplate" target="_blank" rel="noopener"><code>Menu.buildFromTemplate</code></a><br>helper function.</p><p>The helper function reduces boilerplate by allowing you to pass a collection of <code>MenuItem</code><br>constructor options (or instantiated <code>MenuItem</code> instances) in a single array rather than having to<br>append each item in a separate function call.</p><p>Below is an example of a minimal application menu:</p><p>&lt;Tabs&gt;<br>  &lt;TabItem value=&quot;constructor&quot; label=&quot;Constructor&quot;&gt;<br>    ```js title='menu.js'<br>    const submenu = new Menu()<br>    submenu.append(new MenuItem({ label: 'Hello' }))<br>    submenu.append(new MenuItem({ type: 'separator' }))<br>    submenu.append(new MenuItem({ label: 'Electron', type: 'checkbox', checked: true }))<br>    const menu = new Menu()<br>    menu.append(new MenuItem({ label: 'Menu', submenu }))<br>    Menu.setApplicationMenu(menu)<br>    ```<br>  &lt;/TabItem&gt;<br>  &lt;TabItem value=&quot;template&quot; label=&quot;Template Helper&quot;&gt;<br>    ```js title='menu.js'<br>    const menu = Menu.buildFromTemplate([{<br>      label: 'Menu',<br>      submenu: [<br>        { label: 'Hello' },<br>        { type: 'separator' },<br>        { label: 'Electron', type: 'checkbox', checked: true }<br>      ]<br>    }])<br>    Menu.setApplicationMenu(menu)<br>    ```<br>  &lt;/TabItem&gt;<br>&lt;/Tabs&gt;</p><blockquote>[!IMPORTANT]<br>All menu items (except for the <code>separator</code> type) must have a label. Labels can either be manually<br>defined using the <code>label</code> property or inherited from the item's <code>role</code>.</blockquote><h4>Types</h4><p>A menu item's type grants it a particular appearance and functionality. Some types are<br>automatically assigned based on other constructor options:</p><ul><li>By default, menu items have the <code>normal</code> type.</li><li>Menu items that contain the <code>submenu</code> property will be assigned the <code>submenu</code> type.</li></ul><p>Other available types, when specified, give special additional properties to the menu item:</p><ul><li><code>checkbox</code> - toggles the <code>checked</code> property whenever the menu item is clicked</li><li><code>radio</code> - toggles the <code>checked</code> property and turns off that property for all adjacent <code>radio</code> items</li><li><code>palette</code> - creates a <a href="https://developer.apple.com/documentation/appkit/nsmenu/presentationstyle-swift.enum/palette" target="_blank" rel="noopener">Palette</a></li></ul><p>submenu, which aligns items horizontally (available on macOS 14 and above)</p><ul><li><code>header</code> - creates a section header, which can convey groupings with labels (available on macOS 14 and above)</li></ul><blockquote>[!TIP]<br>Adjacent <code>radio</code> items are at the same level of submenu and not divided by a separator.<br><br>```json5<br>[<br>  { type: 'radio', label: 'Adjacent 1' },<br>  { type: 'radio', label: 'Adjacent 2' },<br>  { type: 'separator' },<br>  { type: 'radio', label: 'Non-adjacent' } // unaffected by the others<br>]<br>```</blockquote><h4>Roles</h4><p>Roles give <code>normal</code> type menu items predefined behaviors.</p><p>We recommend specifying the <code>role</code> attribute for any menu item that matches a standard role<br>rather than trying to manually implement the behavior in a <code>click</code> function.<br>The built-in <code>role</code> behavior will give the best native experience.</p><p>The <code>label</code> and <code>accelerator</code> values are optional when using a <code>role</code> and will<br>default to appropriate values for each platform.</p><blockquote>[!TIP]<br>Role strings are <strong>case-insensitive</strong>. For example, <code>toggleDevTools</code>, <code>toggledevtools</code>, and<br><code>TOGGLEDEVTOOLS</code> are all equivalent roles when defining menu items.</blockquote><h5>Edit roles</h5><ul><li><code>undo</code></li><li><code>redo</code></li><li><code>cut</code></li><li><code>copy</code></li><li><code>paste</code></li><li><code>pasteAndMatchStyle</code></li><li><code>selectAll</code></li><li><code>delete</code></li></ul><h5>Window roles</h5><ul><li><code>about</code> - Trigger a native about panel (custom message box on Window, which does not provide its own).</li><li><code>minimize</code> - Minimize current window.</li><li><code>close</code> - Close current window.</li><li><code>quit</code> - Quit the application.</li><li><code>reload</code> - Reload the current window.</li><li><code>forceReload</code> - Reload the current window ignoring the cache.</li><li><code>toggleDevTools</code> - Toggle developer tools in the current window.</li><li><code>togglefullscreen</code> - Toggle full screen mode on the current window.</li><li><code>resetZoom</code> - Reset the focused page's zoom level to the original size.</li><li><code>zoomIn</code> - Zoom in the focused page by 10%.</li><li><code>zoomOut</code> - Zoom out the focused page by 10%.</li><li><code>toggleSpellChecker</code> - Enable/disable built-in spellchecker.</li></ul><h5>Default menu roles</h5><ul><li><code>fileMenu</code> - The submenu is a &quot;File&quot; menu (Close / Quit)</li><li><code>editMenu</code> - The submenu is an &quot;Edit&quot; menu (Undo, Copy, etc.)</li><li><code>viewMenu</code> - The submenu is a &quot;View&quot; menu (Reload, Toggle Developer Tools, etc.)</li><li><code>windowMenu</code> - The submenu is a &quot;Window&quot; menu (Minimize, Zoom, etc.)</li></ul><h5>macOS-only roles</h5><p>macOS has a number of platform-specific menu roles available. Many of these map to underlying<br><a href="https://developer.apple.com/documentation/appkit" target="_blank" rel="noopener">AppKit</a> APIs.</p><h6>App management roles</h6><ul><li><code>hide</code> - Map to the <a href="https://developer.apple.com/documentation/appkit/nsapplication/hide(_:" target="_blank" rel="noopener"><code>hide</code></a>) action.</li><li><code>hideOthers</code> - Map to the <a href="https://developer.apple.com/documentation/appkit/nsapplication/hideotherapplications(_:" target="_blank" rel="noopener"><code>hideOtherApplications</code></a>) action.</li><li><code>unhide</code> - Map to the <a href="https://developer.apple.com/documentation/appkit/nsapplication/unhideallapplications(_:" target="_blank" rel="noopener"><code>unhideAllApplications</code></a>) action.</li><li><code>front</code> - Map to the <a href="https://developer.apple.com/documentation/appkit/nsapplication/arrangeinfront(_:" target="_blank" rel="noopener"><code>arrangeInFront</code></a>) action.</li><li><code>zoom</code> - Map to the <a href="https://developer.apple.com/documentation/appkit/nswindow/performzoom(_:" target="_blank" rel="noopener"><code>performZoom</code></a>) action.</li></ul><h6>Edit roles</h6><ul><li><code>showSubstitutions</code> - Map to the <a href="https://developer.apple.com/documentation/appkit/nstextview/orderfrontsubstitutionspanel(_:" target="_blank" rel="noopener"><code>orderFrontSubstitutionsPanel</code></a>) action.</li><li><code>toggleSmartQuotes</code> - Map to the <a href="https://developer.apple.com/documentation/appkit/nstextview/toggleautomaticquotesubstitution(_:" target="_blank" rel="noopener"><code>toggleAutomaticQuoteSubstitution</code></a>) action.</li><li><code>toggleSmartDashes</code> - Map to the <a href="https://developer.apple.com/documentation/appkit/nstextview/toggleautomaticdashsubstitution(_:" target="_blank" rel="noopener"><code>toggleAutomaticDashSubstitution</code></a>) action.</li><li><code>toggleTextReplacement</code> - Map to the <a href="https://developer.apple.com/documentation/appkit/nstextview/toggleautomatictextreplacement(_:" target="_blank" rel="noopener"><code>toggleAutomaticTextReplacement</code></a>) action.</li></ul><h6>Speech roles</h6><ul><li><code>startSpeaking</code> - Map to the <a href="https://developer.apple.com/documentation/appkit/nstextview/startspeaking(_:" target="_blank" rel="noopener"><code>startSpeaking</code></a>) action.</li><li><code>stopSpeaking</code> - Map to the <a href="https://developer.apple.com/documentation/appkit/nstextview/stopspeaking(_:" target="_blank" rel="noopener"><code>stopSpeaking</code></a>) action.</li></ul><h6>Native tab roles</h6><ul><li><code>toggleTabBar</code> - Map to the <a href="https://developer.apple.com/documentation/appkit/nswindow/toggletabbar(_:" target="_blank" rel="noopener"><code>toggleTabBar</code></a>) action.</li><li><code>selectNextTab</code> - Map to the <a href="https://developer.apple.com/documentation/appkit/nswindow/selectnexttab(_:" target="_blank" rel="noopener"><code>selectNextTab</code></a>) action.</li><li><code>selectPreviousTab</code> - Map to the <a href="https://developer.apple.com/documentation/appkit/nswindow/selectprevioustab(_:" target="_blank" rel="noopener"><code>selectPreviousTab</code></a>) action.</li></ul><p>&lt;!-- * <code>showAllTabs</code> - Map to the <code>showAllTabs</code> action. --&gt;</p><ul><li><code>mergeAllWindows</code> - Map to the <a href="https://developer.apple.com/documentation/appkit/nswindow/mergeallwindows(_:" target="_blank" rel="noopener"><code>mergeAllWindows</code></a>) action.</li><li><code>moveTabToNewWindow</code> - Map to the <a href="https://developer.apple.com/documentation/appkit/nswindow/movetabtonewwindow(_:" target="_blank" rel="noopener"><code>moveTabToNewWindow</code></a>) action.</li></ul><h6>Default menu roles</h6><ul><li><code>appMenu</code> - Whole default &quot;App&quot; menu (About, Services, etc.)</li><li><code>services</code> - The submenu is a <a href="https://developer.apple.com/documentation/appkit/nsapplication/1428608-servicesmenu?language=objc" target="_blank" rel="noopener">&quot;Services&quot;</a> menu.</li><li><code>window</code> - The submenu is a &quot;Window&quot; menu.</li><li><code>help</code> - The submenu is a &quot;Help&quot; menu.</li></ul><h6>Other menu roles</h6><ul><li><code>recentDocuments</code> - The submenu is an &quot;Open Recent&quot; menu.</li><li><code>clearRecentDocuments</code> - Map to the <a href="https://developer.apple.com/documentation/appkit/nsdocumentcontroller/clearrecentdocuments(_:" target="_blank" rel="noopener"><code>clearRecentDocuments</code></a>) action.</li><li><code>shareMenu</code> - The submenu is <a href="../api/share-menu.md" target="_blank" rel="noopener">share menu</a>. The <code>sharingItem</code> property must also be set to indicate the item to share.</li></ul><blockquote>[!IMPORTANT]<br>When specifying a <code>role</code> on macOS, <code>label</code> and <code>accelerator</code> are the only<br>options that will affect the menu item. All other options will be ignored.</blockquote><h4>Accelerators</h4><p>The <code>accelerator</code> property allows you to define accelerator strings to map menu items to keyboard<br>shortcuts. For more details, see the <a href="./keyboard-shortcuts.md" target="_blank" rel="noopener">Keyboard Shortcuts</a> guide.</p><h3>Advanced configuration</h3><h4>Programmatic item positioning</h4><p>You can make use of the <code>before</code>, <code>after</code>, <code>beforeGroupContaining</code>, <code>afterGroupContaining</code> and <code>id</code> attributes<br>to control how menu items will be placed when building a menu with <code>Menu.buildFromTemplate</code>.</p><ul><li><code>before</code> - Inserts this item before the item with the specified id. If the</li></ul><p>  referenced item doesn't exist, the item will be inserted at the end of<br>  the menu. Also implies that the menu item in question should be placed in the same “group” as the item.</p><ul><li><code>after</code> - Inserts this item after the item with the specified id. If the</li></ul><p>  referenced item doesn't exist, the item will be inserted at the end of<br>  the menu. Also implies that the menu item in question should be placed in the same “group” as the item.</p><ul><li><code>beforeGroupContaining</code> - Provides a means for a single context menu to declare</li></ul><p>  the placement of their containing group before the containing group of the item with the specified id.</p><ul><li><code>afterGroupContaining</code> - Provides a means for a single context menu to declare</li></ul><p>  the placement of their containing group after the containing group of the item with the specified id.</p><p>By default, items will be inserted in the order they exist in the template unless one of the specified<br>positioning keywords is used.</p><h5>Examples</h5><p>Template:</p><div class="codebox"><div class="codebar"><span>json5</span><button type="button" class="copy-btn">复制</button></div><pre><code>[
-  { id: '1', label: 'one' },
-  { id: '2', label: 'two' },
-  { id: '3', label: 'three' },
-  { id: '4', label: 'four' }
-]</code></pre></div><p>Menu:</p><div class="codebox"><div class="codebar"><span>plaintext</span><button type="button" class="copy-btn">复制</button></div><pre><code>- one
-- two
-- three
-- four</code></pre></div><p>Template:</p><div class="codebox"><div class="codebar"><span>json5</span><button type="button" class="copy-btn">复制</button></div><pre><code>[
-  { id: '1', label: 'one' },
-  { type: 'separator' },
-  { id: '3', label: 'three', beforeGroupContaining: ['1'] },
-  { id: '4', label: 'four', afterGroupContaining: ['2'] },
-  { type: 'separator' },
-  { id: '2', label: 'two' }
-]</code></pre></div><p>Menu:</p><div class="codebox"><div class="codebar"><span>plaintext</span><button type="button" class="copy-btn">复制</button></div><pre><code>- three
-- four
-- ---
-- one
-- ---
-- two</code></pre></div><p>Template:</p><div class="codebox"><div class="codebar"><span>json5</span><button type="button" class="copy-btn">复制</button></div><pre><code>[
-  { id: '1', label: 'one', after: ['3'] },
-  { id: '2', label: 'two', before: ['1'] },
-  { id: '3', label: 'three' }
-]</code></pre></div><p>Menu:</p><div class="codebox"><div class="codebar"><span>plaintext</span><button type="button" class="copy-btn">复制</button></div><pre><code>- ---
-- three
-- two
-- one</code></pre></div><h4>Icons</h4><p>To add visual aid to your menus, you can use the <code>icon</code> property to assign images to individual<br><code>MenuItem</code> instances.</p><div class="codebox"><div class="codebar"><span>Adding a little green circle to a menu item</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { nativeImage } = require('electron/common')
-const { MenuItem } = require('electron/main')
+        <h2>代码文件</h2>
+        <h3>main.js</h3><p>创建应用菜单，并为窗口注册自定义右键菜单。</p><div class="codebox"><div class="codebar"><span>main.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { app, BrowserWindow, Menu } = require('electron')
 
-// highlight-start
-const green = nativeImage.createFromDataURL(
-  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACOSURBVHgBpZLRDYAgEEOrEzgCozCCGzkCbKArOIlugJvgoRAUNcLRpvGH19TkgFQWkqIohhK8UEaKwKcsOg/+WR1vX+AlA74u6q4FqgCOSzwsGHCwbKliAF89Cv89tWmOT4VaVMoVbOBrdQUz+FrD6XItzh4LzYB1HFJ9yrEkZ4l+wvcid9pTssh4UKbPd+4vED2Nd54iAAAAAElFTkSuQmCC'
-)
-// highlight-end
+function createWindow () {
+  const win = new BrowserWindow({
+    width: 760,
+    height: 500
+  })
+  win.loadFile('index.html')
 
-const item = new MenuItem({
-  label: 'Green Circle',
-  // highlight-next-line
-  icon: green
-})</code></pre></div><h4>Sublabels _macOS_</h4><p>You can add sublabels (also known as <a href="https://developer.apple.com/documentation/appkit/nsmenuitem/subtitle" target="_blank" rel="noopener">subtitles</a>)<br>to menu items using the <code>sublabel</code> option on macOS 14.4 and above.</p><div class="codebox"><div class="codebar"><span>Adding descriptions via sublabel</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { MenuItem } = require('electron/main')
+  win.webContents.on('context-menu', (event, params) =&gt; {
+    const template = [
+      { label: '复制', role: 'copy' },
+      { label: '粘贴', role: 'paste' },
+      { type: 'separator' },
+      { label: '打印选中文字', click: () =&gt; console.log(params.selectionText) }
+    ]
+    Menu.buildFromTemplate(template).popup({ window: win })
+  })
+}
 
-const item = new MenuItem({
-  label: 'Log Message',
-  // highlight-next-line
-  sublabel: 'This will use the console.log utility',
-  click: () =&gt; {
-    console.log('Logging via menu...')
+const appMenu = Menu.buildFromTemplate([
+  {
+    label: '文件',
+    submenu: [
+      { label: '新建窗口', click: () =&gt; createWindow() },
+      { type: 'separator' },
+      { role: 'quit' }
+    ]
+  },
+  {
+    label: '编辑',
+    submenu: [
+      { role: 'cut' },
+      { role: 'copy' },
+      { role: 'paste' }
+    ]
   }
-})</code></pre></div><h4>Tooltips _macOS_</h4><p>Tooltips are informational indicators that appear when you hover over a menu item. You can set menu<br>item tooltips on macOS using the <code>toolTip</code> option.</p><div class="codebox"><div class="codebar"><span>Adding additional information via tooltip</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { MenuItem } = require('electron/main')
+])
 
-const item = new MenuItem({
-  label: 'Hover Over Me',
-  // highlight-next-line
-  toolTip: 'This is additional info that appears on hover'
-})</code></pre></div>
+Menu.setApplicationMenu(appMenu)
+
+app.whenReady().then(() =&gt; {
+  createWindow()
+  app.on('activate', () =&gt; {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+  })
+})
+
+app.on('window-all-closed', () =&gt; {
+  if (process.platform !== 'darwin') app.quit()
+})</code></pre></div><h3>index.html</h3><p>页面上有一个输入框，方便测试右键菜单。</p><div class="codebox"><div class="codebar"><span>index.html</span><button type="button" class="copy-btn">复制</button></div><pre><code>&lt;!doctype html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;title&gt;菜单示例&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;菜单&lt;/h1&gt;
+  &lt;textarea rows=&quot;6&quot; cols=&quot;50&quot;&gt;选中这段文字，然后点击鼠标右键。&lt;/textarea&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+      </section>
+
+      <section>
+        <h2>运行后应该看到什么</h2>
+        <div class="verify">运行后，顶部有“文件”和“编辑”菜单；在输入框中右键会弹出复制、粘贴和“打印选中文字”。</div>
+      </section>
+
+      <section>
+        <h2>补充说明</h2>
+        <div class="notes">role 属性会使用系统原生行为。自定义菜单项只需要提供 label 和 click 回调。</div>
       </section>
     </main>
-    <footer>Electron 官方示例教程 · 生成自 electronjs.org 文档</footer>
+    <footer>Electron 原创示例教程 · 代码由 Codex 编写生成</footer>
   </div>
   <script>
     function copyText(text) {

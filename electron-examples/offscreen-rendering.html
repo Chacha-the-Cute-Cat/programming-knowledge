@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>离屏渲染 Offscreen Rendering - Electron 官方示例教程</title>
+  <title>离屏渲染 Offscreen Rendering - Electron 原创示例教程</title>
   <style>
     :root { --bg:#f7fafc; --panel:#fff; --panel2:#eef3f8; --text:#0f172a; --muted:#526072; --line:#dbe4ee; --accent:#0284c7; --accent2:#0ea5e9; --code:#f6f8fb; --radius:14px; }
     * { box-sizing:border-box; }
@@ -13,10 +13,10 @@
     a:hover { text-decoration:underline; }
     .wrap { max-width:1000px; margin:0 auto; padding:1.6rem 1.2rem 4rem; }
     .top { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.4rem; }
-    .back { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.45rem .85rem; font-size:.9rem; }
-    .pager a { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.4rem .75rem; font-size:.88rem; }
+    .back, .pager a { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.4rem .8rem; font-size:.88rem; }
     main { background:rgba(255,255,255,.72); border:1px solid var(--line); border-radius:var(--radius); padding:2rem; box-shadow:0 18px 50px rgba(15,23,42,.06); }
     h1 { margin:0 0 .35rem; font-size:clamp(2rem,5vw,3rem); line-height:1.15; letter-spacing:-.02em; }
+    .subtitle { color:var(--accent); margin:0 0 .4rem; }
     .meta { color:var(--muted); margin:0 0 1.8rem; }
     h2 { margin:2.1rem 0 .7rem; font-size:1.45rem; }
     h3 { margin:1.6rem 0 .5rem; font-size:1.1rem; }
@@ -32,12 +32,7 @@
     .copy-btn:hover { border-color:var(--accent); color:var(--accent); }
     pre { margin:0; padding:1rem 1.1rem; overflow:auto; color:#0f172a; font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; font-size:.9rem; line-height:1.55; }
     code { font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; }
-    blockquote { border-left:4px solid #b6c5d6; background:#f7fafc; margin:1rem 0; padding:.8rem 1rem; color:#475569; }
-    img { max-width:100%; height:auto; border:1px solid var(--line); border-radius:10px; }
-    hr { border:0; border-top:1px solid var(--line); margin:2rem 0; }
-    table { border-collapse:collapse; width:100%; margin:1rem 0; background:#fff; }
-    th, td { border:1px solid var(--line); padding:.5rem .65rem; text-align:left; vertical-align:top; font-size:.9rem; }
-    th { background:#eef3f8; }
+    .verify, .notes { background:#f8fafc; border:1px solid var(--line); border-radius:var(--radius); padding:1rem 1.2rem; margin-top:1.2rem; }
     footer { color:var(--muted); font-size:.85rem; margin-top:1.4rem; text-align:center; }
     @media (max-width:640px) { main { padding:1.2rem; } .top { align-items:flex-start; } }
   </style>
@@ -49,23 +44,28 @@
       <nav class="pager"><a href="notifications.html">← 通知</a><a href="index.html">目录</a><a href="online-offline-events.html">在线/离线事件探测 →</a></nav>
     </header>
     <main>
+      <p class="subtitle">把网页绘制结果保存成 PNG 图片</p>
       <h1>离屏渲染 Offscreen Rendering</h1>
-      <p class="meta">Electron 官方示例 · offscreen-rendering · 第 12 / 20 个</p>
+      <p class="meta">第 12 / 20 个原创示例</p>
 
       <section>
-        <h2>手把手操作步骤</h2>
-        <div class="callout">本页面基于 Electron 官方文档整理。先在本地运行起来，再阅读下面的官方说明和代码。</div>
+        <h2>这个例子做什么</h2>
+        <p>这是自己编写的离屏渲染示例：窗口不显示，但监听 paint 事件并保存截图。</p>
+      </section>
+
+      <section>
+        <h2>操作步骤</h2>
         <div class="steps"><ol>
-          <li>打开 PowerShell，进入总目录：</li><li><pre><code>cd D:\hf\L\electron</code></pre></li><li>创建一个独立的示例项目目录并进入：</li><li><pre><code>New-Item -ItemType Directory -Path apps\offscreen-rendering -Force
-cd apps\offscreen-rendering</code></pre></li><li>初始化 npm 项目：</li><li><pre><code>npm init -y</code></pre></li><li>安装 Electron。国内网络可以先设置镜像再安装：</li><li><pre><code>$env:ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
-npm install --save-dev electron</code></pre></li><li>根据下方官方代码创建对应文件。大多数示例需要 <code>main.js</code> 和 <code>index.html</code>，部分还需要 <code>preload.js</code> 或 <code>renderer.js</code>。代码块已经标注用途。</li><li>确认 <code>package.json</code> 中有启动脚本，然后运行：</li><li><pre><code>npm pkg set scripts.start="electron ."
-npm start</code></pre></li><li>观察窗口效果。修改代码后退出应用，再重新执行 <code>npm start</code>。</li>
+          <li>打开 PowerShell，进入总目录：<pre><code>cd D:\hf\L\electron</code></pre></li><li>创建独立项目目录并进入：<pre><code>New-Item -ItemType Directory -Path apps\offscreen-rendering -Force
+cd apps\offscreen-rendering</code></pre></li><li>初始化 npm 项目：<pre><code>npm init -y</code></pre></li><li>设置主入口和启动脚本：<pre><code>npm pkg set main="main.js"
+npm pkg set scripts.start="electron ."</code></pre></li><li>安装 Electron，国内网络可先设置镜像：<pre><code>$env:ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
+npm install --save-dev electron</code></pre></li><li>按照下面“代码文件”一节创建对应文件。文件名必须一致。</li><li>回到 PowerShell 运行：<pre><code>npm start</code></pre></li>
         </ol></div>
       </section>
 
       <section>
-        <h2>官方文档与代码</h2>
-        <h2>Offscreen Rendering</h2><h3>Overview</h3><p>Offscreen rendering lets you obtain the content of a <code>BrowserWindow</code> in a<br>bitmap or a shared GPU texture, so it can be rendered anywhere, for example,<br>on texture in a 3D scene.<br>The offscreen rendering in Electron uses a similar approach to that of the<br><a href="https://bitbucket.org/chromiumembedded/cef" target="_blank" rel="noopener">Chromium Embedded Framework</a><br>project.</p><p>_Notes_:</p><ul><li>There are two rendering modes that can be used (see the section below) and only</li></ul><p>the dirty area is passed to the <code>paint</code> event to be more efficient.</p><ul><li>You can stop/continue the rendering as well as set the frame rate.</li><li>When <code>webPreferences.offscreen.useSharedTexture</code> is <code>false</code>, the maximum frame rate is 240 because greater values bring only performance</li></ul><p>losses with no benefits.</p><ul><li>When nothing is happening on a webpage, no frames are generated.</li><li>An offscreen window is always created as a</li></ul><p><a href="../tutorial/window-customization.md" target="_blank" rel="noopener">Frameless Window</a>.</p><h4>Rendering Modes</h4><h5>GPU accelerated</h5><p>GPU accelerated rendering means that the GPU is used for composition. The benefit<br>of this mode is that WebGL and 3D CSS animations are supported. There are two<br>different approaches depending on the <code>webPreferences.offscreen.useSharedTexture</code><br>setting.</p><ol><li>Use GPU shared texture</li></ol><p>    Used when <code>webPreferences.offscreen.useSharedTexture</code> is set to <code>true</code>.</p><p>    This is an advanced feature requiring a native node module to work with your own code.<br>    The frames are directly copied in GPU textures, thus this mode is very fast because<br>    there's no CPU-GPU memory copies overhead, and you can directly import the shared<br>    texture to your own rendering program. You can read more details<br>    <a href="../../shell/common/api/shared_texture/README.md" target="_blank" rel="noopener">here</a>.</p><ol><li>Use CPU shared memory bitmap</li></ol><p>    Used when <code>webPreferences.offscreen.useSharedTexture</code> is set to <code>false</code> (default behavior).</p><p>    The texture is accessible using the <code>NativeImage</code> API at the cost of performance.<br>    The frame has to be copied from the GPU to the CPU bitmap which requires more system<br>    resources, thus this mode is slower than the Software output device mode. But it supports<br>    GPU related functionalities.</p><h5>Software output device</h5><p>This mode uses a software output device for rendering in the CPU, so the frame<br>generation is faster than shared memory bitmap GPU accelerated mode.</p><p>To enable this mode, GPU acceleration has to be disabled by calling the<br>[<code>app.disableHardwareAcceleration()</code>][disablehardwareacceleration] API.</p><h3>Example</h3><div class="codebox"><div class="codebar"><span>Electron Fiddle 完整示例</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { app, BrowserWindow } = require('electron/main')
+        <h2>代码文件</h2>
+        <h3>main.js</h3><p>禁用硬件加速，启用 offscreen，并在 paint 事件中保存图片。</p><div class="codebox"><div class="codebar"><span>main.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { app, BrowserWindow } = require('electron')
 const fs = require('node:fs')
 const path = require('node:path')
 
@@ -75,37 +75,52 @@ function createWindow () {
   const win = new BrowserWindow({
     width: 800,
     height: 600,
+    show: false,
     webPreferences: {
       offscreen: true
     }
   })
 
-  win.loadURL('https://github.com')
+  win.loadFile('index.html')
   win.webContents.on('paint', (event, dirty, image) =&gt; {
-    fs.writeFileSync('ex.png', image.toPNG())
+    const output = path.join(process.cwd(), 'offscreen.png')
+    fs.writeFileSync(output, image.toPNG())
+    console.log('截图已保存：' + output)
   })
-  win.webContents.setFrameRate(60)
-  console.log(`The screenshot has been successfully saved to ${path.join(process.cwd(), 'ex.png')}`)
 }
 
 app.whenReady().then(() =&gt; {
   createWindow()
-
-  app.on('activate', () =&gt; {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow()
-    }
-  })
 })
 
 app.on('window-all-closed', () =&gt; {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
-})</code></pre></div><p>After launching the Electron application, navigate to your application's<br>working folder, where you'll find the rendered image.</p>
+  if (process.platform !== 'darwin') app.quit()
+})</code></pre></div><h3>index.html</h3><p>页面内容会被绘制到离屏画布。</p><div class="codebox"><div class="codebar"><span>index.html</span><button type="button" class="copy-btn">复制</button></div><pre><code>&lt;!doctype html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;title&gt;离屏渲染示例&lt;/title&gt;
+  &lt;style&gt;
+    body { margin: 0; height: 100vh; display: grid; place-items: center; background: linear-gradient(135deg, #0ea5e9, #6366f1); color: white; font-family: system-ui, sans-serif; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;离屏渲染截图&lt;/h1&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+      </section>
+
+      <section>
+        <h2>运行后应该看到什么</h2>
+        <div class="verify">运行后，项目目录下会生成 offscreen.png，打开它能看到蓝色渐变背景的“离屏渲染截图”。</div>
+      </section>
+
+      <section>
+        <h2>补充说明</h2>
+        <div class="notes">offscreen 窗口不会显示在屏幕上。paint 事件在页面内容变化时触发。</div>
       </section>
     </main>
-    <footer>Electron 官方示例教程 · 生成自 electronjs.org 文档</footer>
+    <footer>Electron 原创示例教程 · 代码由 Codex 编写生成</footer>
   </div>
   <script>
     function copyText(text) {
