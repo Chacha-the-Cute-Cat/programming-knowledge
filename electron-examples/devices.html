@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>设备访问 Devices - Electron 官方示例教程</title>
+  <style>
+    :root { --bg:#f7fafc; --panel:#fff; --panel2:#eef3f8; --text:#0f172a; --muted:#526072; --line:#dbe4ee; --accent:#0284c7; --accent2:#0ea5e9; --code:#f6f8fb; --radius:14px; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; color:var(--text); font-family:"Segoe UI","Microsoft YaHei",system-ui,sans-serif; line-height:1.75; background:radial-gradient(circle at 10% 0%, rgba(56,189,248,.14), transparent 28rem),radial-gradient(circle at 90% 12%, rgba(167,139,250,.12), transparent 30rem),linear-gradient(135deg,#f8fbff 0%,#eef4fb 50%,#f8fafc 100%); background-attachment:fixed; }
+    a { color:var(--accent); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    .wrap { max-width:1000px; margin:0 auto; padding:1.6rem 1.2rem 4rem; }
+    .top { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.4rem; }
+    .back { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.45rem .85rem; font-size:.9rem; }
+    .pager a { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.4rem .75rem; font-size:.88rem; }
+    main { background:rgba(255,255,255,.72); border:1px solid var(--line); border-radius:var(--radius); padding:2rem; box-shadow:0 18px 50px rgba(15,23,42,.06); }
+    h1 { margin:0 0 .35rem; font-size:clamp(2rem,5vw,3rem); line-height:1.15; letter-spacing:-.02em; }
+    .meta { color:var(--muted); margin:0 0 1.8rem; }
+    h2 { margin:2.1rem 0 .7rem; font-size:1.45rem; }
+    h3 { margin:1.6rem 0 .5rem; font-size:1.1rem; }
+    p, li { color:#334155; }
+    strong { color:#0f172a; }
+    .callout { border-left:4px solid var(--accent); background:rgba(2,132,199,.07); padding:.85rem 1rem; border-radius:0 var(--radius) var(--radius) 0; margin:1rem 0; }
+    .steps { background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:1.1rem 1.3rem; margin-top:1.2rem; }
+    .steps ol { margin:0; padding-left:1.4rem; }
+    .steps li { margin:.45rem 0; }
+    .codebox { border:1px solid var(--line); background:var(--code); border-radius:var(--radius); overflow:hidden; margin:1rem 0 1.4rem; }
+    .codebar { display:flex; justify-content:space-between; align-items:center; padding:.5rem .8rem; border-bottom:1px solid var(--line); background:#edf3f8; color:var(--muted); font-size:.82rem; }
+    .copy-btn { border:1px solid var(--line); background:#fff; color:#334155; border-radius:8px; padding:.25rem .6rem; cursor:pointer; font-size:.78rem; }
+    .copy-btn:hover { border-color:var(--accent); color:var(--accent); }
+    pre { margin:0; padding:1rem 1.1rem; overflow:auto; color:#0f172a; font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; font-size:.9rem; line-height:1.55; }
+    code { font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; }
+    blockquote { border-left:4px solid #b6c5d6; background:#f7fafc; margin:1rem 0; padding:.8rem 1rem; color:#475569; }
+    img { max-width:100%; height:auto; border:1px solid var(--line); border-radius:10px; }
+    hr { border:0; border-top:1px solid var(--line); margin:2rem 0; }
+    table { border-collapse:collapse; width:100%; margin:1rem 0; background:#fff; }
+    th, td { border:1px solid var(--line); padding:.5rem .65rem; text-align:left; vertical-align:top; font-size:.9rem; }
+    th { background:#eef3f8; }
+    footer { color:var(--muted); font-size:.85rem; margin-top:1.4rem; text-align:center; }
+    @media (max-width:640px) { main { padding:1.2rem; } .top { align-items:flex-start; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="back" href="index.html">← 全部示例</a>
+      <nav class="pager"><a href="dark-mode.html">← 深色模式</a><a href="index.html">目录</a><a href="in-app-purchases.html">应用程序内购 →</a></nav>
+    </header>
+    <main>
+      <h1>设备访问 Devices</h1>
+      <p class="meta">Electron 官方示例 · devices · 第 2 / 20 个</p>
+
+      <section>
+        <h2>手把手操作步骤</h2>
+        <div class="callout">本页面基于 Electron 官方文档整理。先在本地运行起来，再阅读下面的官方说明和代码。</div>
+        <div class="steps"><ol>
+          <li>打开 PowerShell，进入总目录：</li><li><pre><code>cd D:\hf\L\electron</code></pre></li><li>创建一个独立的示例项目目录并进入：</li><li><pre><code>New-Item -ItemType Directory -Path apps\devices -Force
+cd apps\devices</code></pre></li><li>初始化 npm 项目：</li><li><pre><code>npm init -y</code></pre></li><li>安装 Electron。国内网络可以先设置镜像再安装：</li><li><pre><code>$env:ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
+npm install --save-dev electron</code></pre></li><li>根据下方官方代码创建对应文件。大多数示例需要 <code>main.js</code> 和 <code>index.html</code>，部分还需要 <code>preload.js</code> 或 <code>renderer.js</code>。代码块已经标注用途。</li><li>确认 <code>package.json</code> 中有启动脚本，然后运行：</li><li><pre><code>npm pkg set scripts.start="electron ."
+npm start</code></pre></li><li>观察窗口效果。修改代码后退出应用，再重新执行 <code>npm start</code>。</li>
+        </ol></div>
+      </section>
+
+      <section>
+        <h2>官方文档与代码</h2>
+        <h2>Device Access</h2><p>Like Chromium based browsers, Electron provides access to device hardware<br>through web APIs.  For the most part these APIs work like they do in a browser,<br>but there are some differences that need to be taken into account.  The primary<br>difference between Electron and browsers is what happens when device access is<br>requested.  In a browser, users are presented with a popup where they can grant<br>access to an individual device.  In Electron APIs are provided which can be<br>used by a developer to either automatically pick a device or prompt users to<br>pick a device via a developer created interface.</p><h3>Web Bluetooth API</h3><p>The <a href="https://web.dev/bluetooth/" target="_blank" rel="noopener">Web Bluetooth API</a> can be used to communicate<br>with bluetooth devices. In order to use this API in Electron, developers will<br>need to handle the <a href="../api/web-contents.md#event-select-bluetooth-device" target="_blank" rel="noopener"><code>select-bluetooth-device</code> event on the webContents</a><br>associated with the device request.</p><p>Additionally, <a href="../api/session.md#sessetbluetoothpairinghandlerhandler-windows-linux" target="_blank" rel="noopener"><code>ses.setBluetoothPairingHandler(handler)</code></a><br>can be used to handle pairing to bluetooth devices on Windows or Linux when<br>additional validation such as a pin is needed.</p><h4>Example</h4><p>This example demonstrates an Electron application that automatically selects<br>the first available bluetooth device when the <code>Test Bluetooth</code> button is<br>clicked.</p><h3>WebHID API</h3><p>The <a href="https://web.dev/hid/" target="_blank" rel="noopener">WebHID API</a> can be used to access HID devices such<br>as keyboards and gamepads. Electron provides several APIs for working with<br>the WebHID API:</p><ul><li>The <a href="../api/session.md#event-select-hid-device" target="_blank" rel="noopener"><code>select-hid-device</code> event on the Session</a></li></ul><p>  can be used to select a HID device when a call to<br>  <code>navigator.hid.requestDevice</code> is made.  Additionally the <a href="../api/session.md#event-hid-device-added" target="_blank" rel="noopener"><code>hid-device-added</code></a><br>  and <a href="../api/session.md#event-hid-device-removed" target="_blank" rel="noopener"><code>hid-device-removed</code></a> events<br>  on the Session can be used to handle devices being plugged in or unplugged<br>  when handling the <code>select-hid-device</code> event.<br>  <strong>Note:</strong> These events only fire until the callback from <code>select-hid-device</code><br>  is called.  They are not intended to be used as a generic hid device listener.</p><ul><li><a href="../api/session.md#sessetdevicepermissionhandlerhandler" target="_blank" rel="noopener"><code>ses.setDevicePermissionHandler(handler)</code></a></li></ul><p>  can be used to provide default permissioning to devices without first calling<br>  for permission to devices via <code>navigator.hid.requestDevice</code>.  Additionally,<br>  the default behavior of Electron is to store granted device permission through<br>  the lifetime of the corresponding WebContents.  If longer term storage is<br>  needed, a developer can store granted device permissions (eg when handling<br>  the <code>select-hid-device</code> event) and then read from that storage with<br>  <code>setDevicePermissionHandler</code>.</p><ul><li><a href="../api/session.md#sessetpermissioncheckhandlerhandler" target="_blank" rel="noopener"><code>ses.setPermissionCheckHandler(handler)</code></a></li></ul><p>  can be used to disable HID access for specific origins.</p><h4>Blocklist</h4><p>By default Electron employs the same <a href="https://wicg.github.io/webhid/#blocklist" target="_blank" rel="noopener">blocklist</a><br>used by Chromium.  If you wish to override this behavior, you can do so by<br>setting the <code>disable-hid-blocklist</code> flag:</p><div class="codebox"><div class="codebar"><span>JavaScript</span><button type="button" class="copy-btn">复制</button></div><pre><code>app.commandLine.appendSwitch('disable-hid-blocklist')</code></pre></div><h4>Example</h4><p>This example demonstrates an Electron application that automatically selects<br>HID devices through <a href="../api/session.md#sessetdevicepermissionhandlerhandler" target="_blank" rel="noopener"><code>ses.setDevicePermissionHandler(handler)</code></a><br>and through <a href="../api/session.md#event-select-hid-device" target="_blank" rel="noopener"><code>select-hid-device</code> event on the Session</a><br>when the <code>Test WebHID</code> button is clicked.</p><h3>Web Serial API</h3><p>The <a href="https://web.dev/serial/" target="_blank" rel="noopener">Web Serial API</a> can be used to access serial<br>devices that are connected via serial port, USB, or Bluetooth.  In order to use<br>this API in Electron, developers will need to handle the<br><a href="../api/session.md#event-select-serial-port" target="_blank" rel="noopener"><code>select-serial-port</code> event on the Session</a><br>associated with the serial port request.</p><p>There are several additional APIs for working with the Web Serial API:</p><ul><li>The <a href="../api/session.md#event-serial-port-added" target="_blank" rel="noopener"><code>serial-port-added</code></a></li></ul><p>  and <a href="../api/session.md#event-serial-port-removed" target="_blank" rel="noopener"><code>serial-port-removed</code></a> events<br>  on the Session can be used to handle devices being plugged in or unplugged<br>  when handling the <code>select-serial-port</code> event.<br>  <strong>Note:</strong> These events only fire until the callback from <code>select-serial-port</code><br>  is called.  They are not intended to be used as a generic serial port<br>  listener.</p><ul><li><a href="../api/session.md#sessetdevicepermissionhandlerhandler" target="_blank" rel="noopener"><code>ses.setDevicePermissionHandler(handler)</code></a></li></ul><p>  can be used to provide default permissioning to devices without first calling<br>  for permission to devices via <code>navigator.serial.requestPort</code>.  Additionally,<br>  the default behavior of Electron is to store granted device permission through<br>  the lifetime of the corresponding WebContents.  If longer term storage is<br>  needed, a developer can store granted device permissions (eg when handling<br>  the <code>select-serial-port</code> event) and then read from that storage with<br>  <code>setDevicePermissionHandler</code>.</p><ul><li><a href="../api/session.md#sessetpermissioncheckhandlerhandler" target="_blank" rel="noopener"><code>ses.setPermissionCheckHandler(handler)</code></a></li></ul><p>  can be used to disable serial access for specific origins.</p><h4>Blocklist</h4><p>By default Electron employs the same <a href="https://wicg.github.io/serial/#blocklist" target="_blank" rel="noopener">blocklist</a><br>used by Chromium.  If you wish to override this behavior, you can do so by<br>setting the <code>disable-serial-blocklist</code> flag:</p><div class="codebox"><div class="codebar"><span>JavaScript</span><button type="button" class="copy-btn">复制</button></div><pre><code>app.commandLine.appendSwitch('disable-serial-blocklist')</code></pre></div><h4>Example</h4><p>This example demonstrates an Electron application that automatically selects<br>serial devices through <a href="../api/session.md#sessetdevicepermissionhandlerhandler" target="_blank" rel="noopener"><code>ses.setDevicePermissionHandler(handler)</code></a><br>as well as demonstrating selecting the first available Arduino Uno serial device (if connected) through<br><a href="../api/session.md#event-select-serial-port" target="_blank" rel="noopener"><code>select-serial-port</code> event on the Session</a><br>when the <code>Test Web Serial</code> button is clicked.</p><h3>WebUSB API</h3><p>The <a href="https://web.dev/usb/" target="_blank" rel="noopener">WebUSB API</a> can be used to access USB devices.<br>Electron provides several APIs for working with the WebUSB API:</p><ul><li>The <a href="../api/session.md#event-select-usb-device" target="_blank" rel="noopener"><code>select-usb-device</code> event on the Session</a></li></ul><p>  can be used to select a USB device when a call to<br>  <code>navigator.usb.requestDevice</code> is made.  Additionally the <a href="../api/session.md#event-usb-device-added" target="_blank" rel="noopener"><code>usb-device-added</code></a><br>  and <a href="../api/session.md#event-usb-device-removed" target="_blank" rel="noopener"><code>usb-device-removed</code></a> events<br>  on the Session can be used to handle devices being plugged in or unplugged<br>  when handling the <code>select-usb-device</code> event.<br>  <strong>Note:</strong> These two events only fire until the callback from <code>select-usb-device</code><br>  is called.  They are not intended to be used as a generic usb device listener.</p><ul><li>The <a href="../api/session.md#event-usb-device-revoked" target="_blank" rel="noopener"><code>usb-device-revoked</code> event on the Session</a> can</li></ul><p>  be used to respond when <a href="https://developer.chrome.com/articles/usb/#revoke-access" target="_blank" rel="noopener">device.forget()</a><br>  is called on a USB device.</p><ul><li><a href="../api/session.md#sessetdevicepermissionhandlerhandler" target="_blank" rel="noopener"><code>ses.setDevicePermissionHandler(handler)</code></a></li></ul><p>  can be used to provide default permissioning to devices without first calling<br>  for permission to devices via <code>navigator.usb.requestDevice</code>.  Additionally,<br>  the default behavior of Electron is to store granted device permission through<br>  the lifetime of the corresponding WebContents.  If longer term storage is<br>  needed, a developer can store granted device permissions (eg when handling<br>  the <code>select-usb-device</code> event) and then read from that storage with<br>  <code>setDevicePermissionHandler</code>.</p><ul><li><a href="../api/session.md#sessetpermissioncheckhandlerhandler" target="_blank" rel="noopener"><code>ses.setPermissionCheckHandler(handler)</code></a></li></ul><p>  can be used to disable USB access for specific origins.</p><ul><li><a href="../api/session.md#sessetusbprotectedclasseshandlerhandler" target="_blank" rel="noopener">`ses.setUSBProtectedClassesHandler</a></li></ul><p>  can be used to allow usage of <a href="https://wicg.github.io/webusb/#usbinterface-interface" target="_blank" rel="noopener">protected USB classes</a> that are not available by default.</p><h4>Blocklist</h4><p>By default Electron employs the same <a href="https://wicg.github.io/webusb/#blocklist" target="_blank" rel="noopener">blocklist</a><br>used by Chromium.  If you wish to override this behavior, you can do so by<br>setting the <code>disable-usb-blocklist</code> flag:</p><div class="codebox"><div class="codebar"><span>JavaScript</span><button type="button" class="copy-btn">复制</button></div><pre><code>app.commandLine.appendSwitch('disable-usb-blocklist')</code></pre></div><h4>Example</h4><p>This example demonstrates an Electron application that automatically selects<br>USB devices (if they are attached) through <a href="../api/session.md#sessetdevicepermissionhandlerhandler" target="_blank" rel="noopener"><code>ses.setDevicePermissionHandler(handler)</code></a><br>and through <a href="../api/session.md#event-select-usb-device" target="_blank" rel="noopener"><code>select-usb-device</code> event on the Session</a><br>when the <code>Test WebUSB</code> button is clicked.</p><h3>完整可运行代码：Device Access</h3><h4>Web Bluetooth</h4><div class="codebox"><div class="codebar"><span>index.html</span><button type="button" class="copy-btn">复制</button></div><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;default-src 'self'; script-src 'self'&quot;&gt;
+    &lt;title&gt;Web Bluetooth API&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Web Bluetooth API&lt;/h1&gt;
+
+    &lt;button id=&quot;clickme&quot;&gt;Test Bluetooth&lt;/button&gt;
+    &lt;button id=&quot;cancel&quot;&gt;Cancel Bluetooth Request&lt;/button&gt;
+
+    &lt;p&gt;Currently selected bluetooth device: &lt;strong id=&quot;device-name&quot;&gt;&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;script src=&quot;./renderer.js&quot;&gt;&lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre></div><div class="codebox"><div class="codebar"><span>main.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { app, BrowserWindow, ipcMain } = require('electron/main')
+const path = require('node:path')
+
+let bluetoothPinCallback
+let selectBluetoothCallback
+
+function createWindow () {
+  const mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js')
+    }
+  })
+
+  mainWindow.webContents.on('select-bluetooth-device', (event, deviceList, callback) =&gt; {
+    event.preventDefault()
+    selectBluetoothCallback = callback
+    const result = deviceList.find((device) =&gt; {
+      return device.deviceName === 'test'
+    })
+    if (result) {
+      callback(result.deviceId)
+    } else {
+      // The device wasn't found so we need to either wait longer (eg until the
+      // device is turned on) or until the user cancels the request
+    }
+  })
+
+  ipcMain.on('cancel-bluetooth-request', () =&gt; {
+    selectBluetoothCallback('')
+  })
+
+  // Listen for a message from the renderer to get the response for the Bluetooth pairing.
+  ipcMain.on('bluetooth-pairing-response', (event, response) =&gt; {
+    bluetoothPinCallback(response)
+  })
+
+  mainWindow.webContents.session.setBluetoothPairingHandler((details, callback) =&gt; {
+    bluetoothPinCallback = callback
+    // Send a message to the renderer to prompt the user to confirm the pairing.
+    mainWindow.webContents.send('bluetooth-pairing-request', details)
+  })
+
+  mainWindow.loadFile('index.html')
+}
+
+app.whenReady().then(() =&gt; {
+  createWindow()
+
+  app.on('activate', function () {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+  })
+})
+
+app.on('window-all-closed', function () {
+  if (process.platform !== 'darwin') app.quit()
+})</code></pre></div><div class="codebox"><div class="codebar"><span>preload.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { contextBridge, ipcRenderer } = require('electron/renderer')
+
+contextBridge.exposeInMainWorld('electronAPI', {
+  cancelBluetoothRequest: () =&gt; ipcRenderer.send('cancel-bluetooth-request'),
+  bluetoothPairingRequest: (callback) =&gt; ipcRenderer.on('bluetooth-pairing-request', () =&gt; callback()),
+  bluetoothPairingResponse: (response) =&gt; ipcRenderer.send('bluetooth-pairing-response', response)
+})</code></pre></div><div class="codebox"><div class="codebar"><span>renderer.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>async function testIt () {
+  const device = await navigator.bluetooth.requestDevice({
+    acceptAllDevices: true
+  })
+  document.getElementById('device-name').innerHTML = device.name || `ID: ${device.id}`
+}
+
+document.getElementById('clickme').addEventListener('click', testIt)
+
+function cancelRequest () {
+  window.electronAPI.cancelBluetoothRequest()
+}
+
+document.getElementById('cancel').addEventListener('click', cancelRequest)
+
+window.electronAPI.bluetoothPairingRequest((event, details) =&gt; {
+  const response = {}
+
+  switch (details.pairingKind) {
+    case 'confirm': {
+      response.confirmed = window.confirm(`Do you want to connect to device ${details.deviceId}?`)
+      break
+    }
+    case 'confirmPin': {
+      response.confirmed = window.confirm(`Does the pin ${details.pin} match the pin displayed on device ${details.deviceId}?`)
+      break
+    }
+    case 'providePin': {
+      const pin = window.prompt(`Please provide a pin for ${details.deviceId}.`)
+      if (pin) {
+        response.pin = pin
+        response.confirmed = true
+      } else {
+        response.confirmed = false
+      }
+    }
+  }
+
+  window.electronAPI.bluetoothPairingResponse(response)
+})</code></pre></div><h4>Web HID</h4><div class="codebox"><div class="codebar"><span>index.html</span><button type="button" class="copy-btn">复制</button></div><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;default-src 'self'; script-src 'self'&quot;&gt;
+    &lt;title&gt;WebHID API&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;WebHID API&lt;/h1&gt;
+
+    &lt;button id=&quot;clickme&quot;&gt;Test WebHID&lt;/button&gt;
+
+    &lt;h3&gt;HID devices automatically granted access via &lt;i&gt;setDevicePermissionHandler&lt;/i&gt;&lt;/h3&gt;
+    &lt;div id=&quot;granted-devices&quot;&gt;&lt;/div&gt;
+
+    &lt;h3&gt;HID devices automatically granted access via &lt;i&gt;select-hid-device&lt;/i&gt;&lt;/h3&gt;
+    &lt;div id=&quot;granted-devices2&quot;&gt;&lt;/div&gt;
+
+    &lt;script src=&quot;./renderer.js&quot;&gt;&lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre></div><div class="codebox"><div class="codebar"><span>main.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { app, BrowserWindow } = require('electron/main')
+
+function createWindow () {
+  const mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600
+  })
+
+  mainWindow.webContents.session.on('select-hid-device', (event, details, callback) =&gt; {
+    // Add events to handle devices being added or removed before the callback on
+    // `select-hid-device` is called.
+    mainWindow.webContents.session.on('hid-device-added', (event, device) =&gt; {
+      console.log('hid-device-added FIRED WITH', device)
+      // Optionally update details.deviceList
+    })
+
+    mainWindow.webContents.session.on('hid-device-removed', (event, device) =&gt; {
+      console.log('hid-device-removed FIRED WITH', device)
+      // Optionally update details.deviceList
+    })
+
+    event.preventDefault()
+    if (details.deviceList &amp;&amp; details.deviceList.length &gt; 0) {
+      callback(details.deviceList[0].deviceId)
+    }
+  })
+
+  mainWindow.webContents.session.setPermissionCheckHandler((webContents, permission, requestingOrigin, details) =&gt; {
+    if (permission === 'hid' &amp;&amp; details.securityOrigin === 'file:///') {
+      return true
+    }
+  })
+
+  mainWindow.webContents.session.setDevicePermissionHandler((details) =&gt; {
+    if (details.deviceType === 'hid' &amp;&amp; details.origin === 'file://') {
+      return true
+    }
+  })
+
+  mainWindow.loadFile('index.html')
+}
+
+app.whenReady().then(() =&gt; {
+  createWindow()
+
+  app.on('activate', function () {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+  })
+})
+
+app.on('window-all-closed', function () {
+  if (process.platform !== 'darwin') app.quit()
+})</code></pre></div><div class="codebox"><div class="codebar"><span>renderer.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>function formatDevices (devices) {
+  return devices.map(device =&gt; device.productName).join('&lt;hr&gt;')
+}
+
+async function testIt () {
+  document.getElementById('granted-devices').innerHTML = formatDevices(await navigator.hid.getDevices())
+  document.getElementById('granted-devices2').innerHTML = formatDevices(await navigator.hid.requestDevice({ filters: [] }))
+}
+
+document.getElementById('clickme').addEventListener('click', testIt)</code></pre></div><h4>Web Serial</h4><div class="codebox"><div class="codebar"><span>index.html</span><button type="button" class="copy-btn">复制</button></div><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;default-src 'self'; script-src 'self'&quot;&gt;
+    &lt;title&gt;Web Serial API&lt;/title&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Web Serial API&lt;/h1&gt;
+
+    &lt;button id=&quot;clickme&quot;&gt;Test Web Serial API&lt;/button&gt;
+
+    &lt;p&gt;Matching Arduino Uno device: &lt;strong id=&quot;device-name&quot;&quot;&gt;&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;script src=&quot;./renderer.js&quot;&gt;&lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre></div><div class="codebox"><div class="codebar"><span>main.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { app, BrowserWindow } = require('electron/main')
+
+function createWindow () {
+  const mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600
+  })
+
+  mainWindow.webContents.session.on('select-serial-port', (event, portList, webContents, callback) =&gt; {
+    // Add listeners to handle ports being added or removed before the callback for `select-serial-port`
+    // is called.
+    mainWindow.webContents.session.on('serial-port-added', (event, port) =&gt; {
+      console.log('serial-port-added FIRED WITH', port)
+      // Optionally update portList to add the new port
+    })
+
+    mainWindow.webContents.session.on('serial-port-removed', (event, port) =&gt; {
+      console.log('serial-port-removed FIRED WITH', port)
+      // Optionally update portList to remove the port
+    })
+
+    event.preventDefault()
+    if (portList &amp;&amp; portList.length &gt; 0) {
+      callback(portList[0].portId)
+    } else {
+      callback('') // Could not find any matching devices
+    }
+  })
+
+  mainWindow.webContents.session.setPermissionCheckHandler((webContents, permission, requestingOrigin, details) =&gt; {
+    if (permission === 'serial' &amp;&amp; details.securityOrigin === 'file:///') {
+      return true
+    }
+
+    return false
+  })
+
+  mainWindow.webContents.session.setDevicePermissionHandler((details) =&gt; {
+    if (details.deviceType === 'serial' &amp;&amp; details.origin === 'file://') {
+      return true
+    }
+
+    return false
+  })
+
+  mainWindow.loadFile('index.html')
+
+  mainWindow.webContents.openDevTools()
+}
+
+app.whenReady().then(() =&gt; {
+  createWindow()
+
+  app.on('activate', function () {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+  })
+})
+
+app.on('window-all-closed', function () {
+  if (process.platform !== 'darwin') app.quit()
+})</code></pre></div><div class="codebox"><div class="codebar"><span>renderer.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>async function testIt () {
+  const filters = [
+    { usbVendorId: 0x2341, usbProductId: 0x0043 },
+    { usbVendorId: 0x2341, usbProductId: 0x0001 }
+  ]
+  try {
+    const port = await navigator.serial.requestPort({ filters })
+    const portInfo = port.getInfo()
+    document.getElementById('device-name').innerHTML = `vendorId: ${portInfo.usbVendorId} | productId: ${portInfo.usbProductId} `
+  } catch (ex) {
+    if (ex.name === 'NotFoundError') {
+      document.getElementById('device-name').innerHTML = 'Device NOT found'
+    } else {
+      document.getElementById('device-name').innerHTML = ex
+    }
+  }
+}
+
+document.getElementById('clickme').addEventListener('click', testIt)</code></pre></div><h4>Web USB</h4><div class="codebox"><div class="codebar"><span>index.html</span><button type="button" class="copy-btn">复制</button></div><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;default-src 'self'; script-src 'self'&quot;&gt;
+    &lt;title&gt;WebUSB API&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;WebUSB API&lt;/h1&gt;
+
+    &lt;button id=&quot;clickme&quot;&gt;Test WebUSB&lt;/button&gt;
+
+    &lt;h3&gt;USB devices automatically granted access via &lt;i&gt;setDevicePermissionHandler&lt;/i&gt;&lt;/h3&gt;
+    &lt;div id=&quot;granted-devices&quot;&gt;&lt;/div&gt;
+
+    &lt;h3&gt;USB devices automatically granted access via &lt;i&gt;select-usb-device&lt;/i&gt;&lt;/h3&gt;
+    &lt;div id=&quot;granted-devices2&quot;&gt;&lt;/div&gt;
+
+    &lt;script src=&quot;./renderer.js&quot;&gt;&lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre></div><div class="codebox"><div class="codebar"><span>main.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { app, BrowserWindow } = require('electron/main')
+
+function createWindow () {
+  const mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600
+  })
+
+  let grantedDeviceThroughPermHandler
+
+  mainWindow.webContents.session.on('select-usb-device', (event, details, callback) =&gt; {
+    // Add events to handle devices being added or removed before the callback on
+    // `select-usb-device` is called.
+    mainWindow.webContents.session.on('usb-device-added', (event, device) =&gt; {
+      console.log('usb-device-added FIRED WITH', device)
+      // Optionally update details.deviceList
+    })
+
+    mainWindow.webContents.session.on('usb-device-removed', (event, device) =&gt; {
+      console.log('usb-device-removed FIRED WITH', device)
+      // Optionally update details.deviceList
+    })
+
+    event.preventDefault()
+    if (details.deviceList &amp;&amp; details.deviceList.length &gt; 0) {
+      const deviceToReturn = details.deviceList.find((device) =&gt; {
+        return !grantedDeviceThroughPermHandler || (device.deviceId !== grantedDeviceThroughPermHandler.deviceId)
+      })
+      if (deviceToReturn) {
+        callback(deviceToReturn.deviceId)
+      } else {
+        callback()
+      }
+    }
+  })
+
+  mainWindow.webContents.session.setPermissionCheckHandler((webContents, permission, requestingOrigin, details) =&gt; {
+    if (permission === 'usb' &amp;&amp; details.securityOrigin === 'file:///') {
+      return true
+    }
+  })
+
+  mainWindow.webContents.session.setDevicePermissionHandler((details) =&gt; {
+    if (details.deviceType === 'usb' &amp;&amp; details.origin === 'file://') {
+      if (!grantedDeviceThroughPermHandler) {
+        grantedDeviceThroughPermHandler = details.device
+        return true
+      } else {
+        return false
+      }
+    }
+  })
+
+  mainWindow.webContents.session.setUSBProtectedClassesHandler((details) =&gt; {
+    return details.protectedClasses.filter((usbClass) =&gt; {
+      // Exclude classes except for audio classes
+      return usbClass.indexOf('audio') === -1
+    })
+  })
+
+  mainWindow.loadFile('index.html')
+}
+
+app.whenReady().then(() =&gt; {
+  createWindow()
+
+  app.on('activate', function () {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+  })
+})
+
+app.on('window-all-closed', function () {
+  if (process.platform !== 'darwin') app.quit()
+})</code></pre></div><div class="codebox"><div class="codebar"><span>renderer.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>function getDeviceDetails (device) {
+  return device.productName || `Unknown device ${device.deviceId}`
+}
+
+async function testIt () {
+  const noDevicesFoundMsg = 'No devices found'
+  const grantedDevices = await navigator.usb.getDevices()
+  let grantedDeviceList = ''
+  if (grantedDevices.length &gt; 0) {
+    for (const device of grantedDevices) {
+      grantedDeviceList += `&lt;hr&gt;${getDeviceDetails(device)}&lt;/hr&gt;`
+    }
+  } else {
+    grantedDeviceList = noDevicesFoundMsg
+  }
+  document.getElementById('granted-devices').innerHTML = grantedDeviceList
+
+  grantedDeviceList = ''
+  try {
+    const grantedDevice = await navigator.usb.requestDevice({
+      filters: []
+    })
+    grantedDeviceList += `&lt;hr&gt;${getDeviceDetails(grantedDevice)}&lt;/hr&gt;`
+  } catch (ex) {
+    if (ex.name === 'NotFoundError') {
+      grantedDeviceList = noDevicesFoundMsg
+    }
+  }
+  document.getElementById('granted-devices2').innerHTML = grantedDeviceList
+}
+
+document.getElementById('clickme').addEventListener('click', testIt)</code></pre></div>
+      </section>
+    </main>
+    <footer>Electron 官方示例教程 · 生成自 electronjs.org 文档</footer>
+  </div>
+  <script>
+    function copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+      return new Promise(function (resolve, reject) {
+        var ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.focus(); ta.select();
+        try { document.execCommand('copy'); resolve(); }
+        catch (err) { reject(err); }
+        finally { document.body.removeChild(ta); }
+      });
+    }
+    document.querySelectorAll('.codebox').forEach(function (box) {
+      var btn = box.querySelector('.copy-btn');
+      var code = box.querySelector('pre code');
+      btn.addEventListener('click', function () {
+        copyText(code.textContent).then(function () {
+          btn.textContent = '已复制';
+          setTimeout(function () { btn.textContent = '复制'; }, 1200);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Electron 官方示例教程合集</title>
+  <style>
+    :root { --bg:#f7fafc; --panel:#fff; --panel2:#eef3f8; --text:#0f172a; --muted:#526072; --line:#dbe4ee; --accent:#0284c7; --accent2:#0ea5e9; --code:#f6f8fb; --radius:14px; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; color:var(--text); font-family:"Segoe UI","Microsoft YaHei",system-ui,sans-serif; line-height:1.75; background:radial-gradient(circle at 10% 0%, rgba(56,189,248,.14), transparent 28rem),radial-gradient(circle at 90% 12%, rgba(167,139,250,.12), transparent 30rem),linear-gradient(135deg,#f8fbff 0%,#eef4fb 50%,#f8fafc 100%); background-attachment:fixed; }
+    a { color:var(--accent); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    .wrap { max-width:1000px; margin:0 auto; padding:1.6rem 1.2rem 4rem; }
+    .top { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.4rem; }
+    .back { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.45rem .85rem; font-size:.9rem; }
+    .pager a { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.4rem .75rem; font-size:.88rem; }
+    main { background:rgba(255,255,255,.72); border:1px solid var(--line); border-radius:var(--radius); padding:2rem; box-shadow:0 18px 50px rgba(15,23,42,.06); }
+    h1 { margin:0 0 .35rem; font-size:clamp(2rem,5vw,3rem); line-height:1.15; letter-spacing:-.02em; }
+    .meta { color:var(--muted); margin:0 0 1.8rem; }
+    h2 { margin:2.1rem 0 .7rem; font-size:1.45rem; }
+    h3 { margin:1.6rem 0 .5rem; font-size:1.1rem; }
+    p, li { color:#334155; }
+    strong { color:#0f172a; }
+    .callout { border-left:4px solid var(--accent); background:rgba(2,132,199,.07); padding:.85rem 1rem; border-radius:0 var(--radius) var(--radius) 0; margin:1rem 0; }
+    .steps { background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:1.1rem 1.3rem; margin-top:1.2rem; }
+    .steps ol { margin:0; padding-left:1.4rem; }
+    .steps li { margin:.45rem 0; }
+    .codebox { border:1px solid var(--line); background:var(--code); border-radius:var(--radius); overflow:hidden; margin:1rem 0 1.4rem; }
+    .codebar { display:flex; justify-content:space-between; align-items:center; padding:.5rem .8rem; border-bottom:1px solid var(--line); background:#edf3f8; color:var(--muted); font-size:.82rem; }
+    .copy-btn { border:1px solid var(--line); background:#fff; color:#334155; border-radius:8px; padding:.25rem .6rem; cursor:pointer; font-size:.78rem; }
+    .copy-btn:hover { border-color:var(--accent); color:var(--accent); }
+    pre { margin:0; padding:1rem 1.1rem; overflow:auto; color:#0f172a; font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; font-size:.9rem; line-height:1.55; }
+    code { font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; }
+    blockquote { border-left:4px solid #b6c5d6; background:#f7fafc; margin:1rem 0; padding:.8rem 1rem; color:#475569; }
+    img { max-width:100%; height:auto; border:1px solid var(--line); border-radius:10px; }
+    hr { border:0; border-top:1px solid var(--line); margin:2rem 0; }
+    table { border-collapse:collapse; width:100%; margin:1rem 0; background:#fff; }
+    th, td { border:1px solid var(--line); padding:.5rem .65rem; text-align:left; vertical-align:top; font-size:.9rem; }
+    th { background:#eef3f8; }
+    footer { color:var(--muted); font-size:.85rem; margin-top:1.4rem; text-align:center; }
+    @media (max-width:640px) { main { padding:1.2rem; } .top { align-items:flex-start; } }
+  
+    .hero { text-align:center; padding:2.5rem 0 1rem; }
+    .hero h1 { margin-bottom:.6rem; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1rem; margin-top:2rem; }
+    .card { display:flex; flex-direction:column; gap:.35rem; border:1px solid var(--line); background:#fff; border-radius:var(--radius); padding:1rem 1.1rem; color:var(--text); transition:.18s ease; }
+    .card:hover { transform:translateY(-2px); border-color:var(--accent); text-decoration:none; box-shadow:0 12px 30px rgba(2,132,199,.08); }
+    .num { color:var(--accent); font-size:.8rem; letter-spacing:.08em; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <h1>Electron 官方示例教程合集</h1>
+      <p class="meta">共 20 个示例，每个页面都包含 PowerShell 操作步骤和官方代码。</p>
+    </header>
+    <main style="background:transparent;border:0;box-shadow:none;padding:0;">
+      <div class="grid"><a class="card" href="dark-mode.html"><span class="num">01</span><strong>深色模式 Dark Mode</strong><span>dark-mode</span></a><a class="card" href="devices.html"><span class="num">02</span><strong>设备访问 Devices</strong><span>devices</span></a><a class="card" href="in-app-purchases.html"><span class="num">03</span><strong>应用程序内购 In-App Purchases</strong><span>in-app-purchases</span></a><a class="card" href="keyboard-shortcuts.html"><span class="num">04</span><strong>键盘快捷键 Keyboard Shortcuts</strong><span>keyboard-shortcuts</span></a><a class="card" href="launch-app-from-url-in-another-app.html"><span class="num">05</span><strong>深度链接 Deep Links</strong><span>launch-app-from-url-in-another-app</span></a><a class="card" href="linux-desktop-actions.html"><span class="num">06</span><strong>桌面启动器快捷操作 Linux Desktop Actions</strong><span>linux-desktop-actions</span></a><a class="card" href="menus.html"><span class="num">07</span><strong>菜单 Menus</strong><span>menus</span></a><a class="card" href="multithreading.html"><span class="num">08</span><strong>多线程 Multithreading</strong><span>multithreading</span></a><a class="card" href="native-file-drag-drop.html"><span class="num">09</span><strong>原生文件拖 &amp; 放 Native File Drag &amp; Drop</strong><span>native-file-drag-drop</span></a><a class="card" href="navigation-history.html"><span class="num">10</span><strong>导航历史 Navigation History</strong><span>navigation-history</span></a><a class="card" href="notifications.html"><span class="num">11</span><strong>通知 Notifications</strong><span>notifications</span></a><a class="card" href="offscreen-rendering.html"><span class="num">12</span><strong>离屏渲染 Offscreen Rendering</strong><span>offscreen-rendering</span></a><a class="card" href="online-offline-events.html"><span class="num">13</span><strong>在线/离线事件探测 Online/Offline Events</strong><span>online-offline-events</span></a><a class="card" href="progress-bar.html"><span class="num">14</span><strong>进度条 Progress Bar</strong><span>progress-bar</span></a><a class="card" href="recent-documents.html"><span class="num">15</span><strong>最近的文件 Recent Documents</strong><span>recent-documents</span></a><a class="card" href="represented-file.html"><span class="num">16</span><strong>在 BrowserWindow 中展示文件 Represented File</strong><span>represented-file</span></a><a class="card" href="spellchecker.html"><span class="num">17</span><strong>拼写检查器 Spellchecker</strong><span>spellchecker</span></a><a class="card" href="web-embeds.html"><span class="num">18</span><strong>Web 嵌入 Web Embeds</strong><span>web-embeds</span></a><a class="card" href="windows-taskbar.html"><span class="num">19</span><strong>任务栏自定义 Windows Taskbar</strong><span>windows-taskbar</span></a><a class="card" href="window-customization.html"><span class="num">20</span><strong>自定义窗口 Window Customization</strong><span>window-customization</span></a></div>
+    </main>
+    <footer>点击任意示例开始学习 · 建议按顺序进行</footer>
+  </div>
+</body>
+</html>

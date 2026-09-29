@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>键盘快捷键 Keyboard Shortcuts - Electron 官方示例教程</title>
+  <style>
+    :root { --bg:#f7fafc; --panel:#fff; --panel2:#eef3f8; --text:#0f172a; --muted:#526072; --line:#dbe4ee; --accent:#0284c7; --accent2:#0ea5e9; --code:#f6f8fb; --radius:14px; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; color:var(--text); font-family:"Segoe UI","Microsoft YaHei",system-ui,sans-serif; line-height:1.75; background:radial-gradient(circle at 10% 0%, rgba(56,189,248,.14), transparent 28rem),radial-gradient(circle at 90% 12%, rgba(167,139,250,.12), transparent 30rem),linear-gradient(135deg,#f8fbff 0%,#eef4fb 50%,#f8fafc 100%); background-attachment:fixed; }
+    a { color:var(--accent); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    .wrap { max-width:1000px; margin:0 auto; padding:1.6rem 1.2rem 4rem; }
+    .top { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.4rem; }
+    .back { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.45rem .85rem; font-size:.9rem; }
+    .pager a { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.4rem .75rem; font-size:.88rem; }
+    main { background:rgba(255,255,255,.72); border:1px solid var(--line); border-radius:var(--radius); padding:2rem; box-shadow:0 18px 50px rgba(15,23,42,.06); }
+    h1 { margin:0 0 .35rem; font-size:clamp(2rem,5vw,3rem); line-height:1.15; letter-spacing:-.02em; }
+    .meta { color:var(--muted); margin:0 0 1.8rem; }
+    h2 { margin:2.1rem 0 .7rem; font-size:1.45rem; }
+    h3 { margin:1.6rem 0 .5rem; font-size:1.1rem; }
+    p, li { color:#334155; }
+    strong { color:#0f172a; }
+    .callout { border-left:4px solid var(--accent); background:rgba(2,132,199,.07); padding:.85rem 1rem; border-radius:0 var(--radius) var(--radius) 0; margin:1rem 0; }
+    .steps { background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:1.1rem 1.3rem; margin-top:1.2rem; }
+    .steps ol { margin:0; padding-left:1.4rem; }
+    .steps li { margin:.45rem 0; }
+    .codebox { border:1px solid var(--line); background:var(--code); border-radius:var(--radius); overflow:hidden; margin:1rem 0 1.4rem; }
+    .codebar { display:flex; justify-content:space-between; align-items:center; padding:.5rem .8rem; border-bottom:1px solid var(--line); background:#edf3f8; color:var(--muted); font-size:.82rem; }
+    .copy-btn { border:1px solid var(--line); background:#fff; color:#334155; border-radius:8px; padding:.25rem .6rem; cursor:pointer; font-size:.78rem; }
+    .copy-btn:hover { border-color:var(--accent); color:var(--accent); }
+    pre { margin:0; padding:1rem 1.1rem; overflow:auto; color:#0f172a; font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; font-size:.9rem; line-height:1.55; }
+    code { font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; }
+    blockquote { border-left:4px solid #b6c5d6; background:#f7fafc; margin:1rem 0; padding:.8rem 1rem; color:#475569; }
+    img { max-width:100%; height:auto; border:1px solid var(--line); border-radius:10px; }
+    hr { border:0; border-top:1px solid var(--line); margin:2rem 0; }
+    table { border-collapse:collapse; width:100%; margin:1rem 0; background:#fff; }
+    th, td { border:1px solid var(--line); padding:.5rem .65rem; text-align:left; vertical-align:top; font-size:.9rem; }
+    th { background:#eef3f8; }
+    footer { color:var(--muted); font-size:.85rem; margin-top:1.4rem; text-align:center; }
+    @media (max-width:640px) { main { padding:1.2rem; } .top { align-items:flex-start; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="back" href="index.html">← 全部示例</a>
+      <nav class="pager"><a href="in-app-purchases.html">← 应用程序内购</a><a href="index.html">目录</a><a href="launch-app-from-url-in-another-app.html">深度链接 →</a></nav>
+    </header>
+    <main>
+      <h1>键盘快捷键 Keyboard Shortcuts</h1>
+      <p class="meta">Electron 官方示例 · keyboard-shortcuts · 第 4 / 20 个</p>
+
+      <section>
+        <h2>手把手操作步骤</h2>
+        <div class="callout">本页面基于 Electron 官方文档整理。先在本地运行起来，再阅读下面的官方说明和代码。</div>
+        <div class="steps"><ol>
+          <li>打开 PowerShell，进入总目录：</li><li><pre><code>cd D:\hf\L\electron</code></pre></li><li>创建一个独立的示例项目目录并进入：</li><li><pre><code>New-Item -ItemType Directory -Path apps\keyboard-shortcuts -Force
+cd apps\keyboard-shortcuts</code></pre></li><li>初始化 npm 项目：</li><li><pre><code>npm init -y</code></pre></li><li>安装 Electron。国内网络可以先设置镜像再安装：</li><li><pre><code>$env:ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
+npm install --save-dev electron</code></pre></li><li>根据下方官方代码创建对应文件。大多数示例需要 <code>main.js</code> 和 <code>index.html</code>，部分还需要 <code>preload.js</code> 或 <code>renderer.js</code>。代码块已经标注用途。</li><li>确认 <code>package.json</code> 中有启动脚本，然后运行：</li><li><pre><code>npm pkg set scripts.start="electron ."
+npm start</code></pre></li><li>观察窗口效果。修改代码后退出应用，再重新执行 <code>npm start</code>。</li>
+        </ol></div>
+      </section>
+
+      <section>
+        <h2>官方文档与代码</h2>
+        <h2>Keyboard Shortcuts</h2><h3>Accelerators</h3><p>Accelerators are strings that can be used to represent keyboard shortcuts throughout your Electron.<br>These strings can contain multiple modifier keys and a single key code joined by the <code>+</code> character.</p><blockquote>[!NOTE]<br>Accelerators are <strong>case-insensitive</strong>.</blockquote><h4>Available modifiers</h4><ul><li><code>Command</code> (or <code>Cmd</code> for short)</li><li><code>Control</code> (or <code>Ctrl</code> for short)</li><li><code>CommandOrControl</code> (or <code>CmdOrCtrl</code> for short)</li><li><code>Alt</code></li><li><code>Option</code></li><li><code>AltGr</code></li><li><code>Shift</code></li><li><code>Super</code> (or <code>Meta</code> as alias)</li></ul><h4>Available key codes</h4><ul><li><code>0</code> to <code>9</code></li><li><code>A</code> to <code>Z</code></li><li><code>F1</code> to <code>F24</code></li><li>Various Punctuation: <code>)</code>, <code>!</code>, <code>@</code>, <code>#</code>, <code>$</code>, <code>%</code>, <code>^</code>, <code>&amp;</code>, <code>*</code>, <code>(</code>, <code>:</code>, <code>;</code>, <code>:</code>, <code>+</code>, <code>=</code>, <code>&lt;</code>, <code>,</code>, <code>_</code>, <code>-</code>, <code>&gt;</code>, <code>.</code>, <code>?</code>, <code>/</code>, <code>~</code>, `<code> </code> `<code>, </code>{<code>, </code>]<code>, </code>[<code>, </code>|<code>, </code>\<code>, </code>}<code>, </code>&quot;`</li><li><code>Plus</code></li><li><code>Space</code></li><li><code>Tab</code></li><li><code>Capslock</code></li><li><code>Numlock</code></li><li><code>Scrolllock</code></li><li><code>Backspace</code></li><li><code>Delete</code></li><li><code>Insert</code></li><li><code>Return</code> (or <code>Enter</code> as alias)</li><li><code>Up</code>, <code>Down</code>, <code>Left</code> and <code>Right</code></li><li><code>Home</code> and <code>End</code></li><li><code>PageUp</code> and <code>PageDown</code></li><li><code>Escape</code> (or <code>Esc</code> for short)</li><li><code>VolumeUp</code>, <code>VolumeDown</code> and <code>VolumeMute</code></li><li><code>MediaNextTrack</code>, <code>MediaPreviousTrack</code>, <code>MediaStop</code> and <code>MediaPlayPause</code></li><li><code>PrintScreen</code></li><li>NumPad Keys</li><li><code>num0</code> - <code>num9</code></li><li><code>numdec</code> - decimal key</li><li><code>numadd</code> - numpad <code>+</code> key</li><li><code>numsub</code> - numpad <code>-</code> key</li><li><code>nummult</code> - numpad <code>*</code> key</li><li><code>numdiv</code> - numpad <code>÷</code> key</li></ul><h4>Cross-platform modifiers</h4><p>Many modifier accelerators map to different keys between operating systems.</p><div class="table-wrap"><table><thead><tr><th>Modifier</th><th>macOS</th><th>Windows and Linux</th></tr></thead><tbody><tr><td><code>CommandOrControl</code></td><td>Command (⌘)</td><td>Control</td></tr><tr><td><code>Command</code></td><td>Command (⌘)</td><td>N/A</td></tr><tr><td><code>Control</code></td><td>Control (^)</td><td>Control</td></tr><tr><td><code>Alt</code></td><td>Option (⌥)</td><td>Alt</td></tr><tr><td><code>Option</code></td><td>Option (⌥)</td><td>N/A</td></tr><tr><td><code>Super</code> (<code>Meta</code>)</td><td>Command (⌘)</td><td>Windows (⊞)</td></tr></tbody></table></div><blockquote>[!IMPORTANT]<br><br>* On Linux and Windows, the <code>Command</code> modifier does not have any effect. In general, you should use<br>the <code>CommandOrControl</code> modifier instead, which represents &lt;kbd&gt;⌘ Cmd&lt;/kbd&gt; on macOS and &lt;kbd&gt;Ctrl&lt;/kbd&gt;<br>on Linux and Windows.<br>* Use <code>Alt</code> instead of <code>Option</code>. The &lt;kbd&gt;⌥ Opt&lt;/kbd&gt; key only exists on macOS, whereas the <code>Alt</code> will<br>map to the appropriate modifier on all platforms.</blockquote><h5>Examples</h5><p>Here are some examples of cross-platform Electron accelerators for common editing operations:</p><ul><li>Copy: <code>CommandOrControl+C</code></li><li>Paste: <code>CommandOrControl+V</code></li><li>Undo: <code>CommandOrControl+Z</code></li><li>Redo: <code>CommandOrControl+Shift+Z</code></li></ul><h3>Local shortcuts</h3><p><strong>Local</strong> keyboard shortcuts are triggered only when the application is focused. These shortcuts<br>map to specific menu items within the app's main <a href="./application-menu.md" target="_blank" rel="noopener">application menu</a>.</p><p>To define a local keyboard shortcut, you need to configure the <code>accelerator</code> property when creating<br>a <a href="../api/menu-item.md" target="_blank" rel="noopener">MenuItem</a>. Then, the <code>click</code> event associated to that menu item will trigger<br>upon using that accelerator.</p><div class="codebox"><div class="codebar"><span>Opening a dialog via accelerator (local)</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { dialog, Menu, MenuItem } = require('electron/main')
+
+const menu = new Menu()
+
+// The first submenu needs to be the app menu on macOS
+if (process.platform === 'darwin') {
+  const appMenu = new MenuItem({ role: 'appMenu' })
+  menu.append(appMenu)
+}
+
+// highlight-start
+const submenu = Menu.buildFromTemplate([
+  {
+    label: 'Open a Dialog',
+    click: () =&gt; dialog.showMessageBox({ message: 'Hello World!' }),
+    accelerator: 'CommandOrControl+Alt+R'
+  }
+])
+menu.append(new MenuItem({ label: 'Custom Menu', submenu }))
+// highlight-end
+
+Menu.setApplicationMenu(menu)</code></pre></div><p>In the above example, a native &quot;Hello World&quot; dialog will open when pressing &lt;kbd&gt;⌘ Cmd&lt;/kbd&gt;+&lt;kbd&gt;⌥ Opt&lt;/kbd&gt;+&lt;kbd&gt;R&lt;/kbd&gt;<br>on macOS or &lt;kbd&gt;Ctrl&lt;/kbd&gt;+&lt;kbd&gt;Alt&lt;/kbd&gt;+&lt;kbd&gt;R&lt;/kbd&gt; on other platforms.</p><blockquote>[!TIP]<br>Accelerators can work even when menu items are hidden. On macOS, this feature can be disabled by<br>setting <code>acceleratorWorksWhenHidden: false</code> when building a <code>MenuItem</code>.</blockquote><blockquote>[!TIP]<br>On Windows and Linux, the <code>registerAccelerator</code> property of the <code>MenuItem</code> can be set to <code>false</code><br>so that the accelerator is visible in the system menu but not enabled.</blockquote><h3>Global shortcuts</h3><p><strong>Global</strong> keyboard shortcuts work even when your app is out of focus. To configure a global keyboard<br>shortcut, you can use the <a href="../api/global-shortcut.md#globalshortcutregisteraccelerator-callback" target="_blank" rel="noopener"><code>globalShortcut.register</code></a><br>function to specify shortcuts.</p><div class="codebox"><div class="codebar"><span>Opening a dialog via accelerator (global)</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { dialog, globalShortcut } = require('electron/main')
+
+globalShortcut.register('CommandOrControl+Alt+R', () =&gt; {
+  dialog.showMessageBox({ message: 'Hello World!' })
+})</code></pre></div><p>To later unregister a shortcut, you can use the <a href="../api/global-shortcut.md#globalshortcutunregisteraccelerator" target="_blank" rel="noopener"><code>globalShortcut.unregisterAccelerator</code></a><br>function.</p><div class="codebox"><div class="codebar"><span>Opening a dialog via accelerator (global)</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { globalShortcut } = require('electron/main')
+
+globalShortcut.unregister('CommandOrControl+Alt+R')</code></pre></div><blockquote>[!WARNING]<br>On macOS, there's a long-standing bug with <code>globalShortcut</code> that prevents it from working with<br>keyboard layouts other than QWERTY (<a href="https://github.com/electron/electron/issues/19747" target="_blank" rel="noopener">electron/electron#19747</a>).</blockquote><h3>Shortcuts within a window</h3><h4>In the renderer process</h4><p>If you want to handle keyboard shortcuts within a <a href="../api/base-window.md" target="_blank" rel="noopener">BaseWindow</a>, you can<br>listen for the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/keyup_event" target="_blank" rel="noopener"><code>keyup</code></a> and<br><a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/keydown_event" target="_blank" rel="noopener"><code>keydown</code></a> DOM Events inside<br>the renderer process using the <a href="https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener" target="_blank" rel="noopener">addEventListener</a> API.</p><div class="codebox"><div class="codebar"><span>Electron Fiddle 完整示例</span><button type="button" class="copy-btn">复制</button></div><pre><code>function handleKeyPress (event) {
+  // You can put code here to handle the keypress.
+  document.getElementById('last-keypress').innerText = event.key
+  console.log(`You pressed ${event.key}`)
+}
+
+window.addEventListener('keyup', handleKeyPress, true)</code></pre></div><blockquote>[!NOTE]<br>The third parameter <code>true</code> indicates that the listener will always receive<br>key presses before other listeners so they can't have <code>stopPropagation()</code><br>called on them.</blockquote><h5>Intercepting events in the main process</h5><p>The <a href="../api/web-contents.md#event-before-input-event" target="_blank" rel="noopener"><code>before-input-event</code></a> event<br>is emitted before dispatching <code>keydown</code> and <code>keyup</code> events in the renderer process. It can<br>be used to catch and handle custom shortcuts that are not visible in the menu.</p><div class="codebox"><div class="codebar"><span>Intercepting the Ctrl+I event from the main process</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { app, BrowserWindow } = require('electron/main')
+
+app.whenReady().then(() =&gt; {
+  const win = new BrowserWindow()
+
+  win.loadFile('index.html')
+  win.webContents.on('before-input-event', (event, input) =&gt; {
+    if (input.control &amp;&amp; input.key.toLowerCase() === 'i') {
+      console.log('Pressed Control+I')
+      event.preventDefault()
+    }
+  })
+})</code></pre></div>
+      </section>
+    </main>
+    <footer>Electron 官方示例教程 · 生成自 electronjs.org 文档</footer>
+  </div>
+  <script>
+    function copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+      return new Promise(function (resolve, reject) {
+        var ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.focus(); ta.select();
+        try { document.execCommand('copy'); resolve(); }
+        catch (err) { reject(err); }
+        finally { document.body.removeChild(ta); }
+      });
+    }
+    document.querySelectorAll('.codebox').forEach(function (box) {
+      var btn = box.querySelector('.copy-btn');
+      var code = box.querySelector('pre code');
+      btn.addEventListener('click', function () {
+        copyText(code.textContent).then(function () {
+          btn.textContent = '已复制';
+          setTimeout(function () { btn.textContent = '复制'; }, 1200);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

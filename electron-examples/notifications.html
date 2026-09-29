@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>通知 Notifications - Electron 官方示例教程</title>
+  <style>
+    :root { --bg:#f7fafc; --panel:#fff; --panel2:#eef3f8; --text:#0f172a; --muted:#526072; --line:#dbe4ee; --accent:#0284c7; --accent2:#0ea5e9; --code:#f6f8fb; --radius:14px; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; color:var(--text); font-family:"Segoe UI","Microsoft YaHei",system-ui,sans-serif; line-height:1.75; background:radial-gradient(circle at 10% 0%, rgba(56,189,248,.14), transparent 28rem),radial-gradient(circle at 90% 12%, rgba(167,139,250,.12), transparent 30rem),linear-gradient(135deg,#f8fbff 0%,#eef4fb 50%,#f8fafc 100%); background-attachment:fixed; }
+    a { color:var(--accent); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    .wrap { max-width:1000px; margin:0 auto; padding:1.6rem 1.2rem 4rem; }
+    .top { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.4rem; }
+    .back { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.45rem .85rem; font-size:.9rem; }
+    .pager a { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.4rem .75rem; font-size:.88rem; }
+    main { background:rgba(255,255,255,.72); border:1px solid var(--line); border-radius:var(--radius); padding:2rem; box-shadow:0 18px 50px rgba(15,23,42,.06); }
+    h1 { margin:0 0 .35rem; font-size:clamp(2rem,5vw,3rem); line-height:1.15; letter-spacing:-.02em; }
+    .meta { color:var(--muted); margin:0 0 1.8rem; }
+    h2 { margin:2.1rem 0 .7rem; font-size:1.45rem; }
+    h3 { margin:1.6rem 0 .5rem; font-size:1.1rem; }
+    p, li { color:#334155; }
+    strong { color:#0f172a; }
+    .callout { border-left:4px solid var(--accent); background:rgba(2,132,199,.07); padding:.85rem 1rem; border-radius:0 var(--radius) var(--radius) 0; margin:1rem 0; }
+    .steps { background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:1.1rem 1.3rem; margin-top:1.2rem; }
+    .steps ol { margin:0; padding-left:1.4rem; }
+    .steps li { margin:.45rem 0; }
+    .codebox { border:1px solid var(--line); background:var(--code); border-radius:var(--radius); overflow:hidden; margin:1rem 0 1.4rem; }
+    .codebar { display:flex; justify-content:space-between; align-items:center; padding:.5rem .8rem; border-bottom:1px solid var(--line); background:#edf3f8; color:var(--muted); font-size:.82rem; }
+    .copy-btn { border:1px solid var(--line); background:#fff; color:#334155; border-radius:8px; padding:.25rem .6rem; cursor:pointer; font-size:.78rem; }
+    .copy-btn:hover { border-color:var(--accent); color:var(--accent); }
+    pre { margin:0; padding:1rem 1.1rem; overflow:auto; color:#0f172a; font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; font-size:.9rem; line-height:1.55; }
+    code { font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; }
+    blockquote { border-left:4px solid #b6c5d6; background:#f7fafc; margin:1rem 0; padding:.8rem 1rem; color:#475569; }
+    img { max-width:100%; height:auto; border:1px solid var(--line); border-radius:10px; }
+    hr { border:0; border-top:1px solid var(--line); margin:2rem 0; }
+    table { border-collapse:collapse; width:100%; margin:1rem 0; background:#fff; }
+    th, td { border:1px solid var(--line); padding:.5rem .65rem; text-align:left; vertical-align:top; font-size:.9rem; }
+    th { background:#eef3f8; }
+    footer { color:var(--muted); font-size:.85rem; margin-top:1.4rem; text-align:center; }
+    @media (max-width:640px) { main { padding:1.2rem; } .top { align-items:flex-start; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="back" href="index.html">← 全部示例</a>
+      <nav class="pager"><a href="navigation-history.html">← 导航历史</a><a href="index.html">目录</a><a href="offscreen-rendering.html">离屏渲染 →</a></nav>
+    </header>
+    <main>
+      <h1>通知 Notifications</h1>
+      <p class="meta">Electron 官方示例 · notifications · 第 11 / 20 个</p>
+
+      <section>
+        <h2>手把手操作步骤</h2>
+        <div class="callout">本页面基于 Electron 官方文档整理。先在本地运行起来，再阅读下面的官方说明和代码。</div>
+        <div class="steps"><ol>
+          <li>打开 PowerShell，进入总目录：</li><li><pre><code>cd D:\hf\L\electron</code></pre></li><li>创建一个独立的示例项目目录并进入：</li><li><pre><code>New-Item -ItemType Directory -Path apps\notifications -Force
+cd apps\notifications</code></pre></li><li>初始化 npm 项目：</li><li><pre><code>npm init -y</code></pre></li><li>安装 Electron。国内网络可以先设置镜像再安装：</li><li><pre><code>$env:ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
+npm install --save-dev electron</code></pre></li><li>根据下方官方代码创建对应文件。大多数示例需要 <code>main.js</code> 和 <code>index.html</code>，部分还需要 <code>preload.js</code> 或 <code>renderer.js</code>。代码块已经标注用途。</li><li>确认 <code>package.json</code> 中有启动脚本，然后运行：</li><li><pre><code>npm pkg set scripts.start="electron ."
+npm start</code></pre></li><li>观察窗口效果。修改代码后退出应用，再重新执行 <code>npm start</code>。</li>
+        </ol></div>
+      </section>
+
+      <section>
+        <h2>官方文档与代码</h2>
+        <h2>Notifications</h2><p>Each operating system has its own mechanism to display notifications to users. Electron's notification<br>APIs are cross-platform, but are different for each process type.</p><p>If you want to use a renderer process API in the main process or vice-versa, consider using<br><a href="./ipc.md" target="_blank" rel="noopener">inter-process communication</a>.</p><h3>Usage</h3><p>Below are two examples showing how to display notifications for each process type.</p><h4>Show notifications in the main process</h4><p>Main process notifications are displayed using Electron's <a href="../api/notification.md" target="_blank" rel="noopener">Notification module</a>.<br>Notification objects created using this module do not appear unless their <code>show()</code> instance<br>method is called.</p><div class="codebox"><div class="codebar"><span>Main Process</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { Notification } = require('electron')
+
+const NOTIFICATION_TITLE = 'Basic Notification'
+const NOTIFICATION_BODY = 'Notification from the Main process'
+
+new Notification({
+  title: NOTIFICATION_TITLE,
+  body: NOTIFICATION_BODY
+}).show()</code></pre></div><p>Here's a full example that you can open with Electron Fiddle:</p><div class="codebox"><div class="codebar"><span>Electron Fiddle 完整示例</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { app, BrowserWindow, Notification } = require('electron/main')
+
+function createWindow () {
+  const win = new BrowserWindow({
+    width: 800,
+    height: 600
+  })
+
+  win.loadFile('index.html')
+}
+
+const NOTIFICATION_TITLE = 'Basic Notification'
+const NOTIFICATION_BODY = 'Notification from the Main process'
+
+function showNotification () {
+  new Notification({ title: NOTIFICATION_TITLE, body: NOTIFICATION_BODY }).show()
+}
+
+app.whenReady().then(createWindow).then(showNotification)
+
+app.on('window-all-closed', () =&gt; {
+  if (process.platform !== 'darwin') {
+    app.quit()
+  }
+})
+
+app.on('activate', () =&gt; {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow()
+  }
+})</code></pre></div><h4>Show notifications in the renderer process</h4><p>Notifications can be displayed directly from the renderer process with the<br><a href="https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API/Using_the_Notifications_API" target="_blank" rel="noopener">web Notifications API</a>.</p><div class="codebox"><div class="codebar"><span>Renderer Process</span><button type="button" class="copy-btn">复制</button></div><pre><code>const NOTIFICATION_TITLE = 'Title'
+const NOTIFICATION_BODY = 'Notification from the Renderer process. Click to log to console.'
+const CLICK_MESSAGE = 'Notification clicked'
+
+new Notification(NOTIFICATION_TITLE, { body: NOTIFICATION_BODY }).onclick = () =&gt; console.log(CLICK_MESSAGE)</code></pre></div><p>Here's a full example that you can open with Electron Fiddle:</p><div class="codebox"><div class="codebar"><span>Electron Fiddle 完整示例</span><button type="button" class="copy-btn">复制</button></div><pre><code>const NOTIFICATION_TITLE = 'Title'
+const NOTIFICATION_BODY = 'Notification from the Renderer process. Click to log to console.'
+const CLICK_MESSAGE = 'Notification clicked!'
+
+new window.Notification(NOTIFICATION_TITLE, { body: NOTIFICATION_BODY })
+  .onclick = () =&gt; { document.getElementById('output').innerText = CLICK_MESSAGE }</code></pre></div><h3>Platform considerations</h3><p>While code and user experience across operating systems are similar, there<br>are subtle differences.</p><h4>Windows</h4><p>For notifications on Windows, your Electron app needs to have a Start Menu shortcut with an<br>[AppUserModelID][app-user-model-id] and a corresponding [ToastActivatorCLSID][toast-activator-clsid].</p><p>Electron attempts to automate the work around the AppUserModelID and ToastActivatorCLSID. When<br>Electron is used together with Squirrel.Windows (e.g. if you're using electron-winstaller),<br>[shortcuts will automatically be set correctly][squirrel-events].</p><p>In production, Electron will also detect that Squirrel was used and will automatically call<br><code>app.setAppUserModelId()</code> with the correct value. During development, you may have<br>to call [<code>app.setAppUserModelId()</code>][set-app-user-model-id] yourself.</p><p>:::info Notifications in development</p><p>To quickly bootstrap notifications during development, adding<br><code>node_modules\electron\dist\electron.exe</code> to your Start Menu also does the<br>trick. Navigate to the file in Explorer, right-click and 'Pin to Start Menu'.<br>Then, call <code>app.setAppUserModelId(process.execPath)</code> in the main process to see notifications.</p><p>:::</p><h5>Use advanced notifications</h5><p>Windows also allow for advanced notifications with custom templates, images, and other flexible<br>elements.</p><p>To send those notifications from the main process, you can use the userland module<br><a href="https://github.com/felixrieseberg/electron-windows-notifications" target="_blank" rel="noopener"><code>electron-windows-notifications</code></a>,<br>which uses native Node addons to send <code>ToastNotification</code> and <code>TileNotification</code> objects.</p><p>While notifications including buttons work with <code>electron-windows-notifications</code>,<br>handling replies requires the use of<br><a href="https://github.com/felixrieseberg/electron-windows-interactive-notifications" target="_blank" rel="noopener"><code>electron-windows-interactive-notifications</code></a>,<br>which helps with registering the required COM components and calling your<br>Electron app with the entered user data.</p><h5>Query notification state</h5><p>To detect whether or not you're allowed to send a notification, use the<br>userland module [<code>windows-notification-state</code>][windows-notification-state].</p><p>This module allows you to determine ahead of time whether or not Windows will silently throw the<br>notification away.</p><h4>macOS</h4><p>For notifications on macOS, your application will need to be code-signed in order<br>for notification events to emit correctly. This requirement stems from the underlying<br>UNNotification API provided by Apple. Unsigned binaries will emit a <code>failed</code> event<br>when notification APIs are called.</p><p>Additionally, you should be aware of [Apple's Human Interface guidelines regarding notifications][apple-notification-guidelines].</p><p>Note that notifications are limited to 256 bytes in size and will be truncated<br>if you exceed that limit.</p><h5>Query notification state</h5><p>To detect whether or not you're allowed to send a notification, use the userland module<br>[<code>macos-notification-state</code>][macos-notification-state].</p><p>This module allows you to detect ahead of time whether or not the notification will be displayed.</p><h4>Linux</h4><p>Notifications are sent using <code>libnotify</code>, which can show notifications on any<br>desktop environment that follows [Desktop Notifications Specification][notification-spec],<br>including Cinnamon, Enlightenment, Unity, GNOME, and KDE.</p>
+      </section>
+    </main>
+    <footer>Electron 官方示例教程 · 生成自 electronjs.org 文档</footer>
+  </div>
+  <script>
+    function copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+      return new Promise(function (resolve, reject) {
+        var ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.focus(); ta.select();
+        try { document.execCommand('copy'); resolve(); }
+        catch (err) { reject(err); }
+        finally { document.body.removeChild(ta); }
+      });
+    }
+    document.querySelectorAll('.codebox').forEach(function (box) {
+      var btn = box.querySelector('.copy-btn');
+      var code = box.querySelector('pre code');
+      btn.addEventListener('click', function () {
+        copyText(code.textContent).then(function () {
+          btn.textContent = '已复制';
+          setTimeout(function () { btn.textContent = '复制'; }, 1200);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

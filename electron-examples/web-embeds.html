@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Web 嵌入 Web Embeds - Electron 官方示例教程</title>
+  <style>
+    :root { --bg:#f7fafc; --panel:#fff; --panel2:#eef3f8; --text:#0f172a; --muted:#526072; --line:#dbe4ee; --accent:#0284c7; --accent2:#0ea5e9; --code:#f6f8fb; --radius:14px; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; color:var(--text); font-family:"Segoe UI","Microsoft YaHei",system-ui,sans-serif; line-height:1.75; background:radial-gradient(circle at 10% 0%, rgba(56,189,248,.14), transparent 28rem),radial-gradient(circle at 90% 12%, rgba(167,139,250,.12), transparent 30rem),linear-gradient(135deg,#f8fbff 0%,#eef4fb 50%,#f8fafc 100%); background-attachment:fixed; }
+    a { color:var(--accent); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    .wrap { max-width:1000px; margin:0 auto; padding:1.6rem 1.2rem 4rem; }
+    .top { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.4rem; }
+    .back { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.45rem .85rem; font-size:.9rem; }
+    .pager a { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.4rem .75rem; font-size:.88rem; }
+    main { background:rgba(255,255,255,.72); border:1px solid var(--line); border-radius:var(--radius); padding:2rem; box-shadow:0 18px 50px rgba(15,23,42,.06); }
+    h1 { margin:0 0 .35rem; font-size:clamp(2rem,5vw,3rem); line-height:1.15; letter-spacing:-.02em; }
+    .meta { color:var(--muted); margin:0 0 1.8rem; }
+    h2 { margin:2.1rem 0 .7rem; font-size:1.45rem; }
+    h3 { margin:1.6rem 0 .5rem; font-size:1.1rem; }
+    p, li { color:#334155; }
+    strong { color:#0f172a; }
+    .callout { border-left:4px solid var(--accent); background:rgba(2,132,199,.07); padding:.85rem 1rem; border-radius:0 var(--radius) var(--radius) 0; margin:1rem 0; }
+    .steps { background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:1.1rem 1.3rem; margin-top:1.2rem; }
+    .steps ol { margin:0; padding-left:1.4rem; }
+    .steps li { margin:.45rem 0; }
+    .codebox { border:1px solid var(--line); background:var(--code); border-radius:var(--radius); overflow:hidden; margin:1rem 0 1.4rem; }
+    .codebar { display:flex; justify-content:space-between; align-items:center; padding:.5rem .8rem; border-bottom:1px solid var(--line); background:#edf3f8; color:var(--muted); font-size:.82rem; }
+    .copy-btn { border:1px solid var(--line); background:#fff; color:#334155; border-radius:8px; padding:.25rem .6rem; cursor:pointer; font-size:.78rem; }
+    .copy-btn:hover { border-color:var(--accent); color:var(--accent); }
+    pre { margin:0; padding:1rem 1.1rem; overflow:auto; color:#0f172a; font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; font-size:.9rem; line-height:1.55; }
+    code { font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; }
+    blockquote { border-left:4px solid #b6c5d6; background:#f7fafc; margin:1rem 0; padding:.8rem 1rem; color:#475569; }
+    img { max-width:100%; height:auto; border:1px solid var(--line); border-radius:10px; }
+    hr { border:0; border-top:1px solid var(--line); margin:2rem 0; }
+    table { border-collapse:collapse; width:100%; margin:1rem 0; background:#fff; }
+    th, td { border:1px solid var(--line); padding:.5rem .65rem; text-align:left; vertical-align:top; font-size:.9rem; }
+    th { background:#eef3f8; }
+    footer { color:var(--muted); font-size:.85rem; margin-top:1.4rem; text-align:center; }
+    @media (max-width:640px) { main { padding:1.2rem; } .top { align-items:flex-start; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="back" href="index.html">← 全部示例</a>
+      <nav class="pager"><a href="spellchecker.html">← 拼写检查器</a><a href="index.html">目录</a><a href="windows-taskbar.html">任务栏自定义 →</a></nav>
+    </header>
+    <main>
+      <h1>Web 嵌入 Web Embeds</h1>
+      <p class="meta">Electron 官方示例 · web-embeds · 第 18 / 20 个</p>
+
+      <section>
+        <h2>手把手操作步骤</h2>
+        <div class="callout">本页面基于 Electron 官方文档整理。先在本地运行起来，再阅读下面的官方说明和代码。</div>
+        <div class="steps"><ol>
+          <li>打开 PowerShell，进入总目录：</li><li><pre><code>cd D:\hf\L\electron</code></pre></li><li>创建一个独立的示例项目目录并进入：</li><li><pre><code>New-Item -ItemType Directory -Path apps\web-embeds -Force
+cd apps\web-embeds</code></pre></li><li>初始化 npm 项目：</li><li><pre><code>npm init -y</code></pre></li><li>安装 Electron。国内网络可以先设置镜像再安装：</li><li><pre><code>$env:ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
+npm install --save-dev electron</code></pre></li><li>根据下方官方代码创建对应文件。大多数示例需要 <code>main.js</code> 和 <code>index.html</code>，部分还需要 <code>preload.js</code> 或 <code>renderer.js</code>。代码块已经标注用途。</li><li>确认 <code>package.json</code> 中有启动脚本，然后运行：</li><li><pre><code>npm pkg set scripts.start="electron ."
+npm start</code></pre></li><li>观察窗口效果。修改代码后退出应用，再重新执行 <code>npm start</code>。</li>
+        </ol></div>
+      </section>
+
+      <section>
+        <h2>官方文档与代码</h2>
+        <h2>Web Embeds</h2><h3>Overview</h3><p>If you want to embed (third-party) web content in an Electron <code>BrowserWindow</code>,<br>there are three options available to you: <code>&lt;iframe&gt;</code> tags, <code>&lt;webview&gt;</code> tags,<br>and <code>WebContentsView</code>. Each one offers slightly different functionality and is<br>useful in different situations. To help you choose between these, this guide<br>explains the differences and capabilities of each option.</p><h4>Iframes</h4><p>Iframes in Electron behave like iframes in regular browsers. An <code>&lt;iframe&gt;</code><br>element in your page can show external web pages, provided that their<br><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP" target="_blank" rel="noopener">Content Security Policy</a><br>allows it. To limit the number of capabilities of a site in an <code>&lt;iframe&gt;</code> tag,<br>it is recommended to use the <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe#attr-sandbox" target="_blank" rel="noopener"><code>sandbox</code> attribute</a><br>and only allow the capabilities you want to support.</p><h4>WebViews</h4><blockquote>[!IMPORTANT]<br><a href="../api/webview-tag.md#warning" target="_blank" rel="noopener">We do not recommend you to use WebViews</a>,<br>as this tag undergoes dramatic architectural changes that may affect stability<br>of your application. Consider switching to alternatives, like <code>iframe</code> and<br>Electron's <a href="../api/web-contents-view.md" target="_blank" rel="noopener"><code>WebContentsView</code></a>, or an architecture<br>that avoids embedded content by design.</blockquote><p><a href="../api/webview-tag.md" target="_blank" rel="noopener">WebViews</a> are based on Chromium's WebViews and are not<br>explicitly supported by Electron. We do not guarantee that the WebView API will<br>remain available in future versions of Electron. To use <code>&lt;webview&gt;</code> tags, you<br>will need to set <code>webviewTag</code> to <code>true</code> in the <code>webPreferences</code> of your<br><code>BrowserWindow</code>.</p><p>WebView is a custom element (<code>&lt;webview&gt;</code>) that will only work inside Electron.<br>They are implemented as an &quot;out-of-process iframe&quot;. This means that all<br>communication with the <code>&lt;webview&gt;</code> is done asynchronously using IPC. The<br><code>&lt;webview&gt;</code> element has many custom methods and events, similar to<br><code>webContents</code>, that provide you with greater control over the content.</p><p>Compared to an <code>&lt;iframe&gt;</code>, <code>&lt;webview&gt;</code> tends to be slightly slower but offers<br>much greater control in loading and communicating with the third-party content<br>and handling various events.</p><h4>WebContentsView</h4><p><a href="../api/web-contents-view.md" target="_blank" rel="noopener"><code>WebContentsView</code></a>s are not a part of the<br>DOM—instead, they are created, controlled, positioned, and sized by your<br>Main process. Using <code>WebContentsView</code>, you can combine and layer many pages<br>together in the same <a href="../api/base-window.md" target="_blank" rel="noopener"><code>BaseWindow</code></a>.</p><p><code>WebContentsView</code>s offer the greatest control over their contents, since they<br>implement the <code>webContents</code> similarly to how <code>BrowserWindow</code> does it. However,<br>as <code>WebContentsView</code>s are not elements inside the DOM, positioning them<br>accurately with respect to DOM content requires coordination between the<br>Main and Renderer processes.</p><h3>完整示例：在 Electron 中嵌入网页</h3><p>下面分别演示 <code>&lt;iframe&gt;</code>、<code>&lt;webview&gt;</code> 和 <code>WebContentsView</code> 的写法。推荐优先使用 iframe 或 WebContentsView。</p><h4>index.html：使用 iframe</h4><div class="codebox"><div class="codebar"><span>index.html</span><button type="button" class="copy-btn">复制</button></div><pre><code>&lt;!doctype html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+  &lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;title&gt;Web Embeds&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;iframe 示例&lt;/h1&gt;
+    &lt;iframe src=&quot;https://www.example.com&quot; width=&quot;100%&quot; height=&quot;600&quot;&gt;&lt;/iframe&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre></div><h4>index.html：使用 webview</h4><div class="codebox"><div class="codebar"><span>index.html</span><button type="button" class="copy-btn">复制</button></div><pre><code>&lt;!doctype html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+  &lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;title&gt;Webview 示例&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;webview 示例&lt;/h1&gt;
+    &lt;webview src=&quot;https://www.example.com&quot; style=&quot;width:100%;height:600px;&quot;&gt;&lt;/webview&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre></div><h4>main.js：使用 WebContentsView</h4><div class="codebox"><div class="codebar"><span>main.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { app, BaseWindow, WebContentsView } = require('electron/main')
+
+app.whenReady().then(() =&gt; {
+  const win = new BaseWindow({ width: 900, height: 700 })
+  const view = new WebContentsView()
+  win.contentView.addChildView(view)
+  view.setBounds({ x: 0, y: 0, width: 900, height: 700 })
+  view.webContents.loadURL('https://www.example.com')
+})
+
+app.on('window-all-closed', () =&gt; {
+  if (process.platform !== 'darwin') app.quit()
+})</code></pre></div><p>如果使用 <code>webview</code>，还需要在 <code>main.js</code> 的 <code>webPreferences</code> 中设置 <code>webviewTag: true</code>。</p>
+      </section>
+    </main>
+    <footer>Electron 官方示例教程 · 生成自 electronjs.org 文档</footer>
+  </div>
+  <script>
+    function copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+      return new Promise(function (resolve, reject) {
+        var ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.focus(); ta.select();
+        try { document.execCommand('copy'); resolve(); }
+        catch (err) { reject(err); }
+        finally { document.body.removeChild(ta); }
+      });
+    }
+    document.querySelectorAll('.codebox').forEach(function (box) {
+      var btn = box.querySelector('.copy-btn');
+      var code = box.querySelector('pre code');
+      btn.addEventListener('click', function () {
+        copyText(code.textContent).then(function () {
+          btn.textContent = '已复制';
+          setTimeout(function () { btn.textContent = '复制'; }, 1200);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

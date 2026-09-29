@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>导航历史 Navigation History - Electron 官方示例教程</title>
+  <style>
+    :root { --bg:#f7fafc; --panel:#fff; --panel2:#eef3f8; --text:#0f172a; --muted:#526072; --line:#dbe4ee; --accent:#0284c7; --accent2:#0ea5e9; --code:#f6f8fb; --radius:14px; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; color:var(--text); font-family:"Segoe UI","Microsoft YaHei",system-ui,sans-serif; line-height:1.75; background:radial-gradient(circle at 10% 0%, rgba(56,189,248,.14), transparent 28rem),radial-gradient(circle at 90% 12%, rgba(167,139,250,.12), transparent 30rem),linear-gradient(135deg,#f8fbff 0%,#eef4fb 50%,#f8fafc 100%); background-attachment:fixed; }
+    a { color:var(--accent); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    .wrap { max-width:1000px; margin:0 auto; padding:1.6rem 1.2rem 4rem; }
+    .top { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.4rem; }
+    .back { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.45rem .85rem; font-size:.9rem; }
+    .pager a { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:.4rem .75rem; font-size:.88rem; }
+    main { background:rgba(255,255,255,.72); border:1px solid var(--line); border-radius:var(--radius); padding:2rem; box-shadow:0 18px 50px rgba(15,23,42,.06); }
+    h1 { margin:0 0 .35rem; font-size:clamp(2rem,5vw,3rem); line-height:1.15; letter-spacing:-.02em; }
+    .meta { color:var(--muted); margin:0 0 1.8rem; }
+    h2 { margin:2.1rem 0 .7rem; font-size:1.45rem; }
+    h3 { margin:1.6rem 0 .5rem; font-size:1.1rem; }
+    p, li { color:#334155; }
+    strong { color:#0f172a; }
+    .callout { border-left:4px solid var(--accent); background:rgba(2,132,199,.07); padding:.85rem 1rem; border-radius:0 var(--radius) var(--radius) 0; margin:1rem 0; }
+    .steps { background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:1.1rem 1.3rem; margin-top:1.2rem; }
+    .steps ol { margin:0; padding-left:1.4rem; }
+    .steps li { margin:.45rem 0; }
+    .codebox { border:1px solid var(--line); background:var(--code); border-radius:var(--radius); overflow:hidden; margin:1rem 0 1.4rem; }
+    .codebar { display:flex; justify-content:space-between; align-items:center; padding:.5rem .8rem; border-bottom:1px solid var(--line); background:#edf3f8; color:var(--muted); font-size:.82rem; }
+    .copy-btn { border:1px solid var(--line); background:#fff; color:#334155; border-radius:8px; padding:.25rem .6rem; cursor:pointer; font-size:.78rem; }
+    .copy-btn:hover { border-color:var(--accent); color:var(--accent); }
+    pre { margin:0; padding:1rem 1.1rem; overflow:auto; color:#0f172a; font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; font-size:.9rem; line-height:1.55; }
+    code { font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace; }
+    blockquote { border-left:4px solid #b6c5d6; background:#f7fafc; margin:1rem 0; padding:.8rem 1rem; color:#475569; }
+    img { max-width:100%; height:auto; border:1px solid var(--line); border-radius:10px; }
+    hr { border:0; border-top:1px solid var(--line); margin:2rem 0; }
+    table { border-collapse:collapse; width:100%; margin:1rem 0; background:#fff; }
+    th, td { border:1px solid var(--line); padding:.5rem .65rem; text-align:left; vertical-align:top; font-size:.9rem; }
+    th { background:#eef3f8; }
+    footer { color:var(--muted); font-size:.85rem; margin-top:1.4rem; text-align:center; }
+    @media (max-width:640px) { main { padding:1.2rem; } .top { align-items:flex-start; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="back" href="index.html">← 全部示例</a>
+      <nav class="pager"><a href="native-file-drag-drop.html">← 原生文件拖</a><a href="index.html">目录</a><a href="notifications.html">通知 →</a></nav>
+    </header>
+    <main>
+      <h1>导航历史 Navigation History</h1>
+      <p class="meta">Electron 官方示例 · navigation-history · 第 10 / 20 个</p>
+
+      <section>
+        <h2>手把手操作步骤</h2>
+        <div class="callout">本页面基于 Electron 官方文档整理。先在本地运行起来，再阅读下面的官方说明和代码。</div>
+        <div class="steps"><ol>
+          <li>打开 PowerShell，进入总目录：</li><li><pre><code>cd D:\hf\L\electron</code></pre></li><li>创建一个独立的示例项目目录并进入：</li><li><pre><code>New-Item -ItemType Directory -Path apps\navigation-history -Force
+cd apps\navigation-history</code></pre></li><li>初始化 npm 项目：</li><li><pre><code>npm init -y</code></pre></li><li>安装 Electron。国内网络可以先设置镜像再安装：</li><li><pre><code>$env:ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
+npm install --save-dev electron</code></pre></li><li>根据下方官方代码创建对应文件。大多数示例需要 <code>main.js</code> 和 <code>index.html</code>，部分还需要 <code>preload.js</code> 或 <code>renderer.js</code>。代码块已经标注用途。</li><li>确认 <code>package.json</code> 中有启动脚本，然后运行：</li><li><pre><code>npm pkg set scripts.start="electron ."
+npm start</code></pre></li><li>观察窗口效果。修改代码后退出应用，再重新执行 <code>npm start</code>。</li>
+        </ol></div>
+      </section>
+
+      <section>
+        <h2>官方文档与代码</h2>
+        <h2>Navigation History</h2><h3>Overview</h3><p>The <a href="../api/navigation-history.md" target="_blank" rel="noopener">NavigationHistory</a> class allows you to manage and interact with the browsing history of your Electron application. This powerful feature enables you to create intuitive navigation experiences for your users.</p><h3>Accessing NavigationHistory</h3><p>Navigation history is stored per <a href="../api/web-contents.md" target="_blank" rel="noopener"><code>WebContents</code></a> instance. To access a specific instance of the NavigationHistory class, use the WebContents class's <a href="https://www.electronjs.org/docs/latest/api/web-contents#contentsnavigationhistory-readonly" target="_blank" rel="noopener"><code>contents.navigationHistory</code> instance property</a>.</p><div class="codebox"><div class="codebar"><span>JavaScript</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { BrowserWindow } = require('electron')
+
+const mainWindow = new BrowserWindow()
+const { navigationHistory } = mainWindow.webContents</code></pre></div><h3>Navigating through history</h3><p>Easily implement back and forward navigation:</p><div class="codebox"><div class="codebar"><span>JavaScript</span><button type="button" class="copy-btn">复制</button></div><pre><code>// Go back
+if (navigationHistory.canGoBack()) {
+  navigationHistory.goBack()
+}
+
+// Go forward
+if (navigationHistory.canGoForward()) {
+  navigationHistory.goForward()
+}</code></pre></div><h3>Accessing history entries</h3><p>Retrieve and display the user's browsing history:</p><div class="codebox"><div class="codebar"><span>JavaScript</span><button type="button" class="copy-btn">复制</button></div><pre><code>const entries = navigationHistory.getAllEntries()
+
+entries.forEach((entry) =&gt; {
+  console.log(`${entry.title}: ${entry.url}`)
+})</code></pre></div><p>Each navigation entry corresponds to a specific page. The indexing system follows a sequential order:</p><ul><li>Index 0: Represents the earliest visited page.</li><li>Index N: Represents the most recent page visited.</li></ul><h3>Navigating to specific entries</h3><p>Allow users to jump to any point in their browsing history:</p><div class="codebox"><div class="codebar"><span>JavaScript</span><button type="button" class="copy-btn">复制</button></div><pre><code>// Navigate to the 5th entry in the history, if the index is valid
+navigationHistory.goToIndex(4)
+
+// Navigate to the 2nd entry forward from the current position
+if (navigationHistory.canGoToOffset(2)) {
+  navigationHistory.goToOffset(2)
+}</code></pre></div><h3>Restoring history</h3><p>A common flow is that you want to restore the history of a webContents - for instance to implement an &quot;undo close tab&quot; feature. To do so, you can call <code>navigationHistory.restore({ index, entries })</code>. This will restore the webContent's navigation history and the webContents location in said history, meaning that <code>goBack()</code> and <code>goForward()</code> navigate you through the stack as expected.</p><div class="codebox"><div class="codebar"><span>JavaScript</span><button type="button" class="copy-btn">复制</button></div><pre><code>const firstWindow = new BrowserWindow()
+
+// Later, you want a second window to have the same history and navigation position
+async function restore() {
+  const entries = firstWindow.webContents.navigationHistory.getAllEntries()
+  const index = firstWindow.webContents.navigationHistory.getActiveIndex()
+
+  const secondWindow = new BrowserWindow()
+  await secondWindow.webContents.navigationHistory.restore({ index, entries })
+}</code></pre></div><p>Here's a full example that you can open with Electron Fiddle:</p><h3>完整可运行代码：Navigation History</h3><h4>index.html</h4><div class="codebox"><div class="codebar"><span>index.html</span><button type="button" class="copy-btn">复制</button></div><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+
+&lt;head&gt;
+    &lt;title&gt;Enhanced Browser with Navigation History&lt;/title&gt;
+    &lt;link href=&quot;styles.css&quot; rel=&quot;stylesheet&quot; /&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+
+    &lt;div id=&quot;controls&quot;&gt;
+        &lt;button id=&quot;backBtn&quot; title=&quot;Go back&quot;&gt;Back&lt;/button&gt;
+        &lt;button id=&quot;forwardBtn&quot; title=&quot;Go forward&quot;&gt;Forward&lt;/button&gt;
+        &lt;button id=&quot;backHistoryBtn&quot; title=&quot;Show back history&quot;&gt;Back History&lt;/button&gt;
+        &lt;button id=&quot;forwardHistoryBtn&quot; title=&quot;Show forward history&quot;&gt;Forward History&lt;/button&gt;
+        &lt;input id=&quot;urlInput&quot; type=&quot;text&quot; placeholder=&quot;Enter URL&quot;&gt;
+        &lt;button id=&quot;goBtn&quot; title=&quot;Navigate to URL&quot;&gt;Go&lt;/button&gt;
+    &lt;/div&gt;
+
+    &lt;div id=&quot;historyPanel&quot; class=&quot;history-panel&quot;&gt;&lt;/div&gt;
+
+    &lt;div id=&quot;description&quot;&gt;
+        &lt;h2&gt;Navigation History Demo&lt;/h2&gt;
+        &lt;p&gt;This demo showcases Electron's NavigationHistory API functionality.&lt;/p&gt;
+        &lt;p&gt;&lt;strong&gt;Back/Forward:&lt;/strong&gt; Navigate through your browsing history.&lt;/p&gt;
+        &lt;p&gt;&lt;strong&gt;Back History/Forward History:&lt;/strong&gt; View and select from your browsing history.&lt;/p&gt;
+        &lt;p&gt;&lt;strong&gt;URL Bar:&lt;/strong&gt; Enter a URL and click 'Go' or press Enter to navigate.&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;script src=&quot;renderer.js&quot;&gt;&lt;/script&gt;
+&lt;/body&gt;
+
+&lt;/html&gt;</code></pre></div><h4>main.js</h4><div class="codebox"><div class="codebar"><span>main.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { app, BrowserWindow, BrowserView, ipcMain } = require('electron')
+const path = require('node:path')
+
+function createWindow () {
+  const mainWindow = new BrowserWindow({
+    width: 1000,
+    height: 800,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      nodeIntegration: false,
+      contextIsolation: true
+    }
+  })
+
+  mainWindow.loadFile('index.html')
+
+  const view = new BrowserView()
+  mainWindow.setBrowserView(view)
+  view.setBounds({ x: 0, y: 100, width: 1000, height: 800 })
+  view.setAutoResize({ width: true, height: true })
+
+  const navigationHistory = view.webContents.navigationHistory
+  ipcMain.handle('nav:back', () =&gt;
+    navigationHistory.goBack()
+  )
+
+  ipcMain.handle('nav:forward', () =&gt; {
+    navigationHistory.goForward()
+  })
+
+  ipcMain.handle('nav:canGoBack', () =&gt; navigationHistory.canGoBack())
+  ipcMain.handle('nav:canGoForward', () =&gt; navigationHistory.canGoForward())
+  ipcMain.handle('nav:loadURL', (_, url) =&gt;
+    view.webContents.loadURL(url)
+  )
+  ipcMain.handle('nav:getCurrentURL', () =&gt; view.webContents.getURL())
+  ipcMain.handle('nav:getHistory', () =&gt; {
+    return navigationHistory.getAllEntries()
+  })
+
+  view.webContents.on('did-navigate', () =&gt; {
+    mainWindow.webContents.send('nav:updated')
+  })
+
+  view.webContents.on('did-navigate-in-page', () =&gt; {
+    mainWindow.webContents.send('nav:updated')
+  })
+}
+
+app.whenReady().then(createWindow)
+
+app.on('window-all-closed', () =&gt; {
+  if (process.platform !== 'darwin') app.quit()
+})
+
+app.on('activate', () =&gt; {
+  if (BrowserWindow.getAllWindows().length === 0) createWindow()
+})</code></pre></div><h4>preload.js</h4><div class="codebox"><div class="codebar"><span>preload.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const { contextBridge, ipcRenderer } = require('electron')
+
+contextBridge.exposeInMainWorld('electronAPI', {
+  goBack: () =&gt; ipcRenderer.invoke('nav:back'),
+  goForward: () =&gt; ipcRenderer.invoke('nav:forward'),
+  canGoBack: () =&gt; ipcRenderer.invoke('nav:canGoBack'),
+  canGoForward: () =&gt; ipcRenderer.invoke('nav:canGoForward'),
+  loadURL: (url) =&gt; ipcRenderer.invoke('nav:loadURL', url),
+  getCurrentURL: () =&gt; ipcRenderer.invoke('nav:getCurrentURL'),
+  getHistory: () =&gt; ipcRenderer.invoke('nav:getHistory'),
+  onNavigationUpdate: (callback) =&gt; ipcRenderer.on('nav:updated', () =&gt; callback())
+})</code></pre></div><h4>renderer.js</h4><div class="codebox"><div class="codebar"><span>renderer.js</span><button type="button" class="copy-btn">复制</button></div><pre><code>const backBtn = document.getElementById('backBtn')
+const forwardBtn = document.getElementById('forwardBtn')
+const backHistoryBtn = document.getElementById('backHistoryBtn')
+const forwardHistoryBtn = document.getElementById('forwardHistoryBtn')
+const urlInput = document.getElementById('urlInput')
+const goBtn = document.getElementById('goBtn')
+const historyPanel = document.getElementById('historyPanel')
+
+async function updateButtons () {
+  const canGoBack = await window.electronAPI.canGoBack()
+  const canGoForward = await window.electronAPI.canGoForward()
+  backBtn.disabled = !canGoBack
+  backHistoryBtn.disabled = !canGoBack
+
+  forwardBtn.disabled = !canGoForward
+  forwardHistoryBtn.disabled = !canGoForward
+}
+
+async function updateURL () {
+  urlInput.value = await window.electronAPI.getCurrentURL()
+}
+
+function transformURL (url) {
+  if (!url.startsWith('http://') &amp;&amp; !url.startsWith('https://')) {
+    const updatedUrl = 'https://' + url
+    return updatedUrl
+  }
+  return url
+}
+
+async function navigate (url) {
+  const urlInput = transformURL(url)
+
+  await window.electronAPI.loadURL(urlInput)
+}
+
+async function showHistory (forward = false) {
+  const history = await window.electronAPI.getHistory()
+  const currentIndex = history.findIndex(entry =&gt; entry.url === transformURL(urlInput.value))
+
+  if (!currentIndex) {
+    return
+  }
+
+  const relevantHistory = forward
+    ? history.slice(currentIndex + 1)
+    : history.slice(0, currentIndex).reverse()
+
+  historyPanel.innerHTML = ''
+  relevantHistory.forEach(entry =&gt; {
+    const div = document.createElement('div')
+    div.textContent = `Title: ${entry.title}, URL: ${entry.url}`
+    div.onclick = () =&gt; navigate(entry.url)
+    historyPanel.appendChild(div)
+  })
+
+  historyPanel.style.display = 'block'
+}
+
+backBtn.addEventListener('click', () =&gt; window.electronAPI.goBack())
+forwardBtn.addEventListener('click', () =&gt; window.electronAPI.goForward())
+backHistoryBtn.addEventListener('click', () =&gt; showHistory(false))
+forwardHistoryBtn.addEventListener('click', () =&gt; showHistory(true))
+goBtn.addEventListener('click', () =&gt; navigate(urlInput.value))
+
+urlInput.addEventListener('keypress', (e) =&gt; {
+  if (e.key === 'Enter') {
+    navigate(urlInput.value)
+  }
+})
+
+document.addEventListener('click', (e) =&gt; {
+  if (e.target !== historyPanel &amp;&amp; !historyPanel.contains(e.target) &amp;&amp;
+    e.target !== backHistoryBtn &amp;&amp; e.target !== forwardHistoryBtn) {
+    historyPanel.style.display = 'none'
+  }
+})
+
+window.electronAPI.onNavigationUpdate(() =&gt; {
+  updateButtons()
+  updateURL()
+})
+
+updateButtons()</code></pre></div><h4>style.css</h4><div class="codebox"><div class="codebar"><span>style.css</span><button type="button" class="copy-btn">复制</button></div><pre><code>body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+}
+#controls {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #ccc;
+}
+button {
+    margin-right: 10px;
+    padding: 8px 12px;
+    font-size: 14px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+button:hover {
+    background-color: #45a049;
+}
+button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+#urlInput {
+    flex-grow: 1;
+    margin: 0 10px;
+    padding: 8px;
+    font-size: 14px;
+}
+
+#historyPanel {
+    display: none;
+    position: absolute;
+    top: 60px;
+    left: 10px;
+    background: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+  #historyPanel div {
+    cursor: pointer;
+    padding: 5px;
+}
+
+#description {
+    background-color: #f0f0f0;
+    padding: 10px;
+    margin-top: 150px;
+}</code></pre></div>
+      </section>
+    </main>
+    <footer>Electron 官方示例教程 · 生成自 electronjs.org 文档</footer>
+  </div>
+  <script>
+    function copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+      return new Promise(function (resolve, reject) {
+        var ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.focus(); ta.select();
+        try { document.execCommand('copy'); resolve(); }
+        catch (err) { reject(err); }
+        finally { document.body.removeChild(ta); }
+      });
+    }
+    document.querySelectorAll('.codebox').forEach(function (box) {
+      var btn = box.querySelector('.copy-btn');
+      var code = box.querySelector('pre code');
+      btn.addEventListener('click', function () {
+        copyText(code.textContent).then(function () {
+          btn.textContent = '已复制';
+          setTimeout(function () { btn.textContent = '复制'; }, 1200);
+        });
+      });
+    });
+  </script>
+</body>
+</html>
