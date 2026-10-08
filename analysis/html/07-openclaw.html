@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>07-openclaw · LobsterAI Study</title>
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; background:#ffffff; color:#1f2329; line-height:1.7; }
+    .layout { display:flex; min-height:100vh; }
+    nav { width:280px; flex:0 0 280px; background:#f7f8fa; border-right:1px solid #e2e5ea; padding:18px 14px; overflow:auto; }
+    nav input { width:100%; padding:8px 10px; border:1px solid #d5d9e0; background:#ffffff; color:#1f2329; border-radius:6px; margin-bottom:12px; }
+    nav ul { list-style:none; padding:0; margin:0; }
+    nav li { margin:4px 0; }
+    nav a { color:#3b465a; text-decoration:none; display:block; padding:5px 8px; border-radius:6px; }
+    nav a:hover { background:#e8ebf1; color:#11151a; }
+    nav a.active { background:#dde6fb; color:#1d4ed8; }
+    main { flex:1; padding:34px 44px; max-width:1040px; min-width:0; }
+    h1,h2,h3,h4 { color:#11151a; margin-top:1.4em; }
+    a { color:#2563eb; }
+    code { background:#eef1f5; padding:2px 5px; border-radius:4px; font-family:ui-monospace,Consolas,monospace; color:#c7254e; }
+    pre { background:#f6f8fa; border:1px solid #e2e5ea; border-radius:8px; padding:14px; overflow:auto; }
+    pre code { background:transparent; padding:0; color:#1f2329; }
+    table { border-collapse:collapse; width:100%; margin:16px 0; }
+    th,td { border:1px solid #d5d9e0; padding:7px 10px; text-align:left; vertical-align:top; }
+    th { background:#f0f2f5; }
+    blockquote { border-left:3px solid #c2c8d1; margin:12px 0; padding:4px 14px; color:#4a5260; }
+    hr { border:none; border-top:1px solid #e2e5ea; margin:24px 0; }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <nav>
+      <input id="filter" placeholder="搜索章节…" aria-label="搜索章节">
+      <ul id="nav"><li><a href="index.html">Index</a></li>
+<li><a href="diagrams.html">Diagrams</a></li>
+<li><a href="00-project-map.html">00-project-map</a></li>
+<li><a href="01-startup.html">01-startup</a></li>
+<li><a href="02-electron-main.html">02-electron-main</a></li>
+<li><a href="03-renderer.html">03-renderer</a></li>
+<li><a href="04-preload-ipc.html">04-preload-ipc</a></li>
+<li><a href="05-ipc.html">05-ipc</a></li>
+<li><a href="06-websocket.html">06-websocket</a></li>
+<li><a href="07-openclaw.html" class="active">07-openclaw</a></li>
+<li><a href="08-openclaw-websocket.html">08-openclaw-websocket</a></li>
+<li><a href="09-llm.html">09-llm</a></li>
+<li><a href="10-agent-loop.html">10-agent-loop</a></li>
+<li><a href="11-context.html">11-context</a></li>
+<li><a href="12-tools.html">12-tools</a></li>
+<li><a href="13-shell.html">13-shell</a></li>
+<li><a href="14-permission-security.html">14-permission-security</a></li>
+<li><a href="15-storage.html">15-storage</a></li>
+<li><a href="16-streaming.html">16-streaming</a></li>
+<li><a href="17-error-retry-cancel.html">17-error-retry-cancel</a></li>
+<li><a href="18-startup-performance.html">18-startup-performance</a></li>
+<li><a href="19-electron-performance.html">19-electron-performance</a></li>
+<li><a href="20-agent-performance.html">20-agent-performance</a></li>
+<li><a href="21-build-packaging.html">21-build-packaging</a></li>
+<li><a href="22-agent-security-sensor.html">22-agent-security-sensor</a></li>
+<li><a href="23-agent-identity-chain.html">23-agent-identity-chain</a></li>
+<li><a href="24-agent-security-graph.html">24-agent-security-graph</a></li>
+<li><a href="execution-log.html">execution-log</a></li>
+<li><a href="FINAL-AGENT-SECURITY.html">FINAL-AGENT-SECURITY</a></li>
+<li><a href="FINAL-ARCHITECTURE.html">FINAL-ARCHITECTURE</a></li>
+<li><a href="FINAL-REPORT.html">FINAL-REPORT</a></li>
+<li><a href="KNOWN-ISSUES.html">KNOWN-ISSUES</a></li>
+<li><a href="mini-agent-README.html">mini-agent/README</a></li>
+<li><a href="progress.html">progress</a></li>
+<li><a href="source-index.html">source-index</a></li></ul>
+    </nav>
+    <main><h1>Phase 08 — OpenClaw Integration</h1>
+<h2>1. 功能</h2>
+<p>OpenClaw 是 LobsterAI 的 Agent Runtime / Gateway。LobsterAI 负责桌面、会话、IPC、配置、审批、IM、MCP 管理，OpenClaw 负责 Agent Loop、LLM、Tool、Session/Context 的底层执行。</p>
+<h2>2. 连接点</h2>
+<table><thead><tr><th>连接点</th><th>文件</th></tr></thead><tbody><tr><td>Gateway 进程管理</td><td><code>src/main/libs/openclawEngineManager.ts</code></td></tr><tr><td>配置同步</td><td><code>src/main/libs/openclawConfigSync.ts</code></td></tr><tr><td>运行时适配</td><td><code>src/main/libs/agentEngine/openclawRuntimeAdapter.ts</code></td></tr><tr><td>Cowork 路由</td><td><code>src/main/libs/agentEngine/coworkEngineRouter.ts</code></td></tr><tr><td>审批桥</td><td><code>src/main/libs/agentEngine/openclawApprovalBridge.ts</code></td></tr><tr><td>审批控制</td><td><code>src/main/libs/agentEngine/openclawApprovalController.ts</code></td></tr><tr><td>Question 控制</td><td><code>src/main/libs/agentEngine/openclawQuestionController.ts</code></td></tr><tr><td>版本固定</td><td><code>package.json:openclaw.version</code> = <code>v2026.8.1</code></td></tr></tbody></table>
+<h2>3. 能力边界</h2>
+<p>[源码已确认] <code>CoworkAgentEngine = 'openclaw'</code>：<code>src/main/libs/agentEngine/types.ts:19</code>。</p>
+<p>[源码已确认] Router 只绑定 OpenClaw runtime：</p>
+<pre><code class="language-ts">this.runtime = deps.openclawRuntime;
+this.bindRuntimeEvents('openclaw', deps.openclawRuntime);</code></pre>
+<p><code>coworkEngineRouter.ts:31-36</code>。</p>
+<h3>LobsterAI 负责</h3>
+<ul><li>Electron 生命周期和窗口</li><li>SQLite/Cowork 持久化</li><li>IPC 与 Renderer</li><li>MCP 配置和启用状态</li><li>IM 配置和会话映射</li><li>Skill 安装与安全扫描</li><li>定时任务 UI 和本地元数据</li><li>审批 UI 与审批桥</li><li>OpenClaw 进程生命周期和配置</li></ul>
+<h3>OpenClaw 负责</h3>
+<ul><li>Gateway 进程</li><li>WebSocket server</li><li>Session / Turn / Message</li><li>Agent Loop</li><li>LLM Provider 调用</li><li>Tool / MCP 执行</li><li>Shell / Browser 等工具</li></ul>
+<h2>4. 启动与停止</h2>
+<p>[源码已确认] <code>OpenClawEngineManager</code>：</p>
+<ul><li><code>startGateway()</code>：<code>:705</code></li><li><code>stopGateway()</code>：<code>:1185</code></li><li><code>restartGateway()</code>：<code>:1236</code></li><li><code>prepareRuntimeForStartupConfigSync()</code></li></ul>
+<h2>5. 配置同步</h2>
+<p>[源码已确认] <code>syncOpenClawConfig</code> 在启动时调用：<code>src/main/main.ts:14956</code>。</p>
+<p>同步内容包括 providers/models、agents、IM、plugins、MCP、skills、sandbox、workspace <code>AGENTS.md</code>。</p>
+<h2>6. 学习重点</h2>
+<ul><li>桌面应用与 Agent Runtime 通过“独立 gateway 进程 + loopback WebSocket”解耦。</li><li>LobsterAI 不直接实现 Agent Loop，而是通过 adapter 翻译 gateway 事件。</li><li>配置同步是热更新/重启策略的关键触发点。</li></ul></main>
+  </div>
+  <script>
+    const filter = document.getElementById('filter');
+    filter.addEventListener('input', () => {
+      const q = filter.value.toLowerCase();
+      document.querySelectorAll('#nav li').forEach((li) => {
+        li.style.display = li.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    });
+  </script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'default' });
+  </script>
+</body>
+</html>

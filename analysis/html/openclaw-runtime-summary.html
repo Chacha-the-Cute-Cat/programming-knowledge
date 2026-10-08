@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OpenClaw Runtime 部署与通信知识总结</title>
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; background: #ffffff; color: #1f2329; line-height: 1.75; }
+    .page { max-width: 960px; margin: 0 auto; padding: 36px 24px 72px; }
+    h1, h2, h3 { color: #11151a; }
+    h1 { border-bottom: 1px solid #e2e5ea; padding-bottom: 12px; }
+    h2 { margin-top: 2.2em; border-left: 4px solid #2563eb; padding-left: 10px; }
+    a { color: #2563eb; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { background: #eef1f5; padding: 2px 5px; border-radius: 4px; font-family: ui-monospace, Consolas, monospace; color: #c7254e; }
+    pre { background: #f6f8fa; border: 1px solid #e2e5ea; border-radius: 8px; padding: 14px; overflow: auto; }
+    pre code { background: transparent; color: #1f2329; padding: 0; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+    th, td { border: 1px solid #d5d9e0; padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: #f0f2f5; }
+    blockquote { border-left: 3px solid #c2c8d1; margin: 14px 0; padding: 4px 16px; color: #4a5260; background: #fafbfc; }
+    .toc { background: #f7f8fa; border: 1px solid #e2e5ea; border-radius: 8px; padding: 16px 20px; }
+    .toc ol { margin: 8px 0 0; padding-left: 22px; }
+    .toc li { margin: 5px 0; }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <h1>OpenClaw Runtime 部署与通信知识总结</h1>
+    <p>本文总结 OpenClaw Runtime 在不同环境中的部署方式，以及 LobsterAI 为什么选择本地嵌入，并补充 WebSocket 使用场景和通信模型。</p>
+
+    <nav class="toc">
+      <strong>目录</strong>
+      <ol>
+        <li><a href="#runtime-forms">OpenClaw Runtime 的部署形态</a></li>
+        <li><a href="#lobsterai-local">LobsterAI 为什么使用本地 Gateway</a></li>
+        <li><a href="#wsl">为什么不使用原生 WSL</a></li>
+        <li><a href="#cloud">Gateway 能否部署到云端</a></li>
+        <li><a href="#docker">Gateway 能否 Docker 部署</a></li>
+        <li><a href="#aliyun">阿里云 Docker Gateway 配置清单</a></li>
+        <li><a href="#websocket">WebSocket 使用场景与通信</a></li>
+        <li><a href="#commands">常用命令</a></li>
+      </ol>
+    </nav>
+
+    <h2 id="runtime-forms">1. OpenClaw Runtime 的部署形态</h2>
+    <p>OpenClaw Gateway 是同一个运行时，只是可以运行在不同载体中：</p>
+    <pre><code>OpenClaw Runtime
+├─ 原生进程（Linux / macOS / Windows）
+├─ WSL2 载体（Windows Hub 管理本地 WSL Gateway）
+├─ Docker / OCI 容器（本地或云端）
+├─ 云端主机（VPS / 云 VM / 容器 / K8s）
+└─ 桌面应用内嵌（LobsterAI 使用本地 Windows runtime）</code></pre>
+    <p>WSL、Docker、云端都是部署环境的选择，不是三套不同的 Runtime。</p>
+
+    <h2 id="lobsterai-local">2. LobsterAI 为什么使用本地 Gateway</h2>
+    <p>LobsterAI 是桌面产品，默认“装完即用”。本地 Gateway 有利于：</p>
+    <ul>
+      <li>开箱即用，不需要用户部署服务器。</li>
+      <li>数据本地保存，隐私更可控。</li>
+      <li>loopback 连接，延迟低，可离线。</li>
+      <li>与 SQLite、IM、MCP、Skill、Scheduled Task、Browser 深度集成。</li>
+      <li>本地 token proxy、配置同步、模型路由更简单。</li>
+    </ul>
+    <p>LobsterAI 并没有重写 Gateway，而是把同一个 OpenClaw Runtime 打包进本地，并自己管理它的进程、配置、端口和 token。</p>
+
+    <h2 id="wsl">3. 为什么不使用原生 WSL</h2>
+    <ul>
+      <li>避免 WSL2 和虚拟化依赖，安装更小、兼容性更简单。</li>
+      <li>Windows 原生 Node/Electron 启动，生命周期和打包更可控。</li>
+      <li>直接使用 Windows 文件系统、浏览器、进程等原生能力。</li>
+      <li>更利于安装器、自动更新、runtime 修复和 patch 管理。</li>
+    </ul>
+
+    <h2 id="cloud">4. Gateway 能否部署到云端</h2>
+    <p>可以。官方推荐把 Gateway 放在常开主机上，例如 VPS、云服务器、Mac mini、树莓派。常见连接方式：</p>
+    <ul>
+      <li>SSH 隧道：<code>ssh -N -L 18789:127.0.0.1:18789 user@vps</code></li>
+      <li>Tailscale / VPN</li>
+      <li>Cloudflare Access 或可信反向代理</li>
+      <li><code>wss://</code> + TLS 公网入口</li>
+    </ul>
+
+    <h2 id="docker">5. Gateway 能否 Docker 部署</h2>
+    <p>可以，官方提供 <code>Dockerfile</code>、<code>docker-compose.yml</code> 和 <code>scripts/docker/setup.sh</code>。</p>
+    <pre><code>docker compose up -d openclaw-gateway
+docker compose logs -f openclaw-gateway
+curl http://127.0.0.1:18789/healthz</code></pre>
+    <p>需要持久化的目录：</p>
+    <pre><code>OPENCLAW_CONFIG_DIR
+OPENCLAW_WORKSPACE_DIR
+OPENCLAW_AUTH_PROFILE_SECRET_DIR</code></pre>
+    <p>安全上不要直接暴露 18789，应使用 SSH、Tailscale、Cloudflare 或反向代理 + TLS。</p>
+
+    <h2 id="aliyun">6. 阿里云 Docker Gateway 配置清单</h2>
+    <ol>
+      <li>安全组只开放 22 和 443，不开放 18789。</li>
+      <li>Docker 端口只绑定 <code>127.0.0.1:18789:18789</code>。</li>
+      <li>设置 <code>OPENCLAW_GATEWAY_TOKEN</code>、<code>OPENCLAW_GATEWAY_BIND=lan</code>、<code>OPENCLAW_TZ=Asia/Shanghai</code>。</li>
+      <li>持久化 config、workspace、auth-profile-secrets。</li>
+      <li>完成 onboarding，配置模型 provider。</li>
+      <li>配置 Telegram / Discord 等渠道。</li>
+      <li>验证 <code>/healthz</code>、<code>/startupz</code>、<code>/readyz</code>。</li>
+      <li>客户端通过 SSH、Tailscale 或 <code>wss://</code> 连接。</li>
+      <li>配置备份和升级流程。</li>
+    </ol>
+
+    <h2 id="websocket">7. WebSocket 使用场景与通信</h2>
+    <p>WebSocket 适合长连接、双向推送、流式数据和低延迟场景。</p>
+    <table>
+      <thead>
+        <tr><th>场景</th><th>说明</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Gateway 控制面</td><td>客户端连接 Gateway，发送请求、接收事件</td></tr>
+        <tr><td>LLM 流式输出</td><td>token、message、tool call 事件持续推送</td></tr>
+        <tr><td>权限审批</td><td>Gateway 推送 approval，客户端回传 allow/deny</td></tr>
+        <tr><td>工具执行</td><td>shell、browser、MCP 状态和结果推送</td></tr>
+        <tr><td>实时语音</td><td>ASR / Talk 实时音频会话</td></tr>
+        <tr><td>浏览器自动化</td><td>Chrome DevTools Protocol WebSocket</td></tr>
+      </tbody>
+    </table>
+    <p>OpenClaw Gateway 使用 JSON 帧通信：</p>
+    <pre><code>请求：{ "type": "req", "id": "req-1", "method": "chat.send", "params": {} }
+响应：{ "type": "res", "id": "req-1", "ok": true, "payload": {} }
+事件：{ "type": "event", "event": "message", "payload": {} }</code></pre>
+
+    <h3>最小 WebSocket 服务端</h3>
+    <pre><code>import { WebSocketServer } from 'ws';
+
+const wss = new WebSocketServer({ port: 18789 });
+
+wss.on('connection', (socket) => {
+  socket.on('message', (data) => {
+    const msg = JSON.parse(data.toString());
+    if (msg.type === 'req') {
+      socket.send(JSON.stringify({
+        type: 'res',
+        id: msg.id,
+        ok: true,
+        payload: { status: 'running' },
+      }));
+    }
+  });
+});</code></pre>
+
+    <h3>最小 WebSocket 客户端</h3>
+    <pre><code>import WebSocket from 'ws';
+
+const ws = new WebSocket('ws://127.0.0.1:18789');
+
+ws.on('open', () => {
+  ws.send(JSON.stringify({
+    type: 'req',
+    id: 'req-1',
+    method: 'gateway.status',
+    params: {},
+  }));
+});
+
+ws.on('message', (data) => {
+  console.log(JSON.parse(data.toString()));
+});</code></pre>
+
+    <h2 id="commands">8. 常用命令</h2>
+    <pre><code># 本地 Windows Gateway
+C:\Users\Lenovo\.openclaw\gateway.cmd
+
+# 查看计划任务
+Get-ScheduledTask -TaskName "OpenClaw Gateway"
+
+# 查看端口
+Get-NetTCPConnection -LocalPort 18789 -State Listen
+
+# Docker 部署
+docker compose up -d openclaw-gateway
+docker compose logs -f openclaw-gateway
+docker compose exec openclaw-gateway openclaw gateway status --json</code></pre>
+
+    <p><a href="index.html">返回 HTML 学习入口</a></p>
+  </main>
+</body>
+</html>

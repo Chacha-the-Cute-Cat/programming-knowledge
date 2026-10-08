@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>source-index · LobsterAI Study</title>
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; background:#ffffff; color:#1f2329; line-height:1.7; }
+    .layout { display:flex; min-height:100vh; }
+    nav { width:280px; flex:0 0 280px; background:#f7f8fa; border-right:1px solid #e2e5ea; padding:18px 14px; overflow:auto; }
+    nav input { width:100%; padding:8px 10px; border:1px solid #d5d9e0; background:#ffffff; color:#1f2329; border-radius:6px; margin-bottom:12px; }
+    nav ul { list-style:none; padding:0; margin:0; }
+    nav li { margin:4px 0; }
+    nav a { color:#3b465a; text-decoration:none; display:block; padding:5px 8px; border-radius:6px; }
+    nav a:hover { background:#e8ebf1; color:#11151a; }
+    nav a.active { background:#dde6fb; color:#1d4ed8; }
+    main { flex:1; padding:34px 44px; max-width:1040px; min-width:0; }
+    h1,h2,h3,h4 { color:#11151a; margin-top:1.4em; }
+    a { color:#2563eb; }
+    code { background:#eef1f5; padding:2px 5px; border-radius:4px; font-family:ui-monospace,Consolas,monospace; color:#c7254e; }
+    pre { background:#f6f8fa; border:1px solid #e2e5ea; border-radius:8px; padding:14px; overflow:auto; }
+    pre code { background:transparent; padding:0; color:#1f2329; }
+    table { border-collapse:collapse; width:100%; margin:16px 0; }
+    th,td { border:1px solid #d5d9e0; padding:7px 10px; text-align:left; vertical-align:top; }
+    th { background:#f0f2f5; }
+    blockquote { border-left:3px solid #c2c8d1; margin:12px 0; padding:4px 14px; color:#4a5260; }
+    hr { border:none; border-top:1px solid #e2e5ea; margin:24px 0; }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <nav>
+      <input id="filter" placeholder="搜索章节…" aria-label="搜索章节">
+      <ul id="nav"><li><a href="index.html">Index</a></li>
+<li><a href="diagrams.html">Diagrams</a></li>
+<li><a href="00-project-map.html">00-project-map</a></li>
+<li><a href="01-startup.html">01-startup</a></li>
+<li><a href="02-electron-main.html">02-electron-main</a></li>
+<li><a href="03-renderer.html">03-renderer</a></li>
+<li><a href="04-preload-ipc.html">04-preload-ipc</a></li>
+<li><a href="05-ipc.html">05-ipc</a></li>
+<li><a href="06-websocket.html">06-websocket</a></li>
+<li><a href="07-openclaw.html">07-openclaw</a></li>
+<li><a href="08-openclaw-websocket.html">08-openclaw-websocket</a></li>
+<li><a href="09-llm.html">09-llm</a></li>
+<li><a href="10-agent-loop.html">10-agent-loop</a></li>
+<li><a href="11-context.html">11-context</a></li>
+<li><a href="12-tools.html">12-tools</a></li>
+<li><a href="13-shell.html">13-shell</a></li>
+<li><a href="14-permission-security.html">14-permission-security</a></li>
+<li><a href="15-storage.html">15-storage</a></li>
+<li><a href="16-streaming.html">16-streaming</a></li>
+<li><a href="17-error-retry-cancel.html">17-error-retry-cancel</a></li>
+<li><a href="18-startup-performance.html">18-startup-performance</a></li>
+<li><a href="19-electron-performance.html">19-electron-performance</a></li>
+<li><a href="20-agent-performance.html">20-agent-performance</a></li>
+<li><a href="21-build-packaging.html">21-build-packaging</a></li>
+<li><a href="22-agent-security-sensor.html">22-agent-security-sensor</a></li>
+<li><a href="23-agent-identity-chain.html">23-agent-identity-chain</a></li>
+<li><a href="24-agent-security-graph.html">24-agent-security-graph</a></li>
+<li><a href="execution-log.html">execution-log</a></li>
+<li><a href="FINAL-AGENT-SECURITY.html">FINAL-AGENT-SECURITY</a></li>
+<li><a href="FINAL-ARCHITECTURE.html">FINAL-ARCHITECTURE</a></li>
+<li><a href="FINAL-REPORT.html">FINAL-REPORT</a></li>
+<li><a href="KNOWN-ISSUES.html">KNOWN-ISSUES</a></li>
+<li><a href="mini-agent-README.html">mini-agent/README</a></li>
+<li><a href="progress.html">progress</a></li>
+<li><a href="source-index.html" class="active">source-index</a></li></ul>
+    </nav>
+    <main><h1>Source Code Evidence Index</h1>
+<table><thead><tr><th>Component</th><th>File</th><th>Symbol</th><th>Responsibility</th></tr></thead><tbody><tr><td>Electron Main</td><td><code>src/main/main.ts</code></td><td><code>initApp()</code>, <code>createWindow()</code></td><td>应用启动与窗口</td></tr><tr><td>Preload</td><td><code>src/main/preload.ts</code></td><td><code>contextBridge.exposeInMainWorld</code></td><td>安全 IPC 桥</td></tr><tr><td>Renderer</td><td><code>src/renderer/main.tsx</code>, <code>App.tsx</code></td><td><code>createRoot</code>, <code>App</code></td><td>React UI</td></tr><tr><td>IPC constants</td><td><code>src/shared/cowork/constants.ts</code></td><td><code>CoworkIpcChannel</code></td><td>Cowork channel</td></tr><tr><td>OpenClaw engine</td><td><code>src/main/libs/openclawEngineManager.ts</code></td><td><code>OpenClawEngineManager</code></td><td>Gateway 进程</td></tr><tr><td>Config sync</td><td><code>src/main/libs/openclawConfigSync.ts</code></td><td><code>OpenClawConfigSync</code></td><td>OpenClaw 配置</td></tr><tr><td>Runtime adapter</td><td><code>src/main/libs/agentEngine/openclawRuntimeAdapter.ts</code></td><td><code>OpenClawRuntimeAdapter</code></td><td>事件翻译</td></tr><tr><td>Router</td><td><code>src/main/libs/agentEngine/coworkEngineRouter.ts</code></td><td><code>CoworkEngineRouter</code></td><td>运行时路由</td></tr><tr><td>Approval</td><td><code>src/main/libs/agentEngine/openclawApprovalBridge.ts</code></td><td>approval bridge</td><td>审批桥</td></tr><tr><td>SQLite</td><td><code>src/main/sqliteStore.ts</code></td><td>schema/migrations</td><td>数据库</td></tr><tr><td>Cowork store</td><td><code>src/main/coworkStore.ts</code></td><td><code>CoworkStore</code></td><td>会话/消息</td></tr><tr><td>MCP runtime</td><td><code>src/main/mcp/mcpRuntime.ts</code></td><td><code>McpRuntime</code></td><td>MCP 运行时</td></tr><tr><td>MCP store</td><td><code>src/main/mcp/mcpStore.ts</code></td><td><code>McpStore</code></td><td>MCP 持久化</td></tr><tr><td>IM</td><td><code>src/main/im/imGatewayManager.ts</code></td><td><code>IMGatewayManager</code></td><td>IM gateway</td></tr><tr><td>Skills</td><td><code>src/main/skills/skillManager.ts</code></td><td><code>SkillManager</code></td><td>skill 生命周期</td></tr><tr><td>Scheduler</td><td><code>src/scheduledTask/</code></td><td>cron service</td><td>定时任务</td></tr><tr><td>Gateway client</td><td><code>openclaw/src/gateway/client.ts</code></td><td><code>GatewayClient</code></td><td>WS client</td></tr><tr><td>Gateway WS</td><td><code>openclaw/src/gateway/server/ws-connection.ts</code></td><td><code>attachGatewayWsConnectionHandler</code></td><td>WS server</td></tr><tr><td>Request dispatch</td><td><code>openclaw/src/gateway/server/ws-connection/authenticated-request-dispatch.ts</code></td><td>dispatcher</td><td>req/res 帧</td></tr><tr><td>Agent runner</td><td><code>openclaw/src/agents/embedded-agent-runner/run.ts</code></td><td>run</td><td>Agent run</td></tr><tr><td>Bash tool</td><td><code>openclaw/src/agents/bash-tools.ts</code></td><td>bash tools</td><td>shell tool</td></tr><tr><td>Context engine</td><td><code>openclaw/src/context-engine/</code></td><td>context registry</td><td>context</td></tr><tr><td>LLM</td><td><code>openclaw/src/llm/</code></td><td>providers</td><td>LLM</td></tr></tbody></table></main>
+  </div>
+  <script>
+    const filter = document.getElementById('filter');
+    filter.addEventListener('input', () => {
+      const q = filter.value.toLowerCase();
+      document.querySelectorAll('#nav li').forEach((li) => {
+        li.style.display = li.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    });
+  </script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'default' });
+  </script>
+</body>
+</html>

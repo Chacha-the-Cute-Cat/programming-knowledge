@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>06-websocket · LobsterAI Study</title>
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; background:#ffffff; color:#1f2329; line-height:1.7; }
+    .layout { display:flex; min-height:100vh; }
+    nav { width:280px; flex:0 0 280px; background:#f7f8fa; border-right:1px solid #e2e5ea; padding:18px 14px; overflow:auto; }
+    nav input { width:100%; padding:8px 10px; border:1px solid #d5d9e0; background:#ffffff; color:#1f2329; border-radius:6px; margin-bottom:12px; }
+    nav ul { list-style:none; padding:0; margin:0; }
+    nav li { margin:4px 0; }
+    nav a { color:#3b465a; text-decoration:none; display:block; padding:5px 8px; border-radius:6px; }
+    nav a:hover { background:#e8ebf1; color:#11151a; }
+    nav a.active { background:#dde6fb; color:#1d4ed8; }
+    main { flex:1; padding:34px 44px; max-width:1040px; min-width:0; }
+    h1,h2,h3,h4 { color:#11151a; margin-top:1.4em; }
+    a { color:#2563eb; }
+    code { background:#eef1f5; padding:2px 5px; border-radius:4px; font-family:ui-monospace,Consolas,monospace; color:#c7254e; }
+    pre { background:#f6f8fa; border:1px solid #e2e5ea; border-radius:8px; padding:14px; overflow:auto; }
+    pre code { background:transparent; padding:0; color:#1f2329; }
+    table { border-collapse:collapse; width:100%; margin:16px 0; }
+    th,td { border:1px solid #d5d9e0; padding:7px 10px; text-align:left; vertical-align:top; }
+    th { background:#f0f2f5; }
+    blockquote { border-left:3px solid #c2c8d1; margin:12px 0; padding:4px 14px; color:#4a5260; }
+    hr { border:none; border-top:1px solid #e2e5ea; margin:24px 0; }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <nav>
+      <input id="filter" placeholder="搜索章节…" aria-label="搜索章节">
+      <ul id="nav"><li><a href="index.html">Index</a></li>
+<li><a href="diagrams.html">Diagrams</a></li>
+<li><a href="00-project-map.html">00-project-map</a></li>
+<li><a href="01-startup.html">01-startup</a></li>
+<li><a href="02-electron-main.html">02-electron-main</a></li>
+<li><a href="03-renderer.html">03-renderer</a></li>
+<li><a href="04-preload-ipc.html">04-preload-ipc</a></li>
+<li><a href="05-ipc.html">05-ipc</a></li>
+<li><a href="06-websocket.html" class="active">06-websocket</a></li>
+<li><a href="07-openclaw.html">07-openclaw</a></li>
+<li><a href="08-openclaw-websocket.html">08-openclaw-websocket</a></li>
+<li><a href="09-llm.html">09-llm</a></li>
+<li><a href="10-agent-loop.html">10-agent-loop</a></li>
+<li><a href="11-context.html">11-context</a></li>
+<li><a href="12-tools.html">12-tools</a></li>
+<li><a href="13-shell.html">13-shell</a></li>
+<li><a href="14-permission-security.html">14-permission-security</a></li>
+<li><a href="15-storage.html">15-storage</a></li>
+<li><a href="16-streaming.html">16-streaming</a></li>
+<li><a href="17-error-retry-cancel.html">17-error-retry-cancel</a></li>
+<li><a href="18-startup-performance.html">18-startup-performance</a></li>
+<li><a href="19-electron-performance.html">19-electron-performance</a></li>
+<li><a href="20-agent-performance.html">20-agent-performance</a></li>
+<li><a href="21-build-packaging.html">21-build-packaging</a></li>
+<li><a href="22-agent-security-sensor.html">22-agent-security-sensor</a></li>
+<li><a href="23-agent-identity-chain.html">23-agent-identity-chain</a></li>
+<li><a href="24-agent-security-graph.html">24-agent-security-graph</a></li>
+<li><a href="execution-log.html">execution-log</a></li>
+<li><a href="FINAL-AGENT-SECURITY.html">FINAL-AGENT-SECURITY</a></li>
+<li><a href="FINAL-ARCHITECTURE.html">FINAL-ARCHITECTURE</a></li>
+<li><a href="FINAL-REPORT.html">FINAL-REPORT</a></li>
+<li><a href="KNOWN-ISSUES.html">KNOWN-ISSUES</a></li>
+<li><a href="mini-agent-README.html">mini-agent/README</a></li>
+<li><a href="progress.html">progress</a></li>
+<li><a href="source-index.html">source-index</a></li></ul>
+    </nav>
+    <main><h1>Phase 07 — WebSocket</h1>
+<h2>1. 功能</h2>
+<p>LobsterAI 存在多类 WebSocket 连接：OpenClaw Gateway、ASR、IM 平台、Browser CDP。</p>
+<h2>2. OpenClaw Gateway WebSocket</h2>
+<p>[源码已确认] 连接信息来自：</p>
+<ul><li><code>OpenClawEngineManager.getGatewayConnectionInfo()</code></li><li>URL：<code>ws://127.0.0.1:&lt;port&gt;</code></li></ul>
+<p>证据：<code>src/main/libs/openclawEngineManager.ts:620-630</code>。</p>
+<p>[源码已确认] 客户端由 <code>OpenClawRuntimeAdapter</code> 管理：</p>
+<ul><li><code>gatewayClient</code>：<code>openclawRuntimeAdapter.ts:2544</code></li><li><code>ensureGatewayClientReady()</code>：<code>:6084</code></li><li><code>createGatewayClient()</code>：<code>:6137</code></li><li><code>reconnectGateway()</code>：<code>:4296</code></li><li><code>disconnectGatewayClient()</code>：<code>:4316</code></li></ul>
+<p>[源码已确认] 连接参数：</p>
+<pre><code class="language-ts">new GatewayClient({
+  url, token, clientDisplayName: 'LobsterAI',
+  clientVersion, mode: 'backend', role: 'operator',
+  scopes: ['operator.admin'], deviceIdentity: null,
+})</code></pre>
+<p>证据：<code>openclawRuntimeAdapter.ts:6164-6176</code>。</p>
+<h2>3. 重连与关闭</h2>
+<p>[源码已确认] Adapter 字段：</p>
+<ul><li><code>gatewayReconnectTimer</code>：<code>:2601</code></li><li><code>gatewayReconnectAttempt</code>：<code>:2602</code></li><li><code>gatewayStoppingIntentionally</code>：<code>:2604</code></li><li><code>WebSocketCloseCode</code>：<code>:255</code></li></ul>
+<p>[源码已确认] <code>onClose</code> 处理：<code>openclawRuntimeAdapter.ts:6224</code>。</p>
+<h2>4. ASR WebSocket</h2>
+<p>[源码已确认] <code>src/main/ipcHandlers/asr/handlers.ts</code>：</p>
+<ul><li><code>getSafeWebSocketEndpoint</code></li><li>realtime session 返回 <code>wsUrl</code></li></ul>
+<h2>5. IM 平台 WebSocket</h2>
+<p>[源码已确认] <code>src/main/im/imGatewayManager.ts</code>：</p>
+<ul><li>平台 gateway 启动时同步 OpenClaw config</li><li>Telegram 等平台通过 gateway WebSocket 接收事件</li><li><code>transport: 'imap' | 'ws'</code>：<code>src/main/im/types.ts:522</code></li></ul>
+<h2>6. Browser CDP WebSocket</h2>
+<p>[源码已确认] Browser/CDP 相关：</p>
+<ul><li><code>src/shared/browserWebAccess/constants.ts</code></li><li><code>src/main/libs/agentBrowserHost.ts</code></li><li><code>scripts/patches/v2026.8.1/openclaw-browser-cdp-dispatch-rejection.patch</code></li></ul>
+<h2>7. 时序图</h2>
+<pre class="mermaid">sequenceDiagram
+  participant A as OpenClawRuntimeAdapter
+  participant C as GatewayClient
+  participant G as OpenClaw Gateway
+  A-&gt;&gt;G: start gateway process
+  A-&gt;&gt;C: new GatewayClient(url, token, role, scopes)
+  C-&gt;&gt;G: WebSocket connect + handshake/auth
+  G--&gt;&gt;C: hello/ok
+  C--&gt;&gt;A: onHelloOk
+  A-&gt;&gt;C: request(method, params)
+  C-&gt;&gt;G: req frame
+  G--&gt;&gt;C: res frame / event</pre>
+<h2>8. 学习重点</h2>
+<ul><li>LobsterAI 是 OpenClaw Gateway 的 operator 客户端。</li><li>真实 frame 协议需要阅读 <code>packages/gateway-client</code> 和 <code>packages/gateway-protocol</code>。</li></ul></main>
+  </div>
+  <script>
+    const filter = document.getElementById('filter');
+    filter.addEventListener('input', () => {
+      const q = filter.value.toLowerCase();
+      document.querySelectorAll('#nav li').forEach((li) => {
+        li.style.display = li.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    });
+  </script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'default' });
+  </script>
+</body>
+</html>

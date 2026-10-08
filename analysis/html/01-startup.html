@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>01-startup · LobsterAI Study</title>
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; background:#ffffff; color:#1f2329; line-height:1.7; }
+    .layout { display:flex; min-height:100vh; }
+    nav { width:280px; flex:0 0 280px; background:#f7f8fa; border-right:1px solid #e2e5ea; padding:18px 14px; overflow:auto; }
+    nav input { width:100%; padding:8px 10px; border:1px solid #d5d9e0; background:#ffffff; color:#1f2329; border-radius:6px; margin-bottom:12px; }
+    nav ul { list-style:none; padding:0; margin:0; }
+    nav li { margin:4px 0; }
+    nav a { color:#3b465a; text-decoration:none; display:block; padding:5px 8px; border-radius:6px; }
+    nav a:hover { background:#e8ebf1; color:#11151a; }
+    nav a.active { background:#dde6fb; color:#1d4ed8; }
+    main { flex:1; padding:34px 44px; max-width:1040px; min-width:0; }
+    h1,h2,h3,h4 { color:#11151a; margin-top:1.4em; }
+    a { color:#2563eb; }
+    code { background:#eef1f5; padding:2px 5px; border-radius:4px; font-family:ui-monospace,Consolas,monospace; color:#c7254e; }
+    pre { background:#f6f8fa; border:1px solid #e2e5ea; border-radius:8px; padding:14px; overflow:auto; }
+    pre code { background:transparent; padding:0; color:#1f2329; }
+    table { border-collapse:collapse; width:100%; margin:16px 0; }
+    th,td { border:1px solid #d5d9e0; padding:7px 10px; text-align:left; vertical-align:top; }
+    th { background:#f0f2f5; }
+    blockquote { border-left:3px solid #c2c8d1; margin:12px 0; padding:4px 14px; color:#4a5260; }
+    hr { border:none; border-top:1px solid #e2e5ea; margin:24px 0; }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <nav>
+      <input id="filter" placeholder="搜索章节…" aria-label="搜索章节">
+      <ul id="nav"><li><a href="index.html">Index</a></li>
+<li><a href="diagrams.html">Diagrams</a></li>
+<li><a href="00-project-map.html">00-project-map</a></li>
+<li><a href="01-startup.html" class="active">01-startup</a></li>
+<li><a href="02-electron-main.html">02-electron-main</a></li>
+<li><a href="03-renderer.html">03-renderer</a></li>
+<li><a href="04-preload-ipc.html">04-preload-ipc</a></li>
+<li><a href="05-ipc.html">05-ipc</a></li>
+<li><a href="06-websocket.html">06-websocket</a></li>
+<li><a href="07-openclaw.html">07-openclaw</a></li>
+<li><a href="08-openclaw-websocket.html">08-openclaw-websocket</a></li>
+<li><a href="09-llm.html">09-llm</a></li>
+<li><a href="10-agent-loop.html">10-agent-loop</a></li>
+<li><a href="11-context.html">11-context</a></li>
+<li><a href="12-tools.html">12-tools</a></li>
+<li><a href="13-shell.html">13-shell</a></li>
+<li><a href="14-permission-security.html">14-permission-security</a></li>
+<li><a href="15-storage.html">15-storage</a></li>
+<li><a href="16-streaming.html">16-streaming</a></li>
+<li><a href="17-error-retry-cancel.html">17-error-retry-cancel</a></li>
+<li><a href="18-startup-performance.html">18-startup-performance</a></li>
+<li><a href="19-electron-performance.html">19-electron-performance</a></li>
+<li><a href="20-agent-performance.html">20-agent-performance</a></li>
+<li><a href="21-build-packaging.html">21-build-packaging</a></li>
+<li><a href="22-agent-security-sensor.html">22-agent-security-sensor</a></li>
+<li><a href="23-agent-identity-chain.html">23-agent-identity-chain</a></li>
+<li><a href="24-agent-security-graph.html">24-agent-security-graph</a></li>
+<li><a href="execution-log.html">execution-log</a></li>
+<li><a href="FINAL-AGENT-SECURITY.html">FINAL-AGENT-SECURITY</a></li>
+<li><a href="FINAL-ARCHITECTURE.html">FINAL-ARCHITECTURE</a></li>
+<li><a href="FINAL-REPORT.html">FINAL-REPORT</a></li>
+<li><a href="KNOWN-ISSUES.html">KNOWN-ISSUES</a></li>
+<li><a href="mini-agent-README.html">mini-agent/README</a></li>
+<li><a href="progress.html">progress</a></li>
+<li><a href="source-index.html">source-index</a></li></ul>
+    </nav>
+    <main><h1>Phase 02 — Startup Chain</h1>
+<blockquote>结论均以 <code>[源码已确认]</code> / <code>[推测]</code> 标记。</blockquote>
+<h2>1. 功能</h2>
+<p>梳理从开发命令到 Electron 窗口、React UI、Agent Runtime 的完整启动链。</p>
+<h2>2. 源码位置</h2>
+<table><thead><tr><th>关注点</th><th>文件</th><th>位置</th></tr></thead><tbody><tr><td>开发脚本</td><td><code>package.json</code></td><td><code>scripts.electron:dev</code></td></tr><tr><td>带 OpenClaw runtime 启动</td><td><code>package.json</code></td><td><code>scripts.electron:dev:openclaw</code></td></tr><tr><td>Electron 编译</td><td><code>package.json</code></td><td><code>scripts.compile:electron</code></td></tr><tr><td>Vite 构建入口</td><td><code>vite.config.ts</code></td><td>plugins、server、electron 多入口</td></tr><tr><td>HTML 入口</td><td><code>index.html</code></td><td><code>#root</code></td></tr><tr><td>Renderer React 入口</td><td><code>src/renderer/main.tsx</code></td><td><code>createRoot</code></td></tr><tr><td>Renderer 顶层组件</td><td><code>src/renderer/App.tsx</code></td><td>应用状态/视图路由</td></tr><tr><td>Main 入口</td><td><code>src/main/main.ts</code></td><td><code>initApp()</code></td></tr><tr><td>Preload</td><td><code>src/main/preload.ts</code></td><td><code>contextBridge.exposeInMainWorld</code></td></tr></tbody></table>
+<h2>3. 开发启动链</h2>
+<p>[源码已确认] <code>npm run electron:dev</code>：</p>
+<pre><code class="language-text">rimraf dist-electron
+  -&gt; npm run compile:electron
+  -&gt; concurrently --kill-others
+       [0] vite --port 5175 --strictPort
+       [1] wait-on 5175 + dist-electron 产物 &amp;&amp; electron .</code></pre>
+<p>[源码已确认] <code>npm run electron:dev:openclaw</code>：</p>
+<pre><code class="language-text">npm run openclaw:runtime:host
+  -&gt; npm run electron:dev</code></pre>
+<p><code>openclaw:runtime:host</code> 通过 <code>scripts/openclaw-runtime-host.cjs</code> 按平台/架构选择：</p>
+<pre><code class="language-text">openclaw:runtime:win-x64 / mac-arm64 / linux-x64 ...</code></pre>
+<p>每个目标脚本依次执行：</p>
+<pre><code class="language-text">openclaw:ensure
+openclaw:patch
+run-build-openclaw-runtime.cjs &lt;target&gt;
+sync-openclaw-runtime-current.cjs &lt;target&gt;
+openclaw:bundle
+openclaw:plugins
+openclaw:extensions:local
+openclaw:precompile
+openclaw:channel-deps
+openclaw:prune</code></pre>
+<h2>4. Electron 主进程启动</h2>
+<p>[源码已确认] <code>src/main/main.ts:14599</code> 定义 <code>initApp()</code>。</p>
+<p>关键顺序：</p>
+<ol><li><code>await app.whenReady()</code>：<code>main.ts:14604</code></li><li>创建默认项目目录：<code>main.ts:14612</code></li><li>注册 <code>localfile://</code> 协议：<code>main.ts:14620</code></li><li><code>store = await initStore()</code>：<code>main.ts:14625</code></li><li>Library 索引和 IPC：<code>main.ts:14628-14654</code></li><li>OpenClaw token proxy：<code>main.ts:14765</code></li><li>Enterprise config sync：<code>main.ts:14788</code></li><li>Cowork/OpenClaw 状态转发绑定：<code>main.ts:14886</code></li><li>Proxy preference + OpenAI 兼容 proxy：<code>main.ts:14892</code></li><li>Cache warmup：<code>main.ts:14903</code></li><li>Agent model 迁移：<code>main.ts:14920</code></li><li>Runtime prepare：<code>main.ts:14952</code></li><li><code>syncOpenClawConfig({ reason: 'startup' })</code>：<code>main.ts:14956</code></li><li>异步启动 OpenClaw Gateway：<code>main.ts:14965</code></li><li>CSP + voice permission + <code>createWindow()</code>：<code>main.ts:14985-14997</code></li><li>Skill bootstrap（非阻塞）：<code>main.ts:14999</code> 之后</li></ol>
+<h2>5. 窗口创建与加载</h2>
+<p>[源码已确认] <code>createWindow()</code>：<code>src/main/main.ts:13845</code>。</p>
+<p>[源码已确认] <code>new BrowserWindow</code>：<code>src/main/main.ts:13865</code>。</p>
+<p>安全配置：</p>
+<pre><code class="language-text">nodeIntegration: false
+contextIsolation: true
+sandbox: true
+webSecurity: true
+preload: PRELOAD_PATH
+webviewTag: true</code></pre>
+<p>[源码已确认] 开发环境：</p>
+<pre><code class="language-ts">loadDevelopmentUrl: () =&gt; createdMainWindow.loadURL(DEV_SERVER_URL)</code></pre>
+<p><code>main.ts:14046</code>。</p>
+<p>[源码已确认] 生产环境：</p>
+<pre><code class="language-ts">void createdMainWindow.loadFile(path.join(__dirname, '../dist/index.html'))</code></pre>
+<p><code>main.ts:14154</code>。</p>
+<h2>6. Renderer 启动</h2>
+<p>[源码已确认] <code>src/renderer/main.tsx</code>：</p>
+<pre><code class="language-tsx">ReactDOM.createRoot(rootElement).render(
+  &lt;React.StrictMode&gt;
+    &lt;Provider store={store}&gt;
+      &lt;App /&gt;
+      &lt;EngineRepairOverlay /&gt;
+    &lt;/Provider&gt;
+  &lt;/React.StrictMode&gt;
+);</code></pre>
+<h2>7. 时序图</h2>
+<pre class="mermaid">sequenceDiagram
+  participant NPM as npm script
+  participant VITE as Vite :5175
+  participant ELECTRON as Electron Main
+  participant MAIN as main.ts initApp
+  participant RENDERER as React Renderer
+  participant OPENCLAW as OpenClaw Gateway
+
+  NPM-&gt;&gt;VITE: start dev server
+  NPM-&gt;&gt;ELECTRON: compile + electron .
+  ELECTRON-&gt;&gt;MAIN: app.whenReady()
+  MAIN-&gt;&gt;MAIN: init store/protocol/library
+  MAIN-&gt;&gt;MAIN: token proxy + enterprise sync
+  MAIN-&gt;&gt;OPENCLAW: sync config + ensure gateway running
+  MAIN-&gt;&gt;RENDERER: createWindow + loadURL(5175)
+  RENDERER-&gt;&gt;RENDERER: ReactDOM.createRoot(App)
+  MAIN-&gt;&gt;MAIN: skill bootstrap (non-blocking)</pre>
+<h2>8. 学习重点</h2>
+<ul><li><code>electron:dev</code> 中 <code>concurrently</code> 的竞态由 <code>wait-on</code> 解决。</li><li>主进程先做数据/服务初始化，再显示窗口，窗口显示与 skill bootstrap 解耦。</li><li>OpenClaw 启动是异步的，避免阻塞首屏。</li></ul>
+<h2>9. 如果让我重新设计</h2>
+<p>可以把 <code>initStore</code>、<code>enterpriseConfigSync</code>、<code>syncOpenClawConfig</code> 中可并行的步骤用受控的 Promise 组并发；首屏只依赖 store 和窗口创建，其余服务用 readiness 门控。</p></main>
+  </div>
+  <script>
+    const filter = document.getElementById('filter');
+    filter.addEventListener('input', () => {
+      const q = filter.value.toLowerCase();
+      document.querySelectorAll('#nav li').forEach((li) => {
+        li.style.display = li.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    });
+  </script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'default' });
+  </script>
+</body>
+</html>

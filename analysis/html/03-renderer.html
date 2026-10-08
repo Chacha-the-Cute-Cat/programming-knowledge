@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>03-renderer · LobsterAI Study</title>
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; background:#ffffff; color:#1f2329; line-height:1.7; }
+    .layout { display:flex; min-height:100vh; }
+    nav { width:280px; flex:0 0 280px; background:#f7f8fa; border-right:1px solid #e2e5ea; padding:18px 14px; overflow:auto; }
+    nav input { width:100%; padding:8px 10px; border:1px solid #d5d9e0; background:#ffffff; color:#1f2329; border-radius:6px; margin-bottom:12px; }
+    nav ul { list-style:none; padding:0; margin:0; }
+    nav li { margin:4px 0; }
+    nav a { color:#3b465a; text-decoration:none; display:block; padding:5px 8px; border-radius:6px; }
+    nav a:hover { background:#e8ebf1; color:#11151a; }
+    nav a.active { background:#dde6fb; color:#1d4ed8; }
+    main { flex:1; padding:34px 44px; max-width:1040px; min-width:0; }
+    h1,h2,h3,h4 { color:#11151a; margin-top:1.4em; }
+    a { color:#2563eb; }
+    code { background:#eef1f5; padding:2px 5px; border-radius:4px; font-family:ui-monospace,Consolas,monospace; color:#c7254e; }
+    pre { background:#f6f8fa; border:1px solid #e2e5ea; border-radius:8px; padding:14px; overflow:auto; }
+    pre code { background:transparent; padding:0; color:#1f2329; }
+    table { border-collapse:collapse; width:100%; margin:16px 0; }
+    th,td { border:1px solid #d5d9e0; padding:7px 10px; text-align:left; vertical-align:top; }
+    th { background:#f0f2f5; }
+    blockquote { border-left:3px solid #c2c8d1; margin:12px 0; padding:4px 14px; color:#4a5260; }
+    hr { border:none; border-top:1px solid #e2e5ea; margin:24px 0; }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <nav>
+      <input id="filter" placeholder="搜索章节…" aria-label="搜索章节">
+      <ul id="nav"><li><a href="index.html">Index</a></li>
+<li><a href="diagrams.html">Diagrams</a></li>
+<li><a href="00-project-map.html">00-project-map</a></li>
+<li><a href="01-startup.html">01-startup</a></li>
+<li><a href="02-electron-main.html">02-electron-main</a></li>
+<li><a href="03-renderer.html" class="active">03-renderer</a></li>
+<li><a href="04-preload-ipc.html">04-preload-ipc</a></li>
+<li><a href="05-ipc.html">05-ipc</a></li>
+<li><a href="06-websocket.html">06-websocket</a></li>
+<li><a href="07-openclaw.html">07-openclaw</a></li>
+<li><a href="08-openclaw-websocket.html">08-openclaw-websocket</a></li>
+<li><a href="09-llm.html">09-llm</a></li>
+<li><a href="10-agent-loop.html">10-agent-loop</a></li>
+<li><a href="11-context.html">11-context</a></li>
+<li><a href="12-tools.html">12-tools</a></li>
+<li><a href="13-shell.html">13-shell</a></li>
+<li><a href="14-permission-security.html">14-permission-security</a></li>
+<li><a href="15-storage.html">15-storage</a></li>
+<li><a href="16-streaming.html">16-streaming</a></li>
+<li><a href="17-error-retry-cancel.html">17-error-retry-cancel</a></li>
+<li><a href="18-startup-performance.html">18-startup-performance</a></li>
+<li><a href="19-electron-performance.html">19-electron-performance</a></li>
+<li><a href="20-agent-performance.html">20-agent-performance</a></li>
+<li><a href="21-build-packaging.html">21-build-packaging</a></li>
+<li><a href="22-agent-security-sensor.html">22-agent-security-sensor</a></li>
+<li><a href="23-agent-identity-chain.html">23-agent-identity-chain</a></li>
+<li><a href="24-agent-security-graph.html">24-agent-security-graph</a></li>
+<li><a href="execution-log.html">execution-log</a></li>
+<li><a href="FINAL-AGENT-SECURITY.html">FINAL-AGENT-SECURITY</a></li>
+<li><a href="FINAL-ARCHITECTURE.html">FINAL-ARCHITECTURE</a></li>
+<li><a href="FINAL-REPORT.html">FINAL-REPORT</a></li>
+<li><a href="KNOWN-ISSUES.html">KNOWN-ISSUES</a></li>
+<li><a href="mini-agent-README.html">mini-agent/README</a></li>
+<li><a href="progress.html">progress</a></li>
+<li><a href="source-index.html">source-index</a></li></ul>
+    </nav>
+    <main><h1>Phase 04 — Renderer / React</h1>
+<h2>1. 功能</h2>
+<p>Renderer 是 LobsterAI 的用户界面，负责聊天、session、artifact、library、scheduled task、IM、MCP、skill、设置、权限弹窗等。</p>
+<h2>2. 源码位置</h2>
+<table><thead><tr><th>模块</th><th>目录/文件</th></tr></thead><tbody><tr><td>React 入口</td><td><code>src/renderer/main.tsx</code></td></tr><tr><td>顶层组件</td><td><code>src/renderer/App.tsx</code></td></tr><tr><td>服务层</td><td><code>src/renderer/services/</code></td></tr><tr><td>Redux store</td><td><code>src/renderer/store/</code></td></tr><tr><td>Cowork UI</td><td><code>src/renderer/components/cowork/</code></td></tr><tr><td>Agent UI</td><td><code>src/renderer/components/agent/</code>, <code>agentSidebar/</code></td></tr><tr><td>Artifact</td><td><code>src/renderer/components/artifacts/</code></td></tr><tr><td>Scheduled Task</td><td><code>src/renderer/components/scheduledTasks/</code></td></tr><tr><td>IM UI</td><td><code>src/renderer/components/im/</code></td></tr><tr><td>MCP UI</td><td><code>src/renderer/components/mcp/</code></td></tr><tr><td>Skill UI</td><td><code>src/renderer/components/skills/</code>, <code>skillsAndConnectors/</code></td></tr><tr><td>Library</td><td><code>src/renderer/components/library/</code></td></tr><tr><td>代码高亮</td><td><code>src/renderer/codeHighlight/</code></td></tr></tbody></table>
+<h2>3. React 入口</h2>
+<p>[源码已确认] <code>src/renderer/main.tsx</code>：</p>
+<pre><code class="language-tsx">ReactDOM.createRoot(rootElement).render(
+  &lt;React.StrictMode&gt;
+    &lt;Provider store={store}&gt;
+      &lt;App /&gt;
+      &lt;EngineRepairOverlay /&gt;
+    &lt;/Provider&gt;
+  &lt;/React.StrictMode&gt;
+);</code></pre>
+<h2>4. 状态与服务</h2>
+<p>[源码已确认] <code>src/renderer/App.tsx</code> 从 Redux store 读取 session、权限、artifact 等状态。</p>
+<p>关键服务：</p>
+<ul><li><code>src/renderer/services/cowork.ts</code></li><li><code>src/renderer/services/api.ts</code></li><li><code>src/renderer/services/auth.ts</code></li><li><code>src/renderer/services/config.ts</code></li><li><code>src/renderer/services/scheduledTask.ts</code></li><li><code>src/renderer/services/i18n.ts</code></li><li><code>src/renderer/services/openclawRepair.ts</code></li></ul>
+<h2>5. Prompt 到系统的初步调用链</h2>
+<p>[源码已确认] <code>CoworkService.startSession()</code>：<code>src/renderer/services/cowork.ts:1064</code>。</p>
+<p>[源码已确认] <code>CoworkService.continueSession()</code>：<code>src/renderer/services/cowork.ts:1099</code>。</p>
+<p>[源码已确认] 服务调用 preload 暴露的：</p>
+<pre><code class="language-ts">window.electron?.cowork?.startSession(options)
+window.electron?.cowork?.continueSession(options)</code></pre>
+<p>[推测，待 Phase 6 IPC 验证] 最终落到 <code>CoworkEngineRouter</code> -&gt; <code>OpenClawRuntimeAdapter</code> -&gt; OpenClaw Gateway。</p>
+<h2>6. UI 事件与 IPC</h2>
+<p>Renderer 不直接访问 Node.js，所有系统能力通过 <code>window.electron.*</code> 间接访问。</p>
+<h2>7. 安全分析</h2>
+<ul><li><code>contextIsolation</code> 隔离 DOM 与 preload。</li><li>Redux store 中的敏感状态不应包含原始 API key。</li><li>消息/权限数据经过 IPC 边界，需注意大数据传输和内容大小限制。</li></ul>
+<h2>8. 如果让我重新设计</h2>
+<p>把 <code>App.tsx</code> 的 91 KB 顶层逻辑拆为：</p>
+<ul><li>view router</li><li>app update lifecycle</li><li>startup overlay</li><li>permission/question modal coordinator</li><li>onboarding/purchase campaign 生命周期</li></ul>
+<p>以 feature-specific hooks 承载状态，而不是全部堆在顶层组件。</p></main>
+  </div>
+  <script>
+    const filter = document.getElementById('filter');
+    filter.addEventListener('input', () => {
+      const q = filter.value.toLowerCase();
+      document.querySelectorAll('#nav li').forEach((li) => {
+        li.style.display = li.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    });
+  </script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'default' });
+  </script>
+</body>
+</html>

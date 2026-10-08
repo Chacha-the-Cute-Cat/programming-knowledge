@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>00-project-map · LobsterAI Study</title>
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; background:#ffffff; color:#1f2329; line-height:1.7; }
+    .layout { display:flex; min-height:100vh; }
+    nav { width:280px; flex:0 0 280px; background:#f7f8fa; border-right:1px solid #e2e5ea; padding:18px 14px; overflow:auto; }
+    nav input { width:100%; padding:8px 10px; border:1px solid #d5d9e0; background:#ffffff; color:#1f2329; border-radius:6px; margin-bottom:12px; }
+    nav ul { list-style:none; padding:0; margin:0; }
+    nav li { margin:4px 0; }
+    nav a { color:#3b465a; text-decoration:none; display:block; padding:5px 8px; border-radius:6px; }
+    nav a:hover { background:#e8ebf1; color:#11151a; }
+    nav a.active { background:#dde6fb; color:#1d4ed8; }
+    main { flex:1; padding:34px 44px; max-width:1040px; min-width:0; }
+    h1,h2,h3,h4 { color:#11151a; margin-top:1.4em; }
+    a { color:#2563eb; }
+    code { background:#eef1f5; padding:2px 5px; border-radius:4px; font-family:ui-monospace,Consolas,monospace; color:#c7254e; }
+    pre { background:#f6f8fa; border:1px solid #e2e5ea; border-radius:8px; padding:14px; overflow:auto; }
+    pre code { background:transparent; padding:0; color:#1f2329; }
+    table { border-collapse:collapse; width:100%; margin:16px 0; }
+    th,td { border:1px solid #d5d9e0; padding:7px 10px; text-align:left; vertical-align:top; }
+    th { background:#f0f2f5; }
+    blockquote { border-left:3px solid #c2c8d1; margin:12px 0; padding:4px 14px; color:#4a5260; }
+    hr { border:none; border-top:1px solid #e2e5ea; margin:24px 0; }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <nav>
+      <input id="filter" placeholder="搜索章节…" aria-label="搜索章节">
+      <ul id="nav"><li><a href="index.html">Index</a></li>
+<li><a href="diagrams.html">Diagrams</a></li>
+<li><a href="00-project-map.html" class="active">00-project-map</a></li>
+<li><a href="01-startup.html">01-startup</a></li>
+<li><a href="02-electron-main.html">02-electron-main</a></li>
+<li><a href="03-renderer.html">03-renderer</a></li>
+<li><a href="04-preload-ipc.html">04-preload-ipc</a></li>
+<li><a href="05-ipc.html">05-ipc</a></li>
+<li><a href="06-websocket.html">06-websocket</a></li>
+<li><a href="07-openclaw.html">07-openclaw</a></li>
+<li><a href="08-openclaw-websocket.html">08-openclaw-websocket</a></li>
+<li><a href="09-llm.html">09-llm</a></li>
+<li><a href="10-agent-loop.html">10-agent-loop</a></li>
+<li><a href="11-context.html">11-context</a></li>
+<li><a href="12-tools.html">12-tools</a></li>
+<li><a href="13-shell.html">13-shell</a></li>
+<li><a href="14-permission-security.html">14-permission-security</a></li>
+<li><a href="15-storage.html">15-storage</a></li>
+<li><a href="16-streaming.html">16-streaming</a></li>
+<li><a href="17-error-retry-cancel.html">17-error-retry-cancel</a></li>
+<li><a href="18-startup-performance.html">18-startup-performance</a></li>
+<li><a href="19-electron-performance.html">19-electron-performance</a></li>
+<li><a href="20-agent-performance.html">20-agent-performance</a></li>
+<li><a href="21-build-packaging.html">21-build-packaging</a></li>
+<li><a href="22-agent-security-sensor.html">22-agent-security-sensor</a></li>
+<li><a href="23-agent-identity-chain.html">23-agent-identity-chain</a></li>
+<li><a href="24-agent-security-graph.html">24-agent-security-graph</a></li>
+<li><a href="execution-log.html">execution-log</a></li>
+<li><a href="FINAL-AGENT-SECURITY.html">FINAL-AGENT-SECURITY</a></li>
+<li><a href="FINAL-ARCHITECTURE.html">FINAL-ARCHITECTURE</a></li>
+<li><a href="FINAL-REPORT.html">FINAL-REPORT</a></li>
+<li><a href="KNOWN-ISSUES.html">KNOWN-ISSUES</a></li>
+<li><a href="mini-agent-README.html">mini-agent/README</a></li>
+<li><a href="progress.html">progress</a></li>
+<li><a href="source-index.html">source-index</a></li></ul>
+    </nav>
+    <main><h1>LobsterAI 源码地图（Phase 1）</h1>
+<blockquote>状态：Phase 1 完成  <br>范围：源码扫描、目录映射、运行时边界、关键入口与证据索引  <br>原则：不修改业务代码；结论尽量给出文件路径、类名、函数名或行号  <br>当前仓库 HEAD：<code>3af9f497 chore: bump version to 2026.9.22</code></blockquote>
+<hr>
+<h2>1. 结论摘要</h2>
+<p>[源码已确认] LobsterAI 不是一个包含 <code>apps/</code>、<code>packages/</code>、<code>turbo.json</code> 的典型 monorepo，而是一个<strong>单包 Electron + React 桌面应用</strong>：</p>
+<pre><code class="language-text">lobsterai@2026.9.22
+├─ Electron Main      src/main/
+├─ Electron Preload   src/main/*Preload.ts
+├─ React Renderer     src/renderer/
+├─ Shared Contracts   src/shared/
+├─ Common Runtime     src/common/
+├─ Scheduled Tasks    src/scheduledTask/
+├─ OpenClaw Runtime   vendor/openclaw-runtime/ + ../openclaw
+├─ Skills             SKILLs/ + src/main/skills/
+└─ Build/Packaging    scripts/ + vite.config.ts + electron-builder.json</code></pre>
+<p>[源码已确认] <code>package.json</code> 是项目控制面：</p>
+<ul><li><code>main: dist-electron/main.js</code></li><li><code>engines.node: &gt;=24.15.0 &lt;25</code></li><li><code>engines.npm: &gt;=11.17.0 &lt;12</code></li><li><code>scripts.electron:dev</code></li><li><code>scripts.electron:dev:openclaw</code></li><li><code>scripts.compile:electron</code></li><li><code>scripts.openclaw:runtime:*</code></li></ul>
+<p>[源码已确认] 当前确实存在 <code>package-lock.json</code>，npm 是当前仓库的权威包管理器。根目录下的 <code>pnpm-lock.yaml</code> 和 <code>pnpm-workspace.yaml</code> 是当前工作区中的未跟踪文件，不是仓库基线内容。</p>
+<p>[源码已确认] OpenClaw 是当前唯一 agent runtime。<code>CoworkEngineRouter</code> 只接收一个 <code>openclawRuntime</code>，<code>CoworkAgentEngine</code> 的运行时路由也以 OpenClaw 为唯一实现。</p>
+<p>[源码已确认] 桌面端运行时边界大致是：</p>
+<pre><code class="language-text">React Renderer
+    ↓ window.electron.*
+Preload / contextBridge
+    ↓ ipcRenderer.invoke / send / on
+Electron Main
+    ↓ CoworkEngineRouter
+OpenClawRuntimeAdapter
+    ↓ GatewayClient
+OpenClaw Gateway
+    ↓ Agent Loop / Tools / MCP
+OS / Browser / Shell / External Services</code></pre>
+<hr>
+<h2>2. 项目形态与顶层控制面</h2>
+<h3>2.1 顶层文件</h3>
+<table><thead><tr><th>路径</th><th>作用</th><th>证据</th></tr></thead><tbody><tr><td><code>package.json</code></td><td>包定义、依赖、脚本、OpenClaw/dsh 固定版本</td><td><code>name</code>, <code>version</code>, <code>main</code>, <code>openclaw</code>, <code>dsh</code>, <code>scripts</code></td></tr><tr><td><code>package-lock.json</code></td><td>npm 锁文件</td><td>仓库已跟踪</td></tr><tr><td><code>vite.config.ts</code></td><td>Renderer + Electron Main/Preload 构建入口</td><td><code>vite-plugin-electron</code> 配置</td></tr><tr><td><code>electron-tsconfig.json</code></td><td>Electron 主进程/Preload 的 TypeScript 编译配置</td><td><code>compile:electron</code></td></tr><tr><td><code>electron-builder.json</code></td><td>Electron 打包配置</td><td><code>dist:*</code> / <code>pack</code></td></tr><tr><td><code>index.html</code></td><td>Renderer HTML 入口，内含启动 splash</td><td><code>#root</code>，React 挂载前 splash</td></tr><tr><td><code>vitest.config.ts</code></td><td>测试配置</td><td><code>src/*<em>/</em>.test.ts</code>, <code>tests/*<em>/</em>.test.ts</code></td></tr></tbody></table>
+<h3>2.2 顶层目录</h3>
+<table><thead><tr><th>目录</th><th>角色</th><th>关键内容</th></tr></thead><tbody><tr><td><code>src/main/</code></td><td>Electron Main 与桌面运行时</td><td>536 个文件；<code>main.ts</code> 584 KB；<code>coworkStore.ts</code> 125 KB；<code>preload.ts</code> 76 KB</td></tr><tr><td><code>src/renderer/</code></td><td>React Renderer</td><td>873 个文件；<code>App.tsx</code> 91 KB；<code>services/</code>、<code>store/</code>、<code>components/</code></td></tr><tr><td><code>src/shared/</code></td><td>跨进程共享常量和类型</td><td>124 个文件；IPC channel、协议常量、类型、MCP/OpenClaw/provider 定义</td></tr><tr><td><code>src/common/</code></td><td>跨进程通用逻辑</td><td>错误分类、系统消息、goal 展示、OpenClaw session patch</td></tr><tr><td><code>src/scheduledTask/</code></td><td>定时任务领域逻辑</td><td>cron、策略、迁移、运行过滤</td></tr><tr><td><code>scripts/</code></td><td>构建、打包、OpenClaw runtime、安装器脚本</td><td>231 个文件</td></tr><tr><td><code>tests/</code></td><td>集成/运行时测试</td><td>84 个文件</td></tr><tr><td><code>docs/</code></td><td>项目文档</td><td>62 个文件</td></tr><tr><td><code>specs/</code></td><td>设计和修复说明</td><td>功能/修复 spec</td></tr><tr><td><code>openclaw-extensions/</code></td><td>LobsterAI 侧 OpenClaw 扩展</td><td><code>ask-user-question</code></td></tr><tr><td><code>SKILLs/</code></td><td>内置技能</td><td>web-search、email、docx、pptx 等</td></tr><tr><td><code>resources/</code></td><td>运行时资源</td><td>mingit、python runtime 等</td></tr><tr><td><code>vendor/</code></td><td>生成的 OpenClaw/dsh 运行时</td><td><code>.gitignore</code> 忽略 <code>vendor/openclaw-runtime/</code>、<code>vendor/dsh-runtime/</code></td></tr><tr><td><code>build/</code></td><td>安装器和打包资源</td><td>NSIS/图标资源</td></tr><tr><td><code>public/</code></td><td>Renderer 静态资源</td><td>Vite publicDir</td></tr></tbody></table>
+<h3>2.3 当前工作区注意事项</h3>
+<p>[源码已确认] 当前 <code>git status --short</code> 显示：</p>
+<pre><code class="language-text"> M package.json
+?? pnpm-lock.yaml
+?? pnpm-workspace.yaml</code></pre>
+<p>其中 <code>package.json</code> 的改动是开发脚本的本机代理绕过处理：</p>
+<pre><code class="language-text">wait:electron:dev = cross-env NO_PROXY=* wait-on ...</code></pre>
+<p>该改动只影响 <code>wait-on</code> 进程，不改变应用业务逻辑。<code>pnpm-lock.yaml</code> 与 <code>pnpm-workspace.yaml</code> 不是仓库基线文件，应视为当前工作区临时产物。</p>
+<hr>
+<h2>3. 运行时分层地图</h2>
+<pre class="mermaid">flowchart TB
+  U[User] --&gt; R[React Renderer]
+  R --&gt; P[Preload / contextBridge]
+  P --&gt; M[Electron Main]
+  M --&gt; CR[CoworkEngineRouter]
+  CR --&gt; OA[OpenClawRuntimeAdapter]
+  OA --&gt; OC[OpenClaw Gateway]
+  OC --&gt; AL[Agent Loop]
+  AL --&gt; LLM[LLM Provider]
+  AL --&gt; TOOL[Tools]
+  TOOL --&gt; SHELL[Shell / child_process]
+  TOOL --&gt; MCP[MCP Servers]
+  TOOL --&gt; BROWSER[Browser / CDP]
+  TOOL --&gt; FS[File System]
+  M --&gt; DB[(SQLite)]
+  M --&gt; IM[IM Gateways]
+  M --&gt; CRON[Scheduled Tasks]
+  M --&gt; SKILL[SkillManager]
+  M --&gt; UPD[App Update]</pre>
+<table><thead><tr><th>Runtime</th><th>位置</th><th>职责</th></tr></thead><tbody><tr><td>UI Runtime</td><td><code>src/renderer/</code></td><td>React、Redux Toolkit、聊天 UI、设置、权限弹窗、artifact/library/scheduled task 等页面</td></tr><tr><td>Desktop Runtime</td><td><code>src/main/</code>、<code>src/main/*Preload.ts</code></td><td>Electron 生命周期、窗口、IPC、SQLite、IM、更新、技能、MCP 管理</td></tr><tr><td>Agent Runtime</td><td><code>src/main/libs/agentEngine/</code></td><td>Cowork 会话路由、OpenClaw Runtime Adapter、审批桥、问题桥、subagent</td></tr><tr><td>Tool Runtime</td><td>OpenClaw runtime + <code>src/main/mcp/</code> + <code>src/main/libs/</code></td><td>Shell、文件、浏览器、MCP、技能、媒体生成等</td></tr><tr><td>OS Runtime</td><td>Electron/Node/child_process/network</td><td>进程、文件、网络、凭据、系统权限</td></tr><tr><td>Security Boundary</td><td>Preload + approval/permission + policy</td><td>contextIsolation、sandbox、用户审批、凭据隔离、路径校验</td></tr></tbody></table>
+<hr>
+<h2>4. 启动与构建入口地图</h2>
+<h3>4.1 npm 脚本入口</h3>
+<p>来源：<code>package.json:scripts</code>。</p>
+<table><thead><tr><th>脚本</th><th>作用</th></tr></thead><tbody><tr><td><code>npm run electron:dev</code></td><td>清理 <code>dist-electron</code>，编译 Electron，启动 Vite 5175，等待服务与 preload 产物，再启动 Electron</td></tr><tr><td><code>npm run electron:dev:openclaw</code></td><td>先构建/同步 OpenClaw runtime，再执行 <code>electron:dev</code></td></tr><tr><td><code>npm run compile:electron</code></td><td><code>tsc --project electron-tsconfig.json</code></td></tr><tr><td><code>npm run start:electron</code></td><td><code>cross-env NODE_ENV=development ELECTRON_START_URL=http://localhost:5175 electron .</code></td></tr><tr><td><code>npm run wait:electron:dev</code></td><td><code>wait-on</code> 等待 5175 与 5 个 Electron 构建产物</td></tr><tr><td><code>npm run build</code></td><td>Renderer 构建 + thumbnail renderer 构建</td></tr><tr><td><code>npm run build:skills</code></td><td>构建 web-search、tech-news、email 技能</td></tr><tr><td><code>npm run openclaw:runtime:host</code></td><td>按 host 平台/架构选择 OpenClaw runtime 构建</td></tr><tr><td><code>npm run dist:win</code></td><td>Windows 安装包流程</td></tr></tbody></table>
+<h3>4.2 开发启动链</h3>
+<p>[源码已确认] <code>electron:dev</code>：</p>
+<pre><code class="language-text">rimraf dist-electron
+  -&gt; npm run compile:electron
+  -&gt; concurrently:
+       [0] vite --port 5175 --strictPort
+       [1] npm run wait:electron:dev &amp;&amp; npm run start:electron</code></pre>
+<p>Vite 构建入口在 <code>vite.config.ts</code>：</p>
+<ul><li>Renderer：<code>index.html</code> -&gt; <code>src/renderer/main.tsx</code></li><li>Main：<code>src/main/main.ts</code></li><li>Preload：<code>src/main/preload.ts</code></li><li>Browser annotation preload：<code>src/main/browserAnnotationPreload.ts</code></li><li>Browser credential preload：<code>src/main/browserCredentials/agentBrowserCredentialPreload.ts</code></li><li>Manual credential preload：<code>src/main/browserCredentials/manualCredentialCapturePreload.ts</code></li></ul>
+<h3>4.3 Main 启动关键步骤</h3>
+<p>[源码已确认] <code>src/main/main.ts:14599</code> 的 <code>initApp()</code>：</p>
+<ol><li><code>await app.whenReady()</code>：<code>src/main/main.ts:14604</code></li><li>创建默认项目目录：<code>src/main/main.ts:14612</code></li><li>注册 <code>localfile://</code> 协议：<code>src/main/main.ts:14620</code></li><li>初始化 SQLite/Cowork store：<code>initStore()</code>：<code>src/main/main.ts:14625</code></li><li>初始化 Library 索引和 IPC：<code>src/main/main.ts:14628-14654</code></li><li>启动 OpenClaw token proxy：<code>src/main/main.ts:14765-14786</code></li><li>企业配置同步：<code>src/main/main.ts:14788-14884</code></li><li>绑定 Cowork/OpenClaw 状态转发：<code>src/main/main.ts:14886-14887</code></li><li>应用代理偏好并启动 OpenAI 兼容代理：<code>src/main/main.ts:14892-14901</code></li><li>预热 quota/model cache：<code>src/main/main.ts:14903-14918</code></li><li>迁移 agent model/workspace：<code>src/main/main.ts:14920-14947</code></li><li><code>prepareRuntimeForStartupConfigSync()</code>：<code>src/main/main.ts:14952-14954</code></li><li><code>syncOpenClawConfig({ reason: 'startup' })</code>：<code>src/main/main.ts:14956-14964</code></li><li>异步确保 OpenClaw Gateway 运行：<code>src/main/main.ts:14965-14979</code></li><li>设置 CSP、注册语音权限、创建窗口：<code>src/main/main.ts:14985-14997</code></li><li>非阻塞技能 bootstrap：<code>src/main/main.ts:14999</code> 之后</li></ol>
+<p>[源码已确认] <code>createWindow()</code> 定义在 <code>src/main/main.ts:13845</code>，<code>new BrowserWindow</code> 在 <code>src/main/main.ts:13865</code>。</p>
+<p>[源码已确认] 开发环境加载 Vite URL：</p>
+<ul><li><code>loadDevelopmentUrl: () =&gt; createdMainWindow.loadURL(DEV_SERVER_URL)</code>：<code>src/main/main.ts:14046</code></li><li>生产环境加载 <code>dist/index.html</code>：<code>src/main/main.ts:14154</code></li></ul>
+<h3>4.4 OpenClaw runtime 构建链</h3>
+<p><code>npm run electron:dev:openclaw</code> 先执行：</p>
+<pre><code class="language-text">openclaw:runtime:host
+  -&gt; 平台/架构映射
+  -&gt; openclaw:runtime:&lt;platform&gt;-&lt;arch&gt;
+       -&gt; openclaw:ensure
+       -&gt; openclaw:patch
+       -&gt; run-build-openclaw-runtime.cjs
+       -&gt; sync-openclaw-runtime-current.cjs
+       -&gt; openclaw:bundle
+       -&gt; openclaw:plugins
+       -&gt; openclaw:extensions:local
+       -&gt; openclaw:precompile
+       -&gt; openclaw:channel-deps
+       -&gt; openclaw:prune</code></pre>
+<p>关键脚本：</p>
+<ul><li><code>scripts/openclaw-runtime-host.cjs</code></li><li><code>scripts/ensure-openclaw-version.cjs</code></li><li><code>scripts/apply-openclaw-patches.cjs</code></li><li><code>scripts/run-build-openclaw-runtime.cjs</code></li><li><code>scripts/build-openclaw-runtime.sh</code></li><li><code>scripts/sync-openclaw-runtime-current.cjs</code></li></ul>
+<p><code>package.json:openclaw.version</code> 当前固定为 <code>v2026.8.1</code>。</p>
+<hr>
+<h2>5. Electron Main 地图</h2>
+<h3>5.1 主入口</h3>
+<table><thead><tr><th>文件</th><th>作用</th><th>关键符号</th></tr></thead><tbody><tr><td><code>src/main/main.ts</code></td><td>Main 总入口、窗口、IPC、生命周期、服务编排</td><td><code>initApp()</code>, <code>createWindow()</code>, <code>BrowserWindow</code>, <code>ipcMain.handle</code></td></tr><tr><td><code>src/main/preload.ts</code></td><td>主 preload，向 Renderer 暴露 <code>window.electron</code></td><td><code>contextBridge.exposeInMainWorld</code></td></tr><tr><td><code>src/main/browserAnnotationPreload.ts</code></td><td>浏览器标注 webview preload</td><td><code>ipcRenderer.sendToHost</code></td></tr><tr><td><code>src/main/browserCredentials/agentBrowserCredentialPreload.ts</code></td><td>凭据登录隔离页面 preload</td><td>凭据填充协议</td></tr><tr><td><code>src/main/browserCredentials/manualCredentialCapturePreload.ts</code></td><td>手动登录捕获 preload</td><td>凭据捕获协议</td></tr><tr><td><code>src/main/browserPasskeys/passkeyPreload.ts</code></td><td>Passkey/WebAuthn preload</td><td>passkey observer</td></tr><tr><td><code>src/main/i18n.ts</code></td><td>Main 进程用户可见文案</td><td>tray/menu/notification/session titles</td></tr></tbody></table>
+<h3>5.2 Main 侧核心模块</h3>
+<table><thead><tr><th>模块</th><th>文件</th><th>作用</th></tr></thead><tbody><tr><td>OpenClaw Engine</td><td><code>src/main/libs/openclawEngineManager.ts</code></td><td>管理 gateway 进程、状态目录、端口、token、日志、启动/停止/重启/修复</td></tr><tr><td>OpenClaw Config Sync</td><td><code>src/main/libs/openclawConfigSync.ts</code></td><td>把 providers/models/agents/IM/plugins/MCP/skills/sandbox/workspace 同步到 OpenClaw 配置</td></tr><tr><td>Agent Engine Router</td><td><code>src/main/libs/agentEngine/coworkEngineRouter.ts</code></td><td>Cowork 会话到运行时的路由</td></tr><tr><td>OpenClaw Adapter</td><td><code>src/main/libs/agentEngine/openclawRuntimeAdapter.ts</code></td><td>OpenClaw Gateway 事件到 Cowork 事件的翻译层</td></tr><tr><td>Approval Bridge</td><td><code>src/main/libs/agentEngine/openclawApprovalBridge.ts</code></td><td>OpenClaw 审批/权限桥</td></tr><tr><td>Approval Controller</td><td><code>src/main/libs/agentEngine/openclawApprovalController.ts</code></td><td>审批请求状态机</td></tr><tr><td>Question Controller</td><td><code>src/main/libs/agentEngine/openclawQuestionController.ts</code></td><td>AskUserQuestion 处理</td></tr><tr><td>Subagent</td><td><code>src/main/libs/agentEngine/subagent/</code></td><td>subagent run/message/session</td></tr><tr><td>SQLite Store</td><td><code>src/main/sqliteStore.ts</code></td><td>数据库初始化和迁移</td></tr><tr><td>Cowork Store</td><td><code>src/main/coworkStore.ts</code></td><td>sessions/messages/config/agents/memory metadata CRUD</td></tr><tr><td>Agent Manager</td><td><code>src/main/agentManager.ts</code></td><td>agent CRUD 和 preset 安装</td></tr><tr><td>Skill Manager</td><td><code>src/main/skills/skillManager.ts</code></td><td>技能安装、升级、扫描、同步、启停</td></tr><tr><td>MCP Runtime</td><td><code>src/main/mcp/mcpRuntime.ts</code></td><td>MCP 运行时、resolved server cache、bridge server</td></tr><tr><td>MCP Store</td><td><code>src/main/mcp/mcpStore.ts</code></td><td>MCP server 持久化</td></tr><tr><td>IM Gateway</td><td><code>src/main/im/imGatewayManager.ts</code></td><td>IM 配置、状态、平台网关编排</td></tr><tr><td>Scheduled Tasks</td><td><code>src/scheduledTask/</code></td><td>cron job service、策略、迁移、过滤</td></tr><tr><td>Library</td><td><code>src/main/library/</code></td><td>本地/云端 library、发布、缩略图</td></tr><tr><td>Browser</td><td><code>src/main/libs/agentBrowserHost.ts</code></td><td>浏览器宿主与自动化</td></tr><tr><td>Browser Credentials</td><td><code>src/main/browserCredentials/</code></td><td>凭据存储、隔离登录、审批</td></tr></tbody></table>
+<h3>5.3 Main 中的 IPC 形态</h3>
+<p>[源码已确认] <code>src/main/main.ts</code> 中包含大量 <code>ipcMain.handle</code>，并且大量 channel 名来自 <code>src/shared/*/constants.ts</code>：</p>
+<ul><li><code>AuthIpcChannel</code>：<code>src/main/main.ts:4944</code> 等</li><li><code>OpenClawEngineIpc</code>：<code>src/main/main.ts:8694</code>、<code>src/shared/openclawEngine/constants.ts</code></li><li><code>CoworkIpcChannel</code>：<code>src/main/main.ts:9762</code> 等、<code>src/shared/cowork/constants.ts:59</code></li><li><code>HtmlShareIpc</code>：<code>src/main/main.ts:7863</code> 等</li><li><code>BrowserIpc</code>：<code>src/main/main.ts:9147</code> 等、<code>src/shared/browserWebAccess/constants.ts:98</code></li><li><code>DataMigrationIpc</code>：<code>src/main/main.ts:8795</code> 等、<code>src/shared/dataMigration/constants.ts:1</code></li><li><code>McpIpcChannel</code>：<code>src/main/ipcHandlers/mcp/</code>、<code>src/shared/mcp/constants.ts:1</code></li></ul>
+<p>完整 IPC 表应在 Phase 2 生成；本阶段只建立位置索引。</p>
+<hr>
+<h2>6. Renderer / React 地图</h2>
+<h3>6.1 入口</h3>
+<p>[源码已确认] <code>src/renderer/main.tsx</code>：</p>
+<pre><code class="language-text">createRoot(#root).render(
+  StrictMode &gt; Provider(store) &gt; App + EngineRepairOverlay
+)</code></pre>
+<p>[源码已确认] <code>src/renderer/App.tsx</code> 是顶层状态与视图路由中心，文件约 91 KB，职责包括：</p>
+<ul><li>应用更新状态</li><li>Cowork 会话与 streaming 状态</li><li>权限弹窗与原生问题弹窗</li><li>登录引导/新手 onboarding</li><li>Settings、Library、Skills、MCP、Scheduled Tasks、Artifacts 等视图入口</li><li>企业账号、皮肤、订阅活动、侧边栏</li></ul>
+<h3>6.2 Renderer 目录</h3>
+<table><thead><tr><th>目录</th><th>作用</th></tr></thead><tbody><tr><td><code>src/renderer/services/</code></td><td>IPC/business service 包装层，例如 <code>cowork.ts</code>、<code>api.ts</code>、<code>auth.ts</code>、<code>config.ts</code>、<code>scheduledTask.ts</code></td></tr><tr><td><code>src/renderer/store/</code></td><td>Redux store/slices/selectors</td></tr><tr><td><code>src/renderer/components/cowork/</code></td><td>聊天、消息、prompt input、权限、thinking/tool 展示、forks、media</td></tr><tr><td><code>src/renderer/components/agent/</code></td><td>agent 创建与设置</td></tr><tr><td><code>src/renderer/components/agentSidebar/</code></td><td>agent/session 树、subagent session</td></tr><tr><td><code>src/renderer/components/artifacts/</code></td><td>artifact panel、preview、renderer、share</td></tr><tr><td><code>src/renderer/components/scheduledTasks/</code></td><td>定时任务列表、表单、运行历史、模板</td></tr><tr><td><code>src/renderer/components/im/</code></td><td>IM 平台设置和多实例 UI</td></tr><tr><td><code>src/renderer/components/skills/</code>、<code>skillsAndConnectors/</code></td><td>技能和连接器 UI</td></tr><tr><td><code>src/renderer/components/mcp/</code></td><td>MCP 管理 UI</td></tr><tr><td><code>src/renderer/components/library/</code></td><td>Library UI</td></tr><tr><td><code>src/renderer/codeHighlight/</code></td><td>代码高亮、diff、worker</td></tr><tr><td><code>src/renderer/theme/</code>、<code>providers/</code></td><td>主题和上下文 Provider</td></tr></tbody></table>
+<h3>6.3 Prompt 进入系统的初步链路</h3>
+<p>[源码已确认] Renderer 通过 <code>src/renderer/services/cowork.ts</code> 调用 <code>window.electron.cowork</code>：</p>
+<ul><li><code>CoworkService.startSession()</code>：<code>src/renderer/services/cowork.ts:1064</code></li><li><code>CoworkService.continueSession()</code>：<code>src/renderer/services/cowork.ts:1099</code></li><li><code>window.electron?.cowork?.startSession</code> / <code>continueSession</code>：Preload 暴露的 API</li></ul>
+<p>[推测，待 Phase 2 验证] 完整链路预计为：</p>
+<pre><code class="language-text">Cowork UI prompt submit
+  -&gt; component/hook
+  -&gt; coworkService.startSession/continueSession
+  -&gt; window.electron.cowork.*
+  -&gt; preload ipcRenderer.invoke
+  -&gt; main ipcMain.handle
+  -&gt; CoworkEngineRouter.startSession/continueSession
+  -&gt; OpenClawRuntimeAdapter.startSession/continueSession
+  -&gt; OpenClaw Gateway chat.send</code></pre>
+<p>详细调用链将在 Phase 2 的 renderer / IPC 文档中确认。</p>
+<hr>
+<h2>7. Preload 与安全边界</h2>
+<p>[源码已确认] <code>src/main/preload.ts:140</code> 使用：</p>
+<pre><code class="language-ts">contextBridge.exposeInMainWorld('electron', { ... })</code></pre>
+<p>暴露的 API 包括但不限于：</p>
+<ul><li><code>store</code>：<code>store:get</code>、<code>store:set</code>、<code>store:remove</code></li><li><code>skills</code></li><li><code>mcp</code></li><li><code>kits</code></li><li><code>skin</code></li><li><code>permissions</code></li><li><code>enterprise</code></li><li><code>api</code>：<code>ipcRenderer.invoke('api:fetch')</code></li><li><code>api.stream</code> / <code>cancelStream</code></li><li><code>ipcRenderer.send/on</code></li><li>窗口控制：minimize/toggleMaximize/close</li></ul>
+<p>[源码已确认] <code>src/main/main.ts:13885-13899</code> 的 BrowserWindow <code>webPreferences</code>：</p>
+<pre><code class="language-text">nodeIntegration: false
+contextIsolation: true
+sandbox: true
+webSecurity: true
+preload: PRELOAD_PATH
+webviewTag: true</code></pre>
+<p>安全含义：</p>
+<ul><li>Renderer 不能直接访问 Node.js 的 <code>fs</code>、<code>child_process</code>、<code>process</code>。</li><li>Renderer 只能通过 preload 暴露的窄 API 进入 Main。</li><li>主窗口启用了 sandbox，但 <code>webviewTag: true</code>，因此 webview 相关边界需要单独审计。</li><li>凭据相关 preload 是独立隔离面：<code>agentBrowserCredentialPreload.ts</code>、<code>manualCredentialCapturePreload.ts</code>。</li></ul>
+<hr>
+<h2>8. IPC 地图（Phase 1 索引）</h2>
+<h3>8.1 共享 channel 常量位置</h3>
+<table><thead><tr><th>域</th><th>文件</th></tr></thead><tbody><tr><td>Cowork</td><td><code>src/shared/cowork/constants.ts</code></td></tr><tr><td>OpenClaw Engine</td><td><code>src/shared/openclawEngine/constants.ts</code></td></tr><tr><td>MCP</td><td><code>src/shared/mcp/constants.ts</code></td></tr><tr><td>Browser</td><td><code>src/shared/browserWebAccess/constants.ts</code></td></tr><tr><td>Data Migration</td><td><code>src/shared/dataMigration/constants.ts</code></td></tr><tr><td>Artifact Review</td><td><code>src/shared/artifactPreview/reviewScopes.ts</code></td></tr><tr><td>Permissions</td><td><code>src/shared/permissions/constants.ts</code></td></tr><tr><td>Shell</td><td><code>src/shared/shell/constants.ts</code></td></tr><tr><td>Library</td><td><code>src/shared/library/constants.ts</code></td></tr><tr><td>Scheduled Tasks</td><td><code>src/scheduledTask/</code> + <code>src/main/ipcHandlers/scheduledTask/</code></td></tr></tbody></table>
+<h3>8.2 IPC 形态</h3>
+<p>[源码已确认] 存在以下形态：</p>
+<ul><li><code>ipcRenderer.invoke</code> + <code>ipcMain.handle</code>：请求/响应</li><li><code>ipcRenderer.send</code> + <code>ipcMain.on</code>：单向事件</li><li><code>ipcRenderer.on</code>：Main 到 Renderer 的事件推送</li><li><code>webContents.send</code>：Main 主动推送</li><li><code>api:stream:*</code>：流式数据、完成、错误、取消</li><li><code>CoworkIpcChannel.Stream*</code>：Cowork streaming 事件</li></ul>
+<p>[推测，待 Phase 2 验证] Renderer/Preload/Main 三端的完整 channel 表需要从 <code>preload.ts</code>、<code>src/shared/**/constants.ts</code> 和 <code>src/main/main.ts</code> 交叉生成。</p>
+<hr>
+<h2>9. OpenClaw 集成地图</h2>
+<h3>9.1 进程与连接</h3>
+<p>[源码已确认] <code>OpenClawEngineManager</code> 位于 <code>src/main/libs/openclawEngineManager.ts:366</code>。</p>
+<p>关键方法：</p>
+<ul><li><code>getGatewayConnectionInfo()</code>：<code>src/main/libs/openclawEngineManager.ts:620</code></li><li><code>startGateway()</code>：<code>src/main/libs/openclawEngineManager.ts:705</code></li><li><code>stopGateway()</code>：<code>src/main/libs/openclawEngineManager.ts:1185</code></li><li><code>restartGateway()</code>：<code>src/main/libs/openclawEngineManager.ts:1236</code></li><li><code>ensureGatewayToken()</code>：<code>src/main/libs/openclawEngineManager.ts:1818</code></li></ul>
+<p>[源码已确认] <code>getGatewayConnectionInfo()</code> 生成 loopback URL：</p>
+<pre><code class="language-text">ws://127.0.0.1:&lt;port&gt;</code></pre>
+<p>证据：<code>src/main/libs/openclawEngineManager.ts:630</code>。</p>
+<p>[源码已确认] <code>OpenClawRuntimeAdapter</code> 位于 <code>src/main/libs/agentEngine/openclawRuntimeAdapter.ts:2475</code>。</p>
+<p>关键字段：</p>
+<ul><li><code>gatewayClient</code>：<code>src/main/libs/agentEngine/openclawRuntimeAdapter.ts:2544</code></li><li><code>gatewayReconnectTimer</code>：<code>:2601</code></li><li><code>gatewayReconnectAttempt</code>：<code>:2602</code></li><li><code>gatewayStoppingIntentionally</code>：<code>:2604</code></li></ul>
+<p>关键方法：</p>
+<ul><li><code>ensureGatewayClientReady()</code>：<code>:6084</code></li><li><code>createGatewayClient()</code>：<code>:6137</code></li><li><code>startSession()</code>：<code>:4640</code></li><li><code>continueSession()</code>：<code>:4660</code></li><li><code>respondToPermission()</code>：<code>:5303</code></li><li><code>reconnectGateway()</code>：<code>:4296</code></li><li><code>disconnectGatewayClient()</code>：<code>:4316</code></li><li><code>loadGatewayClientCtor()</code>：<code>:7206</code></li></ul>
+<p>[源码已确认] <code>createGatewayClient()</code> 使用的连接参数：</p>
+<pre><code class="language-ts">new GatewayClient({
+  url: connection.url,
+  token: connection.token,
+  clientDisplayName: 'LobsterAI',
+  clientVersion: app.getVersion(),
+  mode: 'backend',
+  caps: [OPENCLAW_GATEWAY_TOOL_EVENTS_CAP],
+  role: 'operator',
+  scopes: ['operator.admin'],
+  deviceIdentity: null,
+})</code></pre>
+<p>证据：<code>src/main/libs/agentEngine/openclawRuntimeAdapter.ts:6164-6176</code>。</p>
+<h3>9.2 Cowork 路由</h3>
+<p>[源码已确认] <code>CoworkEngineRouter</code> 位于 <code>src/main/libs/agentEngine/coworkEngineRouter.ts</code>：</p>
+<ul><li><code>startSession()</code>：<code>coworkEngineRouter.ts</code></li><li><code>continueSession()</code></li><li><code>respondToPermission()</code></li><li><code>handleEngineConfigChanged()</code></li></ul>
+<p>当前 router 只绑定一个 runtime：</p>
+<pre><code class="language-ts">this.runtime = deps.openclawRuntime;
+this.bindRuntimeEvents('openclaw', deps.openclawRuntime);</code></pre>
+<p>证据：<code>src/main/libs/agentEngine/coworkEngineRouter.ts:31-36</code>。</p>
+<h3>9.3 OpenClaw 配置同步</h3>
+<p>[源码已确认] <code>openclawConfigSync.ts</code> 负责把 LobsterAI 状态渲染为 OpenClaw 配置：</p>
+<ul><li>providers/models</li><li>agents</li><li>IM bindings</li><li>plugins</li><li>MCP servers</li><li>skills extra dirs</li><li>sandbox mode</li><li>managed workspace <code>AGENTS.md</code></li></ul>
+<p>具体函数和调用链将在 Phase 3 展开。</p>
+<hr>
+<h2>10. WebSocket 地图</h2>
+<h3>10.1 OpenClaw Gateway WebSocket</h3>
+<p>[源码已确认] 主连接由 OpenClaw 的 <code>GatewayClient</code> 承载，LobsterAI 通过动态入口加载它：</p>
+<ul><li><code>OpenClawRuntimeAdapter.ensureGatewayClientReady()</code></li><li><code>OpenClawRuntimeAdapter.createGatewayClient()</code></li><li><code>OpenClawEngineManager.getGatewayConnectionInfo()</code> -&gt; <code>ws://127.0.0.1:&lt;port&gt;</code></li></ul>
+<p>[源码已确认] 自动重连与关闭码处理位于 adapter：</p>
+<ul><li><code>gatewayReconnectTimer</code></li><li><code>gatewayReconnectAttempt</code></li><li><code>gatewayStoppingIntentionally</code></li><li><code>WebSocketCloseCode</code>：<code>openclawRuntimeAdapter.ts:255</code></li><li><code>onClose</code> 处理：<code>openclawRuntimeAdapter.ts:6224</code></li></ul>
+<h3>10.2 IM / 平台 WebSocket</h3>
+<p>[源码已确认] IM 平台存在多种连接方式：</p>
+<ul><li><code>src/main/im/imGatewayManager.ts</code> 中多处注释说明 OpenClaw mode 下通过 gateway WebSocket 接收 Telegram 等事件</li><li><code>src/main/im/nimGateway.ts</code> 包含 start/stop/reconnect 逻辑</li><li><code>src/main/im/imGatewayManager.ts:522</code> 定义 <code>transport: 'imap' | 'ws'</code></li></ul>
+<h3>10.3 ASR WebSocket</h3>
+<p>[源码已确认] <code>src/main/ipcHandlers/asr/handlers.ts</code> 处理 ASR realtime session，并解析 <code>wsUrl</code>：</p>
+<ul><li><code>getSafeWebSocketEndpoint</code></li><li><code>wsEndpoint</code></li></ul>
+<h3>10.4 Browser CDP WebSocket</h3>
+<p>[源码已确认] Browser/CDP 相关 WebSocket 出现在：</p>
+<ul><li><code>src/shared/browserWebAccess/constants.test.ts</code></li><li><code>scripts/patches/v2026.8.1/openclaw-browser-cdp-dispatch-rejection.patch</code></li><li><code>src/main/libs/agentBrowserHost.ts</code></li></ul>
+<p>[推测，待 Phase 3 验证] OpenClaw 的 WebSocket frame protocol、RPC method 集合、session/turn/runId 关联规则需要结合 <code>GatewayClient</code> 实现和 OpenClaw source 单独分析。</p>
+<hr>
+<h2>11. LLM / Provider 地图</h2>
+<h3>11.1 LobsterAI 侧</h3>
+<table><thead><tr><th>文件/目录</th><th>作用</th></tr></thead><tbody><tr><td><code>src/shared/providers/constants.ts</code></td><td>Provider registry、模型、能力、运行时 profile</td></tr><tr><td><code>src/shared/providers/modelRuntimeProfiles.ts</code></td><td>模型运行时 profile</td></tr><tr><td><code>src/shared/providers/modelThinking.ts</code></td><td>thinking 级别</td></tr><tr><td><code>src/shared/providers/lobsterAIRequestOptions.ts</code></td><td>LobsterAI request capability</td></tr><tr><td><code>src/renderer/components/modelSelector/</code></td><td>模型选择 UI</td></tr><tr><td><code>src/main/main.ts</code></td><td>provider/model 解析、模型迁移、OpenClaw config sync 输入</td></tr><tr><td><code>src/main/libs/openclawTokenProxy</code> 相关代码</td><td>为 <code>lobsterai-server</code> provider 提供 token proxy</td></tr></tbody></table>
+<p>[源码已确认] Main 启动时会：</p>
+<ul><li>启动 OpenClaw token proxy：<code>src/main/main.ts:14765</code></li><li>预热 quota/model cache：<code>src/main/main.ts:14903</code></li><li>迁移 agent model bindings：<code>src/main/main.ts:14920</code></li></ul>
+<h3>11.2 OpenClaw 侧</h3>
+<p>[源码已确认] 实际 LLM 调用主要在 OpenClaw runtime 内。LobsterAI 负责生成 OpenClaw provider/model 配置，并通过 token proxy / provider compatibility 把 LobsterAI 账号模型接入 OpenClaw。</p>
+<p>证据：</p>
+<ul><li><code>src/main/libs/openclawConfigSync.ts</code></li><li><code>src/main/libs/openclawTokenProxy</code> 相关实现与调用</li><li><code>scripts/patches/v2026.8.1/openclaw-lobsterai-model-compat-api.patch</code></li><li><code>scripts/patches/v2026.8.1/openclaw-lobsterai-provider-cooldown.patch</code></li></ul>
+<p>[推测，待 Phase 4 验证] 具体 streaming/SSE/WebSocket transport、retry、timeout、usage 统计位置需要在 OpenClaw source 中继续追踪。</p>
+<hr>
+<h2>12. Tool / Shell / MCP 地图</h2>
+<h3>12.1 MCP</h3>
+<p>[源码已确认] MCP 模块：</p>
+<ul><li><code>src/main/mcp/mcpStore.ts:81</code> <code>McpStore</code></li><li><code>src/main/mcp/mcpRuntime.ts:44</code> <code>McpRuntime</code></li><li><code>src/main/mcp/mcpLaunchResolverManager.ts:252</code> <code>McpLaunchResolverManager</code></li></ul>
+<p>[源码已确认] MCP IPC channel 定义：<code>src/shared/mcp/constants.ts</code>。</p>
+<p>[源码已确认] MCP 运行时提供：</p>
+<ul><li><code>getAskUserCallbackUrl()</code>：<code>mcpRuntime.ts:102</code></li><li><code>getResolvedServersCache()</code>：<code>mcpRuntime.ts:118</code></li><li><code>askUserInternal()</code>：<code>mcpRuntime.ts:205</code></li></ul>
+<p>[推测，待 Phase 5 验证] OpenClaw 通过 <code>mcp.servers</code> 原生配置接入 MCP；LobsterAI 侧负责存储、启用、解析和 bridge URL。</p>
+<h3>12.2 Skill</h3>
+<p>[源码已确认] <code>SkillManager</code> 位于 <code>src/main/skills/skillManager.ts:1404</code>。</p>
+<p>能力包括：</p>
+<ul><li>同步内置技能到 userData</li><li>从 OpenClaw 同步技能</li><li>删除/下载/升级技能</li><li>安装前安全扫描：<code>skillManager.ts:2065</code></li><li>Windows 删除 fallback</li><li>技能变更 watcher</li></ul>
+<h3>12.3 Shell / child_process</h3>
+<p>[源码已确认] <code>src/main</code> 中直接使用 <code>child_process</code> 的模块包括：</p>
+<ul><li><code>src/main/conversation/scopedReview.ts</code></li><li><code>src/main/conversation/environmentSnapshot.ts</code></li><li><code>src/main/conversation/reviewSource.ts</code></li><li><code>src/main/mcp/mcpLaunchResolverManager.ts</code></li><li><code>src/main/libs/appUpdateInstaller.ts</code></li><li><code>src/main/libs/agentEngine/coworkWorkspaceRehydration.ts</code></li><li><code>src/main/skills/skillManager.ts</code></li><li><code>src/main/permissions/calendarPermission.ts</code></li></ul>
+<p>[源码已确认] Agent 的工具执行不全部在 LobsterAI Main 内直接实现；OpenClaw Gateway 承担 agent tool runtime，LobsterAI 通过 adapter/approval bridge 观察和审批。</p>
+<p>[推测，待 Phase 5 验证] Shell tool 的最终 spawn/exec、cwd/env/stdin/stdout/stderr/timeout/kill 语义需要追踪 OpenClaw source。</p>
+<hr>
+<h2>13. Permission / Security 地图</h2>
+<h3>13.1 Electron 边界</h3>
+<p>[源码已确认] 主窗口安全配置：</p>
+<pre><code class="language-text">nodeIntegration: false
+contextIsolation: true
+sandbox: true
+webSecurity: true</code></pre>
+<p>来源：<code>src/main/main.ts:13885-13899</code>。</p>
+<h3>13.2 Agent 审批</h3>
+<p>[源码已确认] 相关模块：</p>
+<ul><li><code>src/main/libs/agentEngine/openclawApprovalBridge.ts</code></li><li><code>src/main/libs/agentEngine/openclawApprovalController.ts</code></li><li><code>src/main/im/imCoworkHandler.ts</code>：IM 权限确认</li><li><code>src/shared/cowork/constants.ts</code>：<code>PermissionRespond</code>、<code>StreamPermissionDismiss</code></li><li><code>src/main/i18n.ts</code>：审批通知和 exec approval 文案</li></ul>
+<p>[源码已确认] <code>CoworkEngineRouter.respondToPermission()</code> 位于 <code>src/main/libs/agentEngine/coworkEngineRouter.ts</code>，把审批结果转给 runtime。</p>
+<h3>13.3 凭据隔离</h3>
+<p>[源码已确认] 模块：</p>
+<ul><li><code>src/main/browserCredentials/browserCredentialService.ts</code></li><li><code>src/main/browserCredentials/browserCredentialApprovalService.ts</code></li><li><code>src/main/browserCredentials/agentBrowserCredentialLogin.ts</code></li><li><code>src/main/browserCredentials/manualCredentialCaptureService.ts</code></li><li><code>src/main/browserPasskeys/</code></li></ul>
+<p>[源码已确认] 隔离登录窗口使用：</p>
+<ul><li><code>sandbox: true</code></li><li>独立 preload</li><li>审批服务 <code>requestApproval()</code></li></ul>
+<p>证据：<code>src/main/browserCredentials/agentBrowserCredentialLogin.ts:128-143</code>。</p>
+<h3>13.4 Agent Security Sensor 插入点（Phase 1 级）</h3>
+<p>[推测，待 Phase 8 验证] 初选插入点：</p>
+<table><thead><tr><th>Sensor</th><th>候选插入点</th></tr></thead><tbody><tr><td>Intent Sensor</td><td>Renderer prompt submit -&gt; <code>coworkService.startSession/continueSession</code> -&gt; Main IPC</td></tr><tr><td>Context Sensor</td><td><code>OpenClawRuntimeAdapter.startSession/continueSession</code>、OpenClaw config sync、Context compaction</td></tr><tr><td>Tool Sensor</td><td><code>openclawRuntimeAdapter</code> 的 tool events、<code>openclawApprovalBridge</code></td></tr><tr><td>MCP Sensor</td><td><code>McpRuntime</code>、<code>mcpLaunchResolverManager</code>、OpenClaw <code>mcp.servers</code></td></tr><tr><td>Process Sensor</td><td><code>OpenClawEngineManager</code>、<code>child_process</code> 调用点、skill service manager</td></tr><tr><td>File Sensor</td><td>Main 文件 IPC、artifact/library、workspace rehydration</td></tr><tr><td>Network Sensor</td><td>OpenClaw token proxy、OpenClaw gateway WS、IM gateways、browser CDP</td></tr></tbody></table>
+<hr>
+<h2>14. 数据持久化地图</h2>
+<h3>14.1 SQLite</h3>
+<p>[源码已确认] 数据库初始化与迁移：</p>
+<ul><li><code>src/main/sqliteStore.ts</code></li></ul>
+<p>[源码已确认] Cowork 数据访问：</p>
+<ul><li><code>src/main/coworkStore.ts</code></li></ul>
+<p>[源码已确认] 领域 store：</p>
+<ul><li><code>src/main/mcp/mcpStore.ts</code></li><li><code>src/main/im/imStore.ts</code></li><li><code>src/main/library/libraryLocalStore.ts</code></li><li><code>src/main/subagentRunStore.ts</code></li><li><code>src/main/subagentMessageStore.ts</code></li><li><code>src/main/sessionDiagnostics/</code></li></ul>
+<h3>14.2 OpenClaw 状态</h3>
+<p>[源码已确认] OpenClaw runtime state 位于 Electron <code>userData/openclaw</code>：</p>
+<ul><li>config：<code>openclaw/state/openclaw.json</code></li><li>main workspace：<code>openclaw/state/workspace-main</code></li><li>agent workspace：<code>openclaw/state/workspace-{agentId}</code></li><li>logs：<code>openclaw/logs/gateway-YYYY-MM-DD.log</code></li></ul>
+<p>关键实现：</p>
+<ul><li><code>src/main/libs/openclawEngineManager.ts</code></li><li><code>src/main/libs/openclawConfigSync.ts</code></li></ul>
+<p>具体表结构和迁移细节将在 Phase 2/后续存储文档中展开。</p>
+<hr>
+<h2>15. 进程模型地图（Phase 1 级）</h2>
+<pre class="mermaid">flowchart TB
+  E[LobsterAI Electron]
+  E --&gt; M[Electron Main Process]
+  E --&gt; R[Electron Renderer Process]
+  E --&gt; P[Preload contexts]
+  M --&gt; G[OpenClaw Gateway Process]
+  M --&gt; S[Skill service processes]
+  M --&gt; U[Updater helper processes]
+  G --&gt; T[Agent tool processes]
+  T --&gt; CMD[cmd.exe / powershell.exe]
+  T --&gt; NODE[node.exe]
+  T --&gt; BROWSER[Chrome/CDP browser]
+  G --&gt; IM[IM connections]
+  G --&gt; MCP[MCP servers]</pre>
+<p>[源码已确认] 进程管理核心：</p>
+<ul><li>OpenClaw Gateway：<code>src/main/libs/openclawEngineManager.ts</code></li><li>skill service：<code>src/main/skills/skillServices.ts</code></li><li>updater：<code>src/main/libs/appUpdateInstaller.ts</code></li><li>MCP launch resolver：<code>src/main/mcp/mcpLaunchResolverManager.ts</code></li><li>workspace rehydration：<code>src/main/libs/agentEngine/coworkWorkspaceRehydration.ts</code></li></ul>
+<p>[推测，待 Phase 5 验证] 完整进程树、kill 策略、重启策略、孤儿进程回收需要继续追踪 OpenClaw source 和 Main 的 cleanup 路径。</p>
+<hr>
+<h2>16. Build / Packaging 地图</h2>
+<table><thead><tr><th>能力</th><th>文件</th></tr></thead><tbody><tr><td>Renderer 构建</td><td><code>vite.config.ts</code>, <code>vite.thumbnail.config.ts</code></td></tr><tr><td>Electron Main/Preload 编译</td><td><code>electron-tsconfig.json</code>, <code>npm run compile:electron</code></td></tr><tr><td>Electron 打包</td><td><code>electron-builder.json</code>, <code>scripts/electron-builder-config.cjs</code></td></tr><tr><td>OpenClaw runtime 构建</td><td><code>scripts/build-openclaw-runtime.sh</code>, <code>scripts/run-build-openclaw-runtime.cjs</code></td></tr><tr><td>OpenClaw 版本固定</td><td><code>package.json:openclaw.version</code></td></tr><tr><td>OpenClaw patch</td><td><code>scripts/apply-openclaw-patches.cjs</code>, <code>scripts/patches/v2026.8.1/</code></td></tr><tr><td>dsh runtime</td><td><code>scripts/dsh-runtime-host.cjs</code>, <code>scripts/build-dsh-runtime.cjs</code></td></tr><tr><td>Python runtime</td><td><code>scripts/setup-python-runtime.js</code></td></tr><tr><td>MiniGit</td><td><code>scripts/setup-mingit.js</code></td></tr><tr><td>Windows 安装器</td><td><code>scripts/nsis-installer.nsh</code>, <code>build/</code></td></tr></tbody></table>
+<hr>
+<h2>17. 关键不确定性</h2>
+<p>以下内容本阶段只建立索引，不作为确定结论：</p>
+<ol><li>OpenClaw WebSocket RPC 的完整 method/frame/schema。</li><li>OpenClaw Agent Loop 的循环条件、最大轮次、tool result 注入方式。</li><li>OpenClaw tool registry 的完整 tool 列表和权限模型。</li><li>Shell tool 的 spawn/exec 参数、timeout、kill process tree 细节。</li><li>OpenClaw context compaction、memory、workspace <code>AGENTS.md</code> 的真实优先级。</li><li>Provider/LLM streaming transport 的真实实现位置。</li><li>所有 IPC channel 的三端完整对照表。</li><li>进程树和异常退出恢复的完整生命周期。</li></ol>
+<p>这些属于后续 Phase 2-8 的任务。</p>
+<hr>
+<h2>18. Phase 1 验收清单</h2>
+<table><thead><tr><th>要求</th><th>状态</th><th>证据</th></tr></thead><tbody><tr><td>扫描项目结构</td><td>完成</td><td>第 2、3 节</td></tr><tr><td>找到所有 package</td><td>完成</td><td>单包 <code>package.json</code>；无 <code>apps/</code>/<code>packages/</code>/<code>turbo.json</code></td></tr><tr><td>找到 Electron Main</td><td>完成</td><td><code>src/main/main.ts</code></td></tr><tr><td>找到 Renderer</td><td>完成</td><td><code>src/renderer/main.tsx</code>, <code>src/renderer/App.tsx</code></td></tr><tr><td>找到 Preload</td><td>完成</td><td><code>src/main/preload.ts</code> 及其他 preload</td></tr><tr><td>找到 IPC</td><td>完成索引</td><td><code>src/shared/*/constants.ts</code>, <code>src/main/main.ts</code>, <code>src/main/preload.ts</code></td></tr><tr><td>找到 Agent Runtime</td><td>完成</td><td><code>src/main/libs/agentEngine/</code></td></tr><tr><td>找到 LLM Provider</td><td>完成索引</td><td><code>src/shared/providers/</code>, OpenClaw config sync</td></tr><tr><td>找到 Tool</td><td>完成索引</td><td>OpenClaw tool runtime + MCP + skill</td></tr><tr><td>找到 Shell / child_process</td><td>完成索引</td><td>第 12.3 节</td></tr><tr><td>找到 WebSocket</td><td>完成索引</td><td>第 10 节</td></tr><tr><td>找到 OpenClaw</td><td>完成</td><td>第 9 节</td></tr><tr><td>找到 MCP</td><td>完成</td><td>第 12.1 节</td></tr><tr><td>找到 Permission</td><td>完成</td><td>第 13 节</td></tr><tr><td>找到 Storage</td><td>完成</td><td>第 14 节</td></tr><tr><td>建立源码地图</td><td>完成</td><td>本文</td></tr></tbody></table>
+<hr>
+<h2>19. 下一阶段建议</h2>
+<p>按任务书，Phase 2 应只分析：</p>
+<pre><code class="language-text">Electron / Renderer / Preload / IPC</code></pre>
+<p>建议输出：</p>
+<ul><li><code>analysis/01-startup.md</code></li><li><code>analysis/02-electron-main.md</code></li><li><code>analysis/03-renderer.md</code></li><li><code>analysis/04-preload-security.md</code></li><li><code>analysis/05-ipc.md</code></li></ul>
+<p>在 Phase 2 中应优先回答：</p>
+<ol><li><code>Prompt</code> 从 React 到 <code>ipcMain</code> 的完整调用链。</li><li><code>preload.ts</code> 暴露的每个 API 对应的 channel。</li><li><code>ipcMain.handle/on</code> 的完整 channel 表和参数/返回值。</li><li>streaming、cancellation、permission、error 的 IPC 事件设计。</li><li><code>nodeIntegration</code>、<code>contextIsolation</code>、<code>sandbox</code>、<code>webviewTag</code> 的安全影响。</li></ol></main>
+  </div>
+  <script>
+    const filter = document.getElementById('filter');
+    filter.addEventListener('input', () => {
+      const q = filter.value.toLowerCase();
+      document.querySelectorAll('#nav li').forEach((li) => {
+        li.style.display = li.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    });
+  </script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'default' });
+  </script>
+</body>
+</html>

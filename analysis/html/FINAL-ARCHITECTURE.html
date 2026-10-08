@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FINAL-ARCHITECTURE · LobsterAI Study</title>
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; background:#ffffff; color:#1f2329; line-height:1.7; }
+    .layout { display:flex; min-height:100vh; }
+    nav { width:280px; flex:0 0 280px; background:#f7f8fa; border-right:1px solid #e2e5ea; padding:18px 14px; overflow:auto; }
+    nav input { width:100%; padding:8px 10px; border:1px solid #d5d9e0; background:#ffffff; color:#1f2329; border-radius:6px; margin-bottom:12px; }
+    nav ul { list-style:none; padding:0; margin:0; }
+    nav li { margin:4px 0; }
+    nav a { color:#3b465a; text-decoration:none; display:block; padding:5px 8px; border-radius:6px; }
+    nav a:hover { background:#e8ebf1; color:#11151a; }
+    nav a.active { background:#dde6fb; color:#1d4ed8; }
+    main { flex:1; padding:34px 44px; max-width:1040px; min-width:0; }
+    h1,h2,h3,h4 { color:#11151a; margin-top:1.4em; }
+    a { color:#2563eb; }
+    code { background:#eef1f5; padding:2px 5px; border-radius:4px; font-family:ui-monospace,Consolas,monospace; color:#c7254e; }
+    pre { background:#f6f8fa; border:1px solid #e2e5ea; border-radius:8px; padding:14px; overflow:auto; }
+    pre code { background:transparent; padding:0; color:#1f2329; }
+    table { border-collapse:collapse; width:100%; margin:16px 0; }
+    th,td { border:1px solid #d5d9e0; padding:7px 10px; text-align:left; vertical-align:top; }
+    th { background:#f0f2f5; }
+    blockquote { border-left:3px solid #c2c8d1; margin:12px 0; padding:4px 14px; color:#4a5260; }
+    hr { border:none; border-top:1px solid #e2e5ea; margin:24px 0; }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <nav>
+      <input id="filter" placeholder="搜索章节…" aria-label="搜索章节">
+      <ul id="nav"><li><a href="index.html">Index</a></li>
+<li><a href="diagrams.html">Diagrams</a></li>
+<li><a href="00-project-map.html">00-project-map</a></li>
+<li><a href="01-startup.html">01-startup</a></li>
+<li><a href="02-electron-main.html">02-electron-main</a></li>
+<li><a href="03-renderer.html">03-renderer</a></li>
+<li><a href="04-preload-ipc.html">04-preload-ipc</a></li>
+<li><a href="05-ipc.html">05-ipc</a></li>
+<li><a href="06-websocket.html">06-websocket</a></li>
+<li><a href="07-openclaw.html">07-openclaw</a></li>
+<li><a href="08-openclaw-websocket.html">08-openclaw-websocket</a></li>
+<li><a href="09-llm.html">09-llm</a></li>
+<li><a href="10-agent-loop.html">10-agent-loop</a></li>
+<li><a href="11-context.html">11-context</a></li>
+<li><a href="12-tools.html">12-tools</a></li>
+<li><a href="13-shell.html">13-shell</a></li>
+<li><a href="14-permission-security.html">14-permission-security</a></li>
+<li><a href="15-storage.html">15-storage</a></li>
+<li><a href="16-streaming.html">16-streaming</a></li>
+<li><a href="17-error-retry-cancel.html">17-error-retry-cancel</a></li>
+<li><a href="18-startup-performance.html">18-startup-performance</a></li>
+<li><a href="19-electron-performance.html">19-electron-performance</a></li>
+<li><a href="20-agent-performance.html">20-agent-performance</a></li>
+<li><a href="21-build-packaging.html">21-build-packaging</a></li>
+<li><a href="22-agent-security-sensor.html">22-agent-security-sensor</a></li>
+<li><a href="23-agent-identity-chain.html">23-agent-identity-chain</a></li>
+<li><a href="24-agent-security-graph.html">24-agent-security-graph</a></li>
+<li><a href="execution-log.html">execution-log</a></li>
+<li><a href="FINAL-AGENT-SECURITY.html">FINAL-AGENT-SECURITY</a></li>
+<li><a href="FINAL-ARCHITECTURE.html" class="active">FINAL-ARCHITECTURE</a></li>
+<li><a href="FINAL-REPORT.html">FINAL-REPORT</a></li>
+<li><a href="KNOWN-ISSUES.html">KNOWN-ISSUES</a></li>
+<li><a href="mini-agent-README.html">mini-agent/README</a></li>
+<li><a href="progress.html">progress</a></li>
+<li><a href="source-index.html">source-index</a></li></ul>
+    </nav>
+    <main><h1>LobsterAI Final Architecture</h1>
+<h2>1. LobsterAI 是什么架构</h2>
+<p>[源码已确认] 单包 Electron + React 桌面应用，OpenClaw 作为独立 Agent Runtime/Gateway。</p>
+<pre><code class="language-text">React Renderer -&gt; Preload -&gt; Electron Main -&gt; Cowork Router -&gt; OpenClaw Adapter -&gt; OpenClaw Gateway</code></pre>
+<h2>2. Electron 负责什么</h2>
+<ul><li>窗口与生命周期</li><li>主进程能力：文件、进程、网络、shell、系统通知</li><li>SQLite 持久化</li><li>IPC 编排</li><li>OpenClaw gateway 进程管理</li><li>IM、MCP、Skill、Cron、Update</li></ul>
+<h2>3. Renderer 负责什么</h2>
+<ul><li>React UI</li><li>会话和消息展示</li><li>权限/问题弹窗</li><li>配置、artifact、library、scheduled task、IM、MCP、skill 页面</li></ul>
+<h2>4. Main 负责什么</h2>
+<p>Main 是最高信任区，负责所有系统级能力和服务编排。</p>
+<h2>5. Preload 为什么存在</h2>
+<p>[源码已确认] <code>nodeIntegration:false</code>、<code>contextIsolation:true</code>、<code>sandbox:true</code>，preload 通过 <code>contextBridge</code> 暴露窄 API，保证 Renderer 不能直接访问 Node。</p>
+<h2>6. IPC 怎么工作</h2>
+<p>Renderer 调 <code>window.electron.*</code>，preload 调 <code>ipcRenderer.invoke/send</code>，Main 用 <code>ipcMain.handle/on</code> 响应，并用 <code>webContents.send</code> 推送事件。</p>
+<h2>7. Agent Runtime 在哪里</h2>
+<ul><li>路由：<code>src/main/libs/agentEngine/coworkEngineRouter.ts</code></li><li>适配：<code>src/main/libs/agentEngine/openclawRuntimeAdapter.ts</code></li><li>底层：OpenClaw <code>embedded-agent-runner</code></li></ul>
+<h2>8. Agent Loop 怎么运行</h2>
+<p>用户 prompt -&gt; Cowork startSession -&gt; Gateway chat.send -&gt; OpenClaw runner -&gt; LLM -&gt; tool call -&gt; tool 执行 -&gt; result -&gt; LLM，直到 final。</p>
+<h2>9. Context 怎么构建</h2>
+<p>OpenClaw <code>context-engine</code> 组合 system prompt、history、memory、files、tool result、skills、<code>AGENTS.md</code>，并执行 compaction。</p>
+<h2>10. LLM 怎么调用</h2>
+<p>LobsterAI 生成 OpenClaw provider/model 配置；真实调用在 OpenClaw <code>src/llm</code>。LobsterAI 提供 token proxy 和后端代理兼容。</p>
+<h2>11. Tool 怎么执行</h2>
+<p>LLM tool_call -&gt; OpenClaw before-tool-call approval/policy -&gt; executor -&gt; tool/MCP/bash/file/browser。</p>
+<h2>12. Shell 怎么执行</h2>
+<p>OpenClaw <code>bash-tools</code> -&gt; exec host -&gt; child process -&gt; stdout/stderr/exit code，LobsterAI 侧只保留部分直接 child_process 调用。</p>
+<h2>13. Process 怎么产生</h2>
+<p>OpenClaw gateway 由 <code>OpenClawEngineManager</code> spawn；agent tool 进程由 OpenClaw bash/process registry 管理；skill/updater 等由 Main 管理。</p>
+<h2>14. OpenClaw 在哪里</h2>
+<p><code>vendor/openclaw-runtime/current</code>，源码 checkout 在 <code>../openclaw</code>，版本固定 <code>v2026.8.1</code>。</p>
+<h2>15. WebSocket 怎么连接</h2>
+<p><code>OpenClawEngineManager.getGatewayConnectionInfo()</code> 返回 <code>ws://127.0.0.1:&lt;port&gt;</code>；adapter 创建 <code>GatewayClient(url, token, role=operator, scopes=['operator.admin'])</code>。</p>
+<h2>16. Permission 怎么控制</h2>
+<p>UI/IM -&gt; Approval Bridge -&gt; Approval Controller -&gt; OpenClaw policy -&gt; tool executor；凭据走独立 sandbox 页面。</p>
+<h2>17. 数据怎么持久化</h2>
+<p>LobsterAI SQLite + OpenClaw state dir；两类数据通过 adapter/config sync/session mapping 对齐。</p>
+<h2>18. Streaming 怎么传输</h2>
+<p>Provider -&gt; OpenClaw -&gt; Gateway events -&gt; Adapter -&gt; Main IPC -&gt; Preload -&gt; Redux -&gt; React。</p>
+<h2>19. 错误怎么处理</h2>
+<p>Gateway client 重连 + adapter timeout degradation + OpenClaw watchdog/abort + UI error classification。</p>
+<h2>20. 整个 Agent 执行链</h2>
+<pre><code class="language-text">User Intent -&gt; Session -&gt; Turn -&gt; Context -&gt; LLM Decision -&gt; Tool Call -&gt; Approval -&gt; Tool Execution -&gt; Process -&gt; File/Network</code></pre></main>
+  </div>
+  <script>
+    const filter = document.getElementById('filter');
+    filter.addEventListener('input', () => {
+      const q = filter.value.toLowerCase();
+      document.querySelectorAll('#nav li').forEach((li) => {
+        li.style.display = li.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    });
+  </script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'default' });
+  </script>
+</body>
+</html>

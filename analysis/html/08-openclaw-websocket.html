@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>08-openclaw-websocket · LobsterAI Study</title>
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; background:#ffffff; color:#1f2329; line-height:1.7; }
+    .layout { display:flex; min-height:100vh; }
+    nav { width:280px; flex:0 0 280px; background:#f7f8fa; border-right:1px solid #e2e5ea; padding:18px 14px; overflow:auto; }
+    nav input { width:100%; padding:8px 10px; border:1px solid #d5d9e0; background:#ffffff; color:#1f2329; border-radius:6px; margin-bottom:12px; }
+    nav ul { list-style:none; padding:0; margin:0; }
+    nav li { margin:4px 0; }
+    nav a { color:#3b465a; text-decoration:none; display:block; padding:5px 8px; border-radius:6px; }
+    nav a:hover { background:#e8ebf1; color:#11151a; }
+    nav a.active { background:#dde6fb; color:#1d4ed8; }
+    main { flex:1; padding:34px 44px; max-width:1040px; min-width:0; }
+    h1,h2,h3,h4 { color:#11151a; margin-top:1.4em; }
+    a { color:#2563eb; }
+    code { background:#eef1f5; padding:2px 5px; border-radius:4px; font-family:ui-monospace,Consolas,monospace; color:#c7254e; }
+    pre { background:#f6f8fa; border:1px solid #e2e5ea; border-radius:8px; padding:14px; overflow:auto; }
+    pre code { background:transparent; padding:0; color:#1f2329; }
+    table { border-collapse:collapse; width:100%; margin:16px 0; }
+    th,td { border:1px solid #d5d9e0; padding:7px 10px; text-align:left; vertical-align:top; }
+    th { background:#f0f2f5; }
+    blockquote { border-left:3px solid #c2c8d1; margin:12px 0; padding:4px 14px; color:#4a5260; }
+    hr { border:none; border-top:1px solid #e2e5ea; margin:24px 0; }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <nav>
+      <input id="filter" placeholder="搜索章节…" aria-label="搜索章节">
+      <ul id="nav"><li><a href="index.html">Index</a></li>
+<li><a href="diagrams.html">Diagrams</a></li>
+<li><a href="00-project-map.html">00-project-map</a></li>
+<li><a href="01-startup.html">01-startup</a></li>
+<li><a href="02-electron-main.html">02-electron-main</a></li>
+<li><a href="03-renderer.html">03-renderer</a></li>
+<li><a href="04-preload-ipc.html">04-preload-ipc</a></li>
+<li><a href="05-ipc.html">05-ipc</a></li>
+<li><a href="06-websocket.html">06-websocket</a></li>
+<li><a href="07-openclaw.html">07-openclaw</a></li>
+<li><a href="08-openclaw-websocket.html" class="active">08-openclaw-websocket</a></li>
+<li><a href="09-llm.html">09-llm</a></li>
+<li><a href="10-agent-loop.html">10-agent-loop</a></li>
+<li><a href="11-context.html">11-context</a></li>
+<li><a href="12-tools.html">12-tools</a></li>
+<li><a href="13-shell.html">13-shell</a></li>
+<li><a href="14-permission-security.html">14-permission-security</a></li>
+<li><a href="15-storage.html">15-storage</a></li>
+<li><a href="16-streaming.html">16-streaming</a></li>
+<li><a href="17-error-retry-cancel.html">17-error-retry-cancel</a></li>
+<li><a href="18-startup-performance.html">18-startup-performance</a></li>
+<li><a href="19-electron-performance.html">19-electron-performance</a></li>
+<li><a href="20-agent-performance.html">20-agent-performance</a></li>
+<li><a href="21-build-packaging.html">21-build-packaging</a></li>
+<li><a href="22-agent-security-sensor.html">22-agent-security-sensor</a></li>
+<li><a href="23-agent-identity-chain.html">23-agent-identity-chain</a></li>
+<li><a href="24-agent-security-graph.html">24-agent-security-graph</a></li>
+<li><a href="execution-log.html">execution-log</a></li>
+<li><a href="FINAL-AGENT-SECURITY.html">FINAL-AGENT-SECURITY</a></li>
+<li><a href="FINAL-ARCHITECTURE.html">FINAL-ARCHITECTURE</a></li>
+<li><a href="FINAL-REPORT.html">FINAL-REPORT</a></li>
+<li><a href="KNOWN-ISSUES.html">KNOWN-ISSUES</a></li>
+<li><a href="mini-agent-README.html">mini-agent/README</a></li>
+<li><a href="progress.html">progress</a></li>
+<li><a href="source-index.html">source-index</a></li></ul>
+    </nav>
+    <main><h1>Phase 09 — OpenClaw WebSocket Protocol</h1>
+<h2>1. 功能</h2>
+<p>分析 LobsterAI 作为 operator 客户端与 OpenClaw Gateway 的 WebSocket 协议。</p>
+<h2>2. 协议源码位置</h2>
+<table><thead><tr><th>关注点</th><th>文件</th></tr></thead><tbody><tr><td>客户端门面</td><td><code>D:\hf\L\openclaw\src\gateway\client.ts</code></td></tr><tr><td>共享客户端</td><td><code>D:\hf\L\openclaw\packages\gateway-client\src\index.js</code></td></tr><tr><td>服务端 WS handler</td><td><code>D:\hf\L\openclaw\src\gateway\server\ws-connection.ts</code></td></tr><tr><td>认证后请求分发</td><td><code>D:\hf\L\openclaw\src\gateway\server\ws-connection\authenticated-request-dispatch.ts</code></td></tr><tr><td>协议包</td><td><code>D:\hf\L\openclaw\packages\gateway-protocol\src\index.js</code></td></tr></tbody></table>
+<h2>3. 连接阶段</h2>
+<p>[源码已确认] LobsterAI 创建客户端时传入：</p>
+<pre><code class="language-ts">url, token, clientDisplayName, clientVersion,
+mode: 'backend', role: 'operator',
+scopes: ['operator.admin'], deviceIdentity: null</code></pre>
+<p>证据：<code>src/main/libs/agentEngine/openclawRuntimeAdapter.ts:6164-6176</code>。</p>
+<p>[源码已确认] 服务端 handler 负责 pre-auth 限制、handshake auth、presence 和 message-handler attachment。</p>
+<p>证据：<code>openclaw/src/gateway/server/ws-connection.ts:169</code>。</p>
+<h2>4. Request / Response 帧</h2>
+<p>[源码已确认] 认证后请求分发只接受 request frame：</p>
+<pre><code class="language-ts">if (!validateRequestFrame(parsed)) { ... }</code></pre>
+<p>证据：<code>authenticated-request-dispatch.ts:67-75</code>。</p>
+<p>[源码已确认] 响应帧结构：</p>
+<pre><code class="language-ts">send({ type: &quot;res&quot;, id: req.id, ok, payload, error })</code></pre>
+<p>证据：<code>authenticated-request-dispatch.ts:118</code>。</p>
+<p>[源码已确认] 错误形状：</p>
+<ul><li><code>INVALID_REQUEST</code></li><li><code>UNAVAILABLE</code></li><li><code>errorShape(code, message)</code></li></ul>
+<p>证据：<code>authenticated-request-dispatch.ts</code>。</p>
+<h2>5. 事件帧</h2>
+<p>[源码已确认] Gateway 可向客户端广播事件；服务端有 <code>broadcast(event, payload)</code> 抽象。</p>
+<p>[推测，待进一步验证] 事件帧的具体 schema 应在 <code>packages/gateway-protocol</code> 中读取，本阶段只确认 request/response 骨架。</p>
+<h2>6. 重连语义</h2>
+<p>[源码已确认] 客户端有 reconnect 状态：</p>
+<ul><li><code>gatewayReconnectTimer</code></li><li><code>gatewayReconnectAttempt</code></li><li><code>gatewayStoppingIntentionally</code></li><li><code>gatewayReconnectSuppressed</code></li></ul>
+<p>证据：<code>openclawRuntimeAdapter.ts:2601-2605</code>。</p>
+<p>[源码已确认] 服务端有 keepalive：</p>
+<ul><li><code>startWebSocketKeepalive</code>：<code>ws-connection.ts</code></li></ul>
+<h2>7. 时序图</h2>
+<pre class="mermaid">sequenceDiagram
+  participant L as LobsterAI Adapter
+  participant C as GatewayClient
+  participant S as Gateway WS Server
+  L-&gt;&gt;C: new GatewayClient(url, token, role, scopes)
+  C-&gt;&gt;S: connect + handshake/auth
+  S--&gt;&gt;C: hello / auth ok
+  C--&gt;&gt;L: onHelloOk
+  L-&gt;&gt;C: request(method, params)
+  C-&gt;&gt;S: req {type,method,id,params}
+  S--&gt;&gt;C: res {type:&quot;res&quot;,id,ok,payload,error}
+  S--&gt;&gt;C: event broadcast
+  C--&gt;&gt;L: event callback</pre>
+<h2>8. 学习重点</h2>
+<ul><li>Gateway 协议是请求/响应 + 事件广播的混合协议。</li><li>认证发生在 pre-auth 阶段；认证后帧才进入方法分发。</li><li>角色/scope 决定方法可用性，<code>operator.admin</code> 是高权限角色。</li></ul></main>
+  </div>
+  <script>
+    const filter = document.getElementById('filter');
+    filter.addEventListener('input', () => {
+      const q = filter.value.toLowerCase();
+      document.querySelectorAll('#nav li').forEach((li) => {
+        li.style.display = li.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    });
+  </script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'default' });
+  </script>
+</body>
+</html>
